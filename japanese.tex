@@ -1,0 +1,220 @@
+\documentclass[11pt,a4paper]{jsarticle}
+
+\usepackage[top=28mm,bottom=28mm,left=25mm,right=25mm]{geometry}
+
+% 数式・定理系を先に読む
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% hyperref 系はその後
+\usepackage[dvipdfmx]{hyperref}
+\usepackage{pxjahyper}
+
+% cleveref は hyperref と amsmath の後
+\usepackage{cleveref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+  pdftitle={Follmer過程によるDDPMの内在次元適応的Wasserstein収束解析},
+  pdfauthor={Anonymous}
+}
+\newtheorem{definition}{定義}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}[theorem]{命題}
+\newtheorem{lemma}[theorem]{補題}
+\newtheorem{corollary}[theorem]{系}
+\newtheorem{assumption}[theorem]{仮定}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{注意}
+\newtheorem{example}[theorem]{例}
+\renewcommand{\proofname}{証明}
+\renewcommand{\abstractname}{概要}
+\crefname{theorem}{定理}{定理}
+\Crefname{theorem}{定理}{定理}
+\crefname{lemma}{補題}{補題}
+\Crefname{lemma}{補題}{補題}
+\crefname{corollary}{系}{系}
+\Crefname{corollary}{系}{系}
+\crefname{assumption}{仮定}{仮定}
+\Crefname{assumption}{仮定}{仮定}
+\crefname{remark}{注意}{注意}
+\Crefname{remark}{注意}{注意}
+\crefname{equation}{式}{式}
+\Crefname{equation}{式}{式}
+
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Law}{Law}
+\DeclareMathOperator{\KL}{KL}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\diam}{diam}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\Wtwo}{W_2}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\wh}{\widehat}
+
+\title{内在次元を用いた拡散モデルのWasserstein収束解析}
+\author{枇榔一真}
+\date{2026年6月20日}
+
+\begin{document}
+\maketitle
+\section{設定}
+\subsection{SDEを通じたDDPMの解釈}
+まず, 通常のDDPMの更新則を設定する. 
+\begin{equation}
+    X_t\stackrel{\mathrm{d}}{=}\sqrt{1-\sigma^2_t}X_0+\sigma_tW \quad (\sigma_t=\sqrt{1-e^{-2t}})
+\end{equation}
+ここで, $X_0 \sim p_{data}, W\sim \mathcal{N}(0,I_d)$ とする.
+これは, データをノイズ化していく過程とみなせ, $X_t$ の分布は $t$ が大きくなるにつれ $\mathcal{N}(0,I_d)$ に近づく.
+次に, $0=t_0<t_1<\dots < t_N<t_{N+1}=T$ とする.
+\begin{align}
+    &Y_{t_0}\sim \mathcal{N}(0,I_d), \\
+    &Y_{t_n+1}=\frac{1}{\sqrt{\alpha_n}}(Y_{t_n}+(1-\alpha_n)\hat{s}_{T-t_n}(Y_{t_n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n\quad(n=1,\dots, N)
+\end{align}
+ここで, $\hat{s}_t$ は スコア関数 $s_t=\nabla \log{p_{t}}$ とする. また, $p_t$ は $X_t$ の密度とする.
+このとき, $Y$ はデータを生成する過程と考えられ, 
+以降, 
+\begin{equation}
+    \alpha_n=e^{-2(t_{n+1}-t_n)}, \bar{\alpha}_n=\Pi_{i=n}^N \alpha_i
+\end{equation}
+とする.
+
+
+次に, このアルゴリズムのSDE的解釈を与える.
+\begin{equation}
+    dX_t=-X_tdt+\sqrt{2}dW_t, \quad X_0\sim p_{data}, \quad t\in[0,T]
+\end{equation}
+ここで, このSDEの弱解は(1)式で与えられる確率過程と, 各時刻で分布の意味で等しくなる.
+次に, データを生成するプロセスに対応するSDEを次の式で与える.
+\begin{equation}
+    dY_t=(Y_t+2s_{T-t}(Y_t))dt+\sqrt{2}dB_t \quad t\in[0,T]
+\end{equation}
+この時, $Y_0\stackrel{\mathrm{d}}{=} X_T$ とすると, 任意の時刻 $t\in [0,T]$ において
+$Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse}, \cite{haussmann1986time}).
+実際に (6) 式に基づいてデータを生成する際には, スコア関数を推定量 $\hat{s}_{T-t}$ に置き換え, 時間に関して離散化をする必要がある.
+
+\subsection{スコア関数とTweedieの公式}
+\begin{equation}
+    \mu_t(x)=\mathbb{E}[X_0|X_t=x], \quad \Sigma_t(x)=Cov[X_0|X_t=x]
+\end{equation}
+とする. このとき, Tweedieの公式(\cite{efron2011})により, 
+\begin{equation}
+    \mu_t(X_t)=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_t\nabla \log{q_t(X_t)})=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_ts_t(X_t))
+\end{equation}
+が得られる.
+\begin{equation}
+    \hat{\mu}_t(X_t)=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_t\hat{s}_t(X_t))
+\end{equation}
+これより, スコア関数は次のように書き換えられる.
+\begin{equation}
+    s_t(X_t)=\frac{\sqrt{1-\sigma^2_t}}{\sigma^2_t}\mu_t(X_t)-\frac{1}{\sigma^2_t}X_t
+\end{equation}
+よって, (6) 式は次のように書き換えられる.
+\begin{align}
+    dY_t&=(Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)-\frac{2}{\sigma^2_{T-t}}Y_t)dt+\sqrt{2}dB_t\\
+    &=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t\\
+\end{align}
+
+\subsection{集合の内在次元について}
+データ分布の内在次元について議論するために, $p_{data}$ のサポート集合の複雑さを定義する.
+\begin{definition}
+    $A\subset \mathbb{R}^d$ に対して, スケール $\epsilon_0>0$ における convering number を$N^{cover}(A,\|\|_2,\epsilon_0)$ とかく.
+    これを, 
+    \begin{equation}
+        A\subset \cup_{i=1}^sB(x_i,\epsilon_0)
+    \end{equation}
+    を満たすような $x_1,\cdots, x_s$ が存在するような最小の $s$ として定義する.
+\end{definition}
+上記のcovering numberに関して, 次の仮定をおく.
+\begin{assumption}
+    
+\end{assumption}
+
+\begin{assumption}
+
+\end{assumption}
+
+
+\section{収束解析}
+推定スコア $\hat{s}_t$ に対して次のリプシッツ連続性の仮定をおく.
+\begin{assumption}
+    ある二乗可積分な関数 $L:(0,1)\rightarrow [0,\infty)$ が存在して, 次の式が成立する.
+    \begin{equation}
+        \|\hat{s}_t(x)-\hat{s}_t(y)\|\leqq L(t)\|x-y\| \quad  ^{\forall}(t,x,y)\in (0,1)\times \mathbb{R}^d\times \mathbb{R}^d
+    \end{equation}
+\end{assumption}
+また, スコア推定に関する次の仮定を置く.
+\begin{assumption}
+    \begin{equation}
+        \sum_{n=0}^{N-1}(t_{n+1}-t_n)\mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|^2]\leqq \epsilon^2<\infty
+    \end{equation}
+\end{assumption}
+これらの仮定のもとで, 次の定理を証明する.
+\begin{theorem}
+    \begin{equation}
+        W_2(p_{data}, Y_{t_N})\leqq 
+    \end{equation}
+\end{theorem}
+\begin{proof}
+    
+\end{proof}
+\end{document}
+
+
+
+
+
+
+
+\begin{thebibliography}{99}
+
+\bibitem{efron2011}
+Efron, B.
+\newblock Tweedie’s formula and selection bias.
+\newblock Journal of the American Statistical Association,
+106(496):1602–1614.
+
+\bibitem{huang2026ddpm}
+Zhihan Huang, Yuting Wei, and Yuxin Chen.
+\newblock Denoising diffusion probabilistic models are optimally adaptive to unknown low dimensionality.
+\newblock arXiv preprint arXiv:2410.18784, 2026.
+
+\bibitem{ho2020ddpm}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock Advances in Neural Information Processing Systems, 33:6840--6851, 2020.
+
+\bibitem{song2021score}
+Yang Song, Jascha Sohl-Dickstein, Diederik P. Kingma, Abhishek Kumar,
+Stefano Ermon, and Ben Poole.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock International Conference on Learning Representations, 2021.
+
+\bibitem{anderson1982reverse}
+Brian D. O. Anderson.
+\newblock Reverse-time diffusion equation models.
+\newblock Stochastic Processes and their Applications, 12(3):313--326, 1982.
+
+\bibitem{haussmann1986time}
+Ulrich G. Haussmann and Etienne Pardoux.
+\newblock Time reversal of diffusions.
+\newblock The Annals of Probability, 14(4):1188--1205, 1986.
+
+\bibitem{oksendal2003sde}
+Bernt {\O}ksendal.
+\newblock Stochastic Differential Equations: An Introduction with Applications.
+\newblock Springer, 2003.
+
+\end{thebibliography}
