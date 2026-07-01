@@ -1,4 +1,6 @@
-\documentclass[11pt,a4paper]{jsarticle}
+% !TEX program = lualatex
+% !TEX encoding = UTF-8 Unicode
+\documentclass[11pt,a4paper]{ltjsarticle}
 
 \usepackage[top=28mm,bottom=28mm,left=25mm,right=25mm]{geometry}
 
@@ -8,8 +10,7 @@
 \usepackage{amsthm}
 
 % hyperref 系はその後
-\usepackage[dvipdfmx]{hyperref}
-\usepackage{pxjahyper}
+\usepackage{hyperref}
 
 % cleveref は hyperref と amsmath の後
 \usepackage{cleveref}
@@ -114,6 +115,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \mu_t(X_t)=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_t\nabla \log{q_t(X_t)})=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_ts_t(X_t))
 \end{equation}
 が得られる.
+推定スコアに対する事後平均表現を次のように定める.
 \begin{equation}
     \hat{\mu}_t(X_t)=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_t\hat{s}_t(X_t))
 \end{equation}
@@ -124,9 +126,12 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
 よって, (6) 式は次のように書き換えられる.
 \begin{align}
     dY_t&=(Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)-\frac{2}{\sigma^2_{T-t}}Y_t)dt+\sqrt{2}dB_t\\
-    &=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t\\
+    &=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
 \end{align}
-
+これを踏まえ, 初期分布を標準正規分布に置き換え, スコア関数を推定スコア関数に置き換え, 離散化をした過程は, 次のようなSDEに従っていると考えることができる.
+\begin{align}
+    d\hat{Y}_t=\{(1-\frac{2}{\sigma^2_{T-t}})\hat{Y}_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\hat{\mu}_{T-t_n}(\hat{Y}_t)\}dt+\sqrt{2}dB_t, \quad \hat{Y}_0\sim N(0,I_d)
+\end{align}
 \subsection{集合の内在次元について}
 データ分布の内在次元について議論するために, $p_{data}$ のサポート集合の複雑さを定義する.
 \begin{definition}
@@ -168,9 +173,41 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \end{equation}
 \end{theorem}
 \begin{proof}
+    \begin{align}
+        W_2(p_{data}, \mathcal{L}(\hat{Y}_{t_N}))&\leqq E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}}
+    \end{align}
+    である. ここで, 
+    \begin{align}
+        Y_T-\hat{Y}_{t_N}=Y_0-\hat{Y}_{t_0}+\int_{0}^{T}(1-\frac{2}{\sigma^2_{T-t}})(Y_t-\hat{Y}_t)dt+\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(Y_{t_n}))dt
+    \end{align}
+    であることから,
+    \begin{align}
+        E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}} \leqq&E[\|Y_0-\hat{Y}_{0}\|^2]^{\frac{1}{2}}+ E[\|\int_{0}^{T}(1-\frac{2}{\sigma^2_{T-t}})(Y_t-\hat{Y}_t)dt\|^2]^{\frac{1}{2}}\\
+        &+E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}
+    \end{align}
+    となる.
+    ここで, $Y_0\stackrel{\mathrm{d}}{=} X_T\stackrel{\mathrm{d}}{=} e^{-T}X_0+\sqrt{1-e^{-2T}}Z, \quad Z\sim N(0,I_d)$
+    $\hat{Y}_0\stackrel{\mathrm{d}}{=}e^{-T}G+\sqrt{1-e^{-2T}}Z, \quad G,Z\sim N(0,I_d)$ かつ $G,Z,X_T$ はそれぞれ独立とすることができることに注意すると, 
+    最適カップリングの考えより
+    \begin{equation}
+        E[\|Y_0-\hat{Y}_{0}\|^2]^{\frac{1}{2}}\leqq e^{-T}W_2(p_{data},N(0,I_d))
+    \end{equation}
+    となることがわかる.
+    次に, 
+    \begin{align}
+        \mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})=&\mu_{T-t}(Y_t)-\mu_{T-t_n}(Y_{t_n})+\mu_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(Y_{t_n})\\
+        &+\hat{\mu}_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
+    \end{align}
+    となることを用いると, 
+    \begin{align}
+        &E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}\\
+        &\leqq E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\mu_{T-t_n}(Y_{t_n}))dt\|^2]^{\frac{1}{2}}\\
+        &+E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(Y_{t_n}))dt\|^2]^{\frac{1}{2}}\\
+        &+E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\hat{\mu}_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}
+    \end{align}
+    と評価できる.
     
 \end{proof}
-\end{document}
 
 
 
@@ -218,3 +255,4 @@ Bernt {\O}ksendal.
 \newblock Springer, 2003.
 
 \end{thebibliography}
+\end{document}
