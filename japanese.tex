@@ -163,7 +163,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
 また, スコア推定に関する次の仮定を置く.
 \begin{assumption}
     \begin{equation}
-        \sum_{n=0}^{N-1}(t_{n+1}-t_n)\mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|^2]\leqq \epsilon^2<\infty
+        \|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2\leqq \epsilon(t_i)<\infty\quad (0\leqq i \leqq N-1)
     \end{equation}
 \end{assumption}
 主定理の証明に使う補題を用意する.
@@ -193,46 +193,453 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
 \end{theorem}
 \begin{proof}
     \begin{align}
-        W_2(p_{data}, \mathcal{L}(\hat{Y}_{t_N}))&\leqq E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}}
+        W_2(p_{data}, \mathcal{L}(\hat{Y}_{t_N}))&\leqq E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}}=\|Y_T-\hat{Y}_{t_N}\|_2
     \end{align}
-    である. ここで, 
+    である. ここで, 補題2.3を使うと
     \begin{align}
-        Y_T-\hat{Y}_{t_N}=Y_0-\hat{Y}_{t_0}+\int_{0}^{T}(1-\frac{2}{\sigma^2_{T-t}})(Y_t-\hat{Y}_t)dt+\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt
+        \hat{Y}_{t_{n+1}}
+        &=
+        e^{-(t_{n+1}-t_n)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        \hat{Y}_{t_n}
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{-(T-t_{n+1})}
+            \left(
+                1-e^{-2(t_{n+1}-t_n)}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
+        \notag\\
+        &\quad
+        +
+        \sqrt{2}
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        dB_u .
     \end{align}
-    であることから,
     \begin{align}
-        E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}} \leqq&E[\|Y_0-\hat{Y}_{0}\|^2]^{\frac{1}{2}}+ E[\|\int_{0}^{T}(1-\frac{2}{\sigma^2_{T-t}})(Y_t-\hat{Y}_t)dt\|^2]^{\frac{1}{2}}\\
-        &+E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}
+        Y_{t_{n+1}}
+        &=
+        e^{-(t_{n+1}-t_n)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        Y_{t_n}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \mu_{T-u}(Y_u)
+        du
+        \notag\\
+        &\quad
+        +
+        \sqrt{2}
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        dB_u .
     \end{align}
-    となる.
-    ここで, $Y_0\stackrel{\mathrm{d}}{=} X_T\stackrel{\mathrm{d}}{=} e^{-T}X_0+\sqrt{1-e^{-2T}}Z, \quad Z\sim N(0,I_d)$
-    $\hat{Y}_0\stackrel{\mathrm{d}}{=}e^{-T}G+\sqrt{1-e^{-2T}}Z, \quad G,Z\sim N(0,I_d)$ かつ $G,Z,X_T$ はそれぞれ独立とすることができることに注意すると, 
-    最適カップリングの考えより
+    と書ける. さらに, 
+    \begin{align}
+        Y_{t_{n+1}}
+        &=
+        e^{-(t_{n+1}-t_n)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        Y_{t_n}
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{-(T-t_{n+1})}
+            \left(
+                1-e^{-2(t_{n+1}-t_n)}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \mu_{T-t_n}(Y_{t_n})
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du
+        \notag\\
+        &\quad
+        +
+        \sqrt{2}
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        dB_u .
+    \end{align}
+    これを用いると, 
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=
+        e^{-(t_{n+1}-t_n)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{-(T-t_{n+1})}
+            \left(
+                1-e^{-2(t_{n+1}-t_n)}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \left\{
+            \mu_{T-t_n}(Y_{t_n})
+            -
+            \hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du .
+    \end{align}
+    
+    さらに誤差評価で使いやすいように, 第2項を分解すると
+    
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=
+        e^{-(t_{n+1}-t_n)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{-(T-t_{n+1})}
+            \left(
+                1-e^{-2(t_{n+1}-t_n)}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \left\{
+            \mu_{T-t_n}(Y_{t_n})
+            -
+            \hat{\mu}_{T-t_n}(Y_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{-(T-t_{n+1})}
+            \left(
+                1-e^{-2(t_{n+1}-t_n)}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \left\{
+            \hat{\mu}_{T-t_n}(Y_{t_n})
+            -
+            \hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du .
+    \end{align}
+    ここに対してtweedieの公式を用いると, 
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=
+        e^{-h_n}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            s_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(Y_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \frac{
+            e^{h_n}
+            \left(
+                1-e^{-2h_n}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            \hat{s}_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du .
+    \end{align}
+    となるので, まとめると
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=
+        \left\{
+            e^{-h_n}
+            \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+            +
+            \frac{
+                e^{h_n}
+                \left(
+                    1-e^{-2h_n}
+                \right)
+            }{
+                \sigma^2_{T-t_n}
+            }
+        \right\}
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            s_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(Y_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            \hat{s}_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du .
+    \end{align}
+    ここで仮定2.1と, $
+        e^{-h_n}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
+        +
+        \frac{
+            e^{h_n}
+            \left(
+                1-e^{-2h_n}
+            \right)
+        }{
+            \sigma^2_{T-t_n}
+        }
+    =e^{h_n}$
+    であることを用いると, 
+
+
+    \begin{align}
+        \|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|
+        &\leqq
+            e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
+        \|Y_{t_n}-\hat{Y}_{t_n}\|
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\|
+            s_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(Y_{t_n})
+        \right\|
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\|
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\|
+        du .
+    \end{align}
+    よって, 仮定2.2を用いると, 
+    \begin{align}
+        \|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|_2
+        &\leqq
+            e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
+        \|Y_{t_n}-\hat{Y}_{t_n}\|_2
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \epsilon(t_n)
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\|
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\|_2
+        du .
+    \end{align}
+    ここで, $e^{-(t_{n+1}-u)}\leqq 1$かつ $\frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}\leqq 1$ であることから, 
+    \begin{align}
+        &\int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\|
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\|_2
+        du .\\
+        &\leqq \int_{t_n}^{t_{n+1}}     
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}   
+        \left\|
+        \mu_{T-u}(Y_u)
+        -
+        \mu_{T-t_n}(Y_{t_n})
+    \right\|_2
+    du .
+    \end{align}
+\end{proof}
+
+\begin{lemma}
+    $D_{s,t}:=\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2]$ としたとき, 次の式が成り立つ.
     \begin{equation}
-        E[\|Y_0-\hat{Y}_{0}\|^2]^{\frac{1}{2}}\leqq e^{-T}W_2(p_{data},N(0,I_d))
+        D_{s,t}:=\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}(\mathbb{E}[Tr(\Sigma_{T-s}(Y_s))]-\mathbb{E}[Tr(\Sigma_{T-t}(Y_t))])
     \end{equation}
-    となることがわかる.
-    次に, 
+\end{lemma}
+\begin{proof}
+    (8)式より $\mu_{T-t}(Y_t)=\frac{1}{\sqrt{1-\sigma^2_{T-t}}}(Y_t+\sigma^2_{T-t}\nabla \log{q_{T-t}(Y_t)})$ であることと, フォッカープランク方程式より
+    $\partial_tq_{T-t}(y)=-\nabla((y+2\nabla\log{q_{T-t}}(y)))+\Delta q_{T-t}(y)$ であることに注意する.
+    伊藤の公式より, 
     \begin{align}
-        \mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})=&\mu_{T-t}(Y_t)-\mu_{T-t_n}(Y_{t_n})+\frac{\sigma^2_{T-t_n}}{\sqrt{1-\sigma^2_{T-t_n}}}(s_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(Y_{t_n}))\\
-        &+\frac{1}{\sqrt{1-\sigma^2_{t_n}}}(Y_{t_n}-\hat{Y}_{t_n}+\sigma^2_{T-t_n}(\hat{s}_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(\hat{Y}_{t_n})))
+        d\left(\nabla\log q_{T-t}(Y_t)\right)
+        &=
+        \left[
+            \partial_t \nabla\log q_{T-t}
+            +
+            \nabla^2\log q_{T-t}
+            \left(
+                Y_t+2\nabla\log q_{T-t}
+            \right)
+            +
+            \Delta\nabla\log q_{T-t}
+        \right](Y_t)\,dt
+        \notag\\
+        &\quad
+        +
+        \sqrt{2}\,
+        \nabla^2\log q_{T-t}(Y_t)\,dB_t
+        \notag\\
+        &=
+        -\nabla\log q_{T-t}(Y_t)\,dt
+        +
+        \sqrt{2}\,
+        \nabla^2\log q_{T-t}(Y_t)\,dB_t .
     \end{align}
-    となることを用いると, 
+    であることと, 
     \begin{align}
-        &E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}\\
-        &\leqq E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\mu_{T-t}(Y_t)-\mu_{T-t_n}(Y_{t_n}))dt\|^2]^{\frac{1}{2}}\\
-        &+E[\|\int_{0}^{T}(s_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(Y_{t_n}))dt\|^2]^{\frac{1}{2}}\\
-        &+E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\hat{\mu}_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}
-    \end{align}
-    と評価できる.
-    ここで, 仮定2.2を使って (27) 式は次のように評価できる.
-    \begin{align}
-        &E[\|\int_{0}^{T}(s_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(Y_{t_n}))dt\|^2]^{\frac{1}{2}}\\
-        &\leqq (\sum_{n=0}^{N-1}(t_{n+1}-t_n)\mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|^2])^{\frac{1}{2}}\leqq \epsilon
-    \end{align}
-    次に, (28)式を評価すると, 
-    \begin{align}
-        &E[\|\int_{0}^{T}\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}(\hat{\mu}_{T-t_n}(Y_{t_n})-\hat{\mu}_{T-t_n}(\hat{Y}_{t_n}))dt\|^2]^{\frac{1}{2}}\\
+        d(\mu_{T-t}(Y_t))&=d(\frac{1}{\sqrt{1-\sigma^2_{T-t}}}Y_t+\frac{\sigma^2_{T-t}}{\sqrt{1-\sigma^2_{T-t}}}\nabla \log{q_{T-t}(Y_t)})\\
+        &=
     \end{align}
 \end{proof}
 
