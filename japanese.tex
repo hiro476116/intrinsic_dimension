@@ -636,10 +636,18 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
         \sqrt{2}\,
         \nabla^2\log q_{T-t}(Y_t)\,dB_t .
     \end{align}
-    であることと, 
+    であることより,
     \begin{align}
         d(\mu_{T-t}(Y_t))&=d(\frac{1}{\sqrt{1-\sigma^2_{T-t}}}Y_t+\frac{\sigma^2_{T-t}}{\sqrt{1-\sigma^2_{T-t}}}\nabla \log{q_{T-t}(Y_t)})\\
-        &=
+        &=\frac{\sqrt{2}\sigma^2_{T-t}}{\sqrt{1-\sigma^2_{T-t}}}(\nabla^2 \log{q_{t-t}(Y_t)}+\frac{1}{\sigma^2_{T-t}}I_d)dB_t
+    \end{align}
+    よって等長性より, 
+    \begin{align}
+        \frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2]&=2\int_{s}^{t}\mathbb{E}[\|\nabla^2\log{q_{T-u}(Y_u)+\frac{1}{\sigma^2_{T-u}I_d}}\|^2_F]du
+    \end{align}
+    となるので, 
+    \begin{align}
+            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}I_d}}\|^2_F]
     \end{align}
 \end{proof}
 
