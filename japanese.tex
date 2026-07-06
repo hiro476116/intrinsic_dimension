@@ -163,7 +163,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
 また, スコア推定に関する次の仮定を置く.
 \begin{assumption}
     \begin{equation}
-        \|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2\leqq \epsilon(t_i)<\infty\quad (0\leqq i \leqq N-1)
+        \mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2^2]\leqq \epsilon^2(t_i)<\infty\quad (0\leqq i \leqq N-1)
     \end{equation}
 \end{assumption}
 主定理の証明に使う補題を用意する.
@@ -193,7 +193,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
 \end{theorem}
 \begin{proof}
     \begin{align}
-        W_2(p_{data}, \mathcal{L}(\hat{Y}_{t_N}))&\leqq E[\|Y_T-\hat{Y}_{t_N}\|^2]^{\frac{1}{2}}=\|Y_T-\hat{Y}_{t_N}\|_2
+        W_2(p_{data}, \mathcal{L}(\hat{Y}_{t_N}))&\leqq E[\|Y_T-\hat{Y}_{t_N}\|_2^2]^{\frac{1}{2}}
     \end{align}
     である. ここで, 補題2.3を使うと
     \begin{align}
@@ -503,7 +503,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
         \right\}
         du .
     \end{align}
-    ここで仮定2.1と, $
+    ここで$
         e^{-h_n}
         \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-t_n}}
         +
@@ -597,6 +597,14 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
         -
         \mu_{T-t_n}(Y_{t_n})
     \right\|_2
+    du .\\
+    &\leqq 4(t_{n+1}-t_n) \int_{t_n}^{t_{n+1}}     
+    \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}   
+    \left\|
+    \mu_{T-u}(Y_u)
+    -
+    \mu_{T-t_n}(Y_{t_n})
+    \right\|_2^2
     du .
     \end{align}
     補題2.5を用いて, 
@@ -644,11 +652,11 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \end{align}
     よって等長性より, 
     \begin{align}
-        \frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2]&=2\int_{s}^{t}\mathbb{E}[\|\nabla^2\log{q_{T-u}(Y_u)+\frac{1}{\sigma^2_{T-u}I_d}}\|^2_F]du
+        \mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2]&=\int_{s}^{t}\frac{2\sigma^4_{T-u}}{1-\sigma^2_{T-u}}\mathbb{E}[\|\nabla^2\log{q_{T-u}(Y_u)+\frac{1}{\sigma^2_{T-u}I_d}}\|^2_F]du
     \end{align}
     となるので, 
     \begin{align}
-            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]
+            \frac{d}{dt}(\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=\frac{2\sigma^4_{T-t}}{1-\sigma^2_{T-t}}\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]
     \end{align}
     ここで, 次の補題を用いる.
     \begin{lemma}
@@ -658,9 +666,30 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \end{lemma}
     補題2.6より, 
     \begin{align}
-            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]
+            \frac{d}{dt}(\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])&=\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]\\
+            &=2\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\Sigma_{T-t}(Y_t)\|^2_F]
+    \end{align}
+    また, 次の補題を考える.
+    \begin{lemma}
+        任意の $t\in[0,T)$ において, 次の式が成立する.
+        \begin{equation}
+            \mathbb{E}[\|\Sigma_{T-t}(Y_t)\|^2_F]=-\frac{\sigma^4_{T-t}}{2(1-\sigma^2_{T-t})}\frac{d}{dt}\mathbb{E}[Tr(\Sigma_{T-t}(Y_t))]
+        \end{equation}
+    \end{lemma}
+    この補題2.7を用いると, 
+    \begin{align}
+        D_{s,t}&=\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2]\\
+        &=\frac{2(1-\sigma^2_{T-t})}{\sigma^4_{T-t}}\int_{s}^{t}\frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}\mathbb{E}[\|\Sigma_{T-u}(Y_u)\|^2_F]du\\
+        &=\frac{(1-\sigma^2_{T-t})}{\sigma^4_{T-t}}(\mathbb{E}[Tr(\Sigma_{T-s}(Y_s))]-\mathbb{E}[Tr(\Sigma_{T-t}(Y_t))])
     \end{align}
 \end{proof}
+さらに, $D_{s,t}$ を評価するために次の補題を考える.
+\begin{lemma}
+    ある定数$C_4$が存在して, 
+    \begin{equation}
+        \mathbb{E}[Tr(\Sigma_{T-t}(Y_t))]\leqq C_4\min\{\mathbb{E}[\|X_0\|_2^2],\frac{\sigma^2_{T-t}}{1-\sigma^2_{T-t}}k\log{k}\}
+    \end{equation}
+\end{lemma}
 
 
 
