@@ -599,6 +599,7 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \right\|_2
     du .
     \end{align}
+    補題2.5を用いて, 
 \end{proof}
 
 \begin{lemma}
@@ -647,7 +648,17 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     \end{align}
     となるので, 
     \begin{align}
-            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}I_d}}\|^2_F]
+            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]
+    \end{align}
+    ここで, 次の補題を用いる.
+    \begin{lemma}
+        \begin{equation}
+            \nabla^2\log{q_{T-t}(Y_t)}=-\frac{1}{\sigma^2_{T-t}}I_d+\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\Sigma_{T-t}(Y_t)
+        \end{equation}
+    \end{lemma}
+    補題2.6より, 
+    \begin{align}
+            \frac{d}{dt}(\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\mathbb{E}[\|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|^2_2])=2\mathbb{E}[\|\nabla^2\log{q_{T-t}(Y_t)+\frac{1}{\sigma^2_{T-t}}I_d}\|^2_F]
     \end{align}
 \end{proof}
 
