@@ -518,7 +518,62 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     =e^{h_n}$
     であることを用いると, 
 
-
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=
+        e^{h_n}
+        \left(
+            Y_{t_n}-\hat{Y}_{t_n}
+        \right)
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            s_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(Y_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \left\{
+            \hat{s}_{T-t_n}(Y_{t_n})
+            -
+            \hat{s}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}
+        \notag\\
+        &\quad
+        +
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
+        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
+        \left\{
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\}
+        du .
+    \end{align}
+    上式の右辺第1項から3項までを $A_n$ とし, 第4項を $R_n$ とする. つまり, 
+    \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=A_n+R_n
+    \end{align}
+    とすると, 
+    \begin{align}
+        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]
+        &=E[\|A_n\|^2_2]+E[\|R_n\|^2_2]+ 2E[\langle A_n,R_n\rangle]
+    \end{align}
+    となる.
     \begin{align}
         \|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|
         &\leqq
