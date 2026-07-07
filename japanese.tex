@@ -88,7 +88,7 @@
 このとき, $Y$ はデータを生成する過程と考えられ, 
 以降, 
 \begin{equation}
-    \alpha_n=e^{-2(t_{n+1}-t_n)}, \bar{\alpha}_n=\Pi_{i=n}^N \alpha_i
+    \alpha_n=e^{-2(t_{n+1}-t_n)}, \bar{\alpha}_n=\prod_{i=n}^N \alpha_i
 \end{equation}
 とする.
 
@@ -574,95 +574,116 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
         &=E[\|A_n\|^2_2]+E[\|R_n\|^2_2]+ 2E[\langle A_n,R_n\rangle]
     \end{align}
     となる.
+    ここで, $\{\mu_{T-t}(Y_t)\}_{t\in[0,T]}$ はマルチンゲールであることから, フビニの定理より
     \begin{align}
-        \|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|
-        &\leqq
-            e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
-        \|Y_{t_n}-\hat{Y}_{t_n}\|
-        \notag\\
-        &\quad
-        +
-        e^{h_n}
-        \left(
-            1-e^{-2h_n}
-        \right)
-        \left\|
-            s_{T-t_n}(Y_{t_n})
-            -
-            \hat{s}_{T-t_n}(Y_{t_n})
-        \right\|
-        \notag\\
-        &\quad
-        +
-        \int_{t_n}^{t_{n+1}}
+        E[R_n|\mathcal{F}_{t_n}]&=        \int_{t_n}^{t_{n+1}}
         e^{-(t_{n+1}-u)}
         \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
         \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
-        \left\|
-            \mu_{T-u}(Y_u)
+        \left\{
+            E[\mu_{T-u}(Y_u)|\mathcal{F}_{t_n}]
             -
             \mu_{T-t_n}(Y_{t_n})
-        \right\|
-        du .
+        \right\}
+        du .\\
+        &=0
     \end{align}
-    よって, 仮定2.2を用いると, 
+    となる. よって, $A_n$ は $\mathcal{F}_{t_n}$ 可測であることを用いると, 
     \begin{align}
-        \|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|_2
-        &\leqq
-            e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
-        \|Y_{t_n}-\hat{Y}_{t_n}\|_2
-        \notag\\
-        &\quad
+        E[\langle A_n,R_n\rangle]&=E[E[\langle A_n,R_n\rangle|\mathcal{F}_{t_n}]]\\
+        &=E[\langle A_n,E[R_n|\mathcal{F}_{t_n}]\rangle]=0
+    \end{align}
+    である. よって, 
+    \begin{align}
+        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]
+        &=E[\|A_n\|^2_2]+E[\|R_n\|^2_2]
+    \end{align}
+    ここで, 三角不等式と仮定2.1, 仮定2.2 を用いると, 
+    \begin{align}
+        E[\|A_n\|^2_2]^{\frac{1}{2}}&\leqq
+        e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
+        E[\|
+            Y_{t_n}-\hat{Y}_{t_n}
+        \|^2_2]^{\frac{1}{2}}
         +
         e^{h_n}
         \left(
             1-e^{-2h_n}
         \right)
         \epsilon(t_n)
-        \notag\\
-        &\quad
+    \end{align}
+    となる.
+    よって, 
+    \begin{align}
+        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]\leqq& (        e^{h_n}\{1+L(t_n)(1-e^{-2h_n})\}
+        E[\|
+            Y_{t_n}-\hat{Y}_{t_n}
+        \|^2_2]^{\frac{1}{2}}
         +
-        \int_{t_n}^{t_{n+1}}
-        e^{-(t_{n+1}-u)}
-        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
-        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
-        \left\|
+        e^{h_n}
+        \left(
+            1-e^{-2h_n}
+        \right)
+        \epsilon(t_n))^2\notag\\
+        &+E[\|R_n\|^2_2]
+    \end{align}
+    となる. ここで次の補題を考える.
+    \begin{lemma}
+        3つの数列 $(A_n)_{n\in\mathbb{N}}, (B_n)_{n\in\mathbb{N}}, (C_n)_{n\in\mathbb{N}}$ で,任意の $n\in\mathbb{N}$ に対して $B_n\geqq 0,C_n\geqq 0$ が成立するものを取る.
+        また, $x_n$ が任意の $n\in\mathbb{N}$ に対して次の関係を満たすとする. 
+        \begin{align}
+            x^2_{n+1}\leqq (e^{A_n}x_n+B_n)^2+C^2_n
+        \end{align}
+        このとき, $\bar{A_i}=\sum\limits_{j=0}^{i}A_j$ として, 任意の $n\in\mathbb{N}$ に対して, 次が成立する.
+        \begin{align}
+            x_{n+1}\leqq e^{\bar{A}_n}x_0+\sum_{j=0}^{n}e^{\bar{A_n}-\bar{A_j}}B_j+(\sum_{j=0}^{n}e^{2(\bar{A}_n-\bar{A}_j)}C^2_j)^\frac{1}{2}
+        \end{align}
+    \end{lemma}
+    $x_n=E[\|Y_{t_n}-\hat{Y}_{t_n}\|^2_2]^{\frac{1}{2}}$, $A_n=h_n+\log{\{1+L(t_n)(1-e^{-2h_n})\}}$, $B_n=e^{h_n}(1-e^{-2h_n})\epsilon(t_n)$, $C_n=E[\|R_n\|^2_2]^\frac{1}{2}$
+    とすることで, (37) 式から補題2.5を適用することができ, 
+
+    \begin{align}
+        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^ne^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})
+        E[\|
+            Y_{t_0}-\hat{Y}_{t_0}
+        \|^2_2]^{\frac{1}{2}}\notag\\
+        &+\sum_{j=0}^{n}(\prod_{i=j+1}^{n}
+        e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})e^{h_j}(1-e^{-2h_j})
+        \epsilon(t_i)\notag\\
+        &+(\sum_{j=0}^{n}(\prod_{i=j+1}^{n}
+        e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})E[\|R_j\|^2_2])^\frac{1}{2}
+    \end{align}
+    となる. よって, 
+    \begin{align}
+        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^ne^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})\notag\\
+        &\times(E[\|
+            Y_{t_0}-\hat{Y}_{t_0}
+        \|^2_2]^{\frac{1}{2}}+\sum_{j=0}^{n}e^{h_j}(1-e^{-2h_j})
+        \epsilon(t_i)+(\sum_{j=0}^{n}E[\|R_j\|^2_2])^\frac{1}{2})
+    \end{align}
+
+    ここで, $e^{-(t_{n+1}-u)}\leqq 1$かつ $\frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}\leqq 1$ であることと, $x\to \|x\|_2^2$ が凸関数であることからイェンセンの不等式を用いると, 
+    \begin{align}
+        &E[\|R_j\|^2_2]\notag\\
+        &\leqq\int_{t_n}^{t_{n+1}}
+        e^{-2(t_{n+1}-u)}
+        \frac{\sigma^4_{T-t_{n+1}}}{\sigma^4_{T-u}}
+        \frac{4(1-\sigma^2_{T-u})}{\sigma^4_{T-u}}
+        \mathbb{E}[\left\|
             \mu_{T-u}(Y_u)
             -
             \mu_{T-t_n}(Y_{t_n})
-        \right\|_2
+        \right\|^2_2]
+        du .\notag\\
+        &\leqq 4\int_{t_n}^{t_{n+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        \mathbb{E}[\left\|
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_n}(Y_{t_n})
+        \right\|^2_2]
         du .
     \end{align}
-    ここで, $e^{-(t_{n+1}-u)}\leqq 1$かつ $\frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}\leqq 1$ であることから, 
-    \begin{align}
-        &\int_{t_n}^{t_{n+1}}
-        e^{-(t_{n+1}-u)}
-        \frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}
-        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}
-        \left\|
-            \mu_{T-u}(Y_u)
-            -
-            \mu_{T-t_n}(Y_{t_n})
-        \right\|_2
-        du .\\
-        &\leqq \int_{t_n}^{t_{n+1}}     
-        \frac{2\sqrt{1-\sigma^2_{T-u}}}{\sigma^2_{T-u}}   
-        \left\|
-        \mu_{T-u}(Y_u)
-        -
-        \mu_{T-t_n}(Y_{t_n})
-    \right\|_2
-    du .\\
-    &\leqq 4(t_{n+1}-t_n) \int_{t_n}^{t_{n+1}}     
-    \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}   
-    \left\|
-    \mu_{T-u}(Y_u)
-    -
-    \mu_{T-t_n}(Y_{t_n})
-    \right\|_2^2
-    du .
-    \end{align}
-    補題2.5を用いて, 
 \end{proof}
 
 \begin{lemma}
