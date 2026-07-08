@@ -65,7 +65,7 @@
 \newcommand{\eps}{\varepsilon}
 \newcommand{\wh}{\widehat}
 
-\title{内在次元を用いた拡散モデルのWasserstein収束解析}
+\title{データの内在次元を用いたWasserstein距離における拡散モデルの収束解析}
 \author{枇榔一真}
 \date{2026年6月20日}
 
@@ -643,31 +643,32 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
     とすることで, (37) 式から補題2.5を適用することができ, 
 
     \begin{align}
-        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^ne^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})
+        E[\|Y_{t_{N}}-\hat{Y}_{t_{N}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^{N-1}e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})
         E[\|
             Y_{t_0}-\hat{Y}_{t_0}
         \|^2_2]^{\frac{1}{2}}\notag\\
-        &+\sum_{j=0}^{n}(\prod_{i=j+1}^{n}
+        &+\sum_{j=0}^{N-1}(\prod_{i=j+1}^{N-1}
         e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})e^{h_j}(1-e^{-2h_j})
-        \epsilon(t_i)\notag\\
-        &+(\sum_{j=0}^{n}(\prod_{i=j+1}^{n}
+        \epsilon(t_j)\notag\\
+        &+(\sum_{j=0}^{N-1}(\prod_{i=j+1}^{N-1}
         e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})E[\|R_j\|^2_2])^\frac{1}{2}
     \end{align}
     となる. よって, 
     \begin{align}
-        E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^ne^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})\notag\\
+        E[\|Y_{t_{N}}-\hat{Y}_{t_{N}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^{N-1}e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})\notag\\
         &\times(E[\|
             Y_{t_0}-\hat{Y}_{t_0}
-        \|^2_2]^{\frac{1}{2}}+\sum_{j=0}^{n}e^{h_j}(1-e^{-2h_j})
-        \epsilon(t_i)+(\sum_{j=0}^{n}E[\|R_j\|^2_2])^\frac{1}{2})
+        \|^2_2]^{\frac{1}{2}}+\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})
+        \epsilon(t_j)+(\sum_{j=0}^{N-1}E[\|R_j\|^2_2])^\frac{1}{2})
     \end{align}
 
-    ここで, $e^{-(t_{n+1}-u)}\leqq 1$かつ $\frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}\leqq 1$ であることと, $x\to \|x\|_2^2$ が凸関数であることからイェンセンの不等式を用いると, 
+    ここで, $e^{-(t_{n+1}-u)}\leqq 1$かつ $\frac{\sigma^2_{T-t_{n+1}}}{\sigma^2_{T-u}}\leqq 1$ であることと,
+     $x\to \|x\|_2^2$ が凸関数であることからイェンセンの不等式を用いると, 
     \begin{align}
         &E[\|R_j\|^2_2]\notag\\
-        &\leqq\int_{t_n}^{t_{n+1}}
-        e^{-2(t_{n+1}-u)}
-        \frac{\sigma^4_{T-t_{n+1}}}{\sigma^4_{T-u}}
+        &\leqq\int_{t_j}^{t_{j+1}}
+        e^{-2(t_{j+1}-u)}
+        \frac{\sigma^4_{T-t_{j+1}}}{\sigma^4_{T-u}}
         \frac{4(1-\sigma^2_{T-u})}{\sigma^4_{T-u}}
         \mathbb{E}[\left\|
             \mu_{T-u}(Y_u)
@@ -675,14 +676,111 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
             \mu_{T-t_n}(Y_{t_n})
         \right\|^2_2]
         du .\notag\\
-        &\leqq 4\int_{t_n}^{t_{n+1}}
+        &\leqq 4\int_{t_j}^{t_{j+1}}
         \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
         \mathbb{E}[\left\|
             \mu_{T-u}(Y_u)
             -
-            \mu_{T-t_n}(Y_{t_n})
+            \mu_{T-t_j}(Y_{t_j})
         \right\|^2_2]
         du .
+    \end{align}
+    よって補題2.6を用いると, 
+    \begin{align}
+        &\sum_{j=0}^{N-1}E[\|R_j\|^2_2]\notag\\
+        &\leqq 4\sum_{j=0}^{N-1}\int_{t_j}^{t_{j+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        \mathbb{E}[\left\|
+            \mu_{T-u}(Y_u)
+            -
+            \mu_{T-t_j}(Y_{t_j})
+        \right\|^2_2]
+        du .\notag\\
+        &\leqq 4\sum_{j=0}^{N-1}\int_{t_j}^{t_{j+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du .
+    \end{align}
+    $\frac{1}{\sigma^4_1}=C_5$ とする. $0\leqq t \leqq T-1$ において, $\frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}\leqq \frac{1-\sigma^2_{T-u}}{\sigma^4_1}=C_5(1-\sigma^2_{T-u})\leqq C_5$ となるので, $M=\inf\{i\geqq 0|t_i\geqq T-1\}$ とすると, 
+    \begin{align}
+        &\sum_{j=0}^{M-1}\int_{t_j}^{t_{j+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq 
+        \sum_{j=0}^{M-1}\int_{t_j}^{t_{j+1}}
+        C_5
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq 
+        \sum_{j=0}^{M-1}\int_{t_j}^{t_{j+1}}
+        C_5
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_{t_j+1}))])
+        du \notag\\
+        &\leqq C_5\kappa(\mathbb{E}[Tr(\Sigma_{T}(Y_{0}))])\leqq C_4C_5\kappa(\mathbb{E}[\|X_0\|^2_2])
+    \end{align}
+    最後の不等式には, 補題2.9を用いた.
+    また, 次のような評価も可能である.
+    \begin{align}
+        &\sum_{j=0}^{M-1}\int_{t_j}^{t_{j+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq C_5\sum_{j=0}^{M-1}\int_{t_j}^{t_{j+1}}
+        (1-\sigma^2_{T-u})
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq C_5(1-\sigma^2_{T-\kappa})\kappa\mathbb{E}[Tr(\Sigma_T(Y_0))]+C_5\sum_{i=1}^{M-1}(\sigma^2_{T-t_i}-\sigma^2_{T-t_{i+1}})\kappa\mathbb{E}[Tr(\Sigma_{T-t_i}(Y_{t_i}))]\notag\\
+        &\leqq \frac{(1-\sigma^2_{T-\kappa})\sigma^2_T}{1-\sigma^2_T}\kappa k\log{k}+\sum_{i=1}^{M-1}(1-\sigma^2_{T-t_{i+1}})(1-e^{-2(t_{i+1}-t_i)})\frac{\sigma^2_{T-t_i}}{1-\sigma^2_{T-t_i}}\kappa k\log{k}\notag\\
+        &\leqq e^{2\kappa}\kappa k\log{k}+2e^{2\kappa}\sum_{i=1}^{M-1}(t_{i+1}-t_i)\kappa k\log{k}\notag\\
+        &\leqq (1+2T)e^{2\kappa}\kappa k\log{k}
+    \end{align}
+    次に, $t\in [T-1,T-\delta]$ の状況を考える. このとき, 
+    \begin{equation}
+        \frac{1-\sigma^2_{T-t}}{\sigma^4_{T-t}}=\frac{e^{-2(T-t)}}{(1-e^{-2(T-t)})^2}\leqq \frac{2}{(T-t)^2}
+    \end{equation}
+    であることを用いると, 
+    \begin{align}
+        &\sum_{j=M}^{N-1}\int_{t_j}^{t_{j+1}}
+        \frac{1-\sigma^2_{T-u}}{\sigma^4_{T-u}}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq\sum_{j=M}^{N-1}\int_{t_j}^{t_{j+1}}
+        \frac{2}{(T-t)^2}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-u}(Y_u))])
+        du \notag\\
+        &\leqq\sum_{j=M}^{N-1}\int_{t_j}^{t_{j+1}}
+        \frac{2}{(T-{t_{j+1}})^2}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-{t_{j+1}}}(Y_{t_{j+1}}))])
+        du \notag\\
+        &\leqq\sum_{j=M}^{N-1}
+        \frac{\kappa}{1-\kappa}
+        \frac{2}{T-{t_{j+1}}}
+        (\mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))]-\mathbb{E}[Tr(\Sigma_{T-{t_{j+1}}}(Y_{t_{j+1}}))])
+         \notag\\
+        &\leqq 
+        \frac{2\kappa}{(1-\kappa)^2}
+        \mathbb{E}[Tr(\Sigma_{T-t_M}(Y_{t_M}))]+
+        \frac{\kappa^2}{(1-\kappa)^2}
+        \sum_{j=M+1}^{N-1}
+        \frac{1}{T-t_j}
+        \mathbb{E}[Tr(\Sigma_{T-t_j}(Y_{t_j}))] \notag\\
+        &\leqq 
+        \frac{2\kappa}{(1-\kappa)^2}
+        \mathbb{E}[Tr(\Sigma_{T-t_M}(Y_{t_M}))]+
+        \frac{\kappa^2}{(1-\kappa)^2}
+        \sum_{j=M+1}^{N-1}
+        \frac{1}{T-t_j}
+        \frac{\sigma^2_{T-t_n}}{1-\sigma^2_{T-t_n}}k\log{k}
+        \notag\\
+    \end{align}
+    これより, 
+    \begin{align}
+        E[\|Y_{t_{N}}-\hat{Y}_{t_{N}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^{N-1}e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})\notag\\
+        &\times(E[\|
+            Y_{t_0}-\hat{Y}_{t_0}
+        \|^2_2]^{\frac{1}{2}}+\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})
+        \epsilon(t_j)+(\sum_{j=0}^{N-1}E[\|R_j\|^2_2])^\frac{1}{2})
     \end{align}
 \end{proof}
 
