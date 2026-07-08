@@ -771,10 +771,23 @@ $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する(\cite{anderson1982reverse},
         \frac{\kappa^2}{(1-\kappa)^2}
         \sum_{j=M+1}^{N-1}
         \frac{1}{T-t_j}
+        \frac{\sigma^2_{T-t_j}}{1-\sigma^2_{T-t_j}}k\log{k}
+    \end{align}
+    ここで, $\frac{\sigma^2_{T-{t_1}}}{1-\sigma^2_{T-{t_1}}}\leqq e^2-1$であることと, $\frac{1}{T-t_j}
+        \frac{\sigma^2_{T-t_j}}{1-\sigma^2_{T-t_j}}\leqq 2e^2$ であることと補題2.9を使うと, 
+    \begin{align}
+        &\frac{2\kappa}{(1-\kappa)^2}
+        \mathbb{E}[Tr(\Sigma_{T-t_M}(Y_{t_M}))]+
+        \frac{\kappa^2}{(1-\kappa)^2}
+        \sum_{j=M+1}^{N-1}
+        \frac{1}{T-t_j}
         \frac{\sigma^2_{T-t_n}}{1-\sigma^2_{T-t_n}}k\log{k}
         \notag\\
+        &\leqq
+        \frac{2C_4(e^2-1)\kappa}{(1-\kappa)^2}\min\{E[\|X_0\|^2_2],k\log{k}\}+
+        \frac{2e^2C_4\kappa^2}{(1-\kappa)^2}Nk\log{k}
     \end{align}
-    これより, 
+    よってこれらをまとめると, 
     \begin{align}
         E[\|Y_{t_{N}}-\hat{Y}_{t_{N}}\|^2_2]^\frac{1}{2}\leqq& (\prod_{i=0}^{N-1}e^{h_i}\{1+L(t_i)(1-e^{-2h_i})\})\notag\\
         &\times(E[\|
