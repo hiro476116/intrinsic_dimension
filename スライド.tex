@@ -71,12 +71,10 @@
   \begin{frame}{目次}
     \begin{itemize}
       \item 拡散モデルの収束解析について
-      \item time reversal formula
-      \item 拡散モデルのアルゴリズム
-      \item 収束解析概要
-      \item 収束解析(Total Variation)
-      \item 収束解析(2-Wasserstein distance)
-      \item デノイジングスコアマッチング
+      \item データの内在次元について
+      \item 主定理の設定
+      \item 主定理
+      \item 証明の概要
     \end{itemize}
   \end{frame}
   \begin{frame}{拡散モデルの収束解析について}
@@ -90,40 +88,28 @@
   %-----------3-------------
   \begin{frame}{拡散モデルの収束解析について(KLダイバージェンス)}
     \begin{itemize}
-      \item 拡散モデルは, 未知の確率測度 $p_{data}$ に従って独立に得られるデータ $x_1,\cdots, x_n$ を用いて $p_{data}$ に従うデータを新たに近似的に生み出す手法である.
-      \item 近似的に生み出すデータが従う確率測度を $\hat{p}$ とした時に,何かしらの確率測度の距離 $\rho$ を用いて $\rho(p_{data},\hat{p})$ を評価することが収束解析の主な目的である.
-      \item 先行研究では, 距離 $\rho$ として主にKLダイバージェンスとWasserstein距離が用いられている.
+      \item KLでの収束解析は \cite{benton_et_al_2024, chen_lee_lu_2023, chen_et_al_2023, koike_2026_follmer} など多くの先行研究がある. 
+      \item データは $\mathbb{R}^d$ 上に分布するとしたとき, \cite{benton_et_al_2024} では $KL(p_{data},\hat{p})\leqq O(d)$ の評価が得られており, これは最適なオーダーであることが示されている.
+      \item この結果は, $p_{data}$ に関する一般的な仮定のもとで得られている.
     \end{itemize}
   
   \end{frame}
   %------------4-----------
-  \begin{frame}{time reversal formula}
+  \begin{frame}{拡散モデルの収束解析について(2-Wasserstein距離)}
     \begin{itemize}
-        \item 定理が成立するための仮定は\cite{haussmann_pardoux86}で与えられており, $\partial_t+L$が準楕円型作用素であるか,$\nabla^2 a(t,x)$が一様有界であればよい.
+        \item 2-Wasserstein距離での収束解析も近年増加している\cite{arsenyan_vardanyan_dalalyan_2025, beyler_bach_2025, bruno_sabanis_2025, gao_nguyen_zhu_2025} .
+        \item しかし, これらの先行研究ではデータ分布 $p_{data}$ へのlog-concave性の仮定など, 一般的ではない仮定が置かれており, KLと比較して発展途上である.
+        \item 
     \end{itemize}
   \end{frame}
 
   %---------5-------------
-  \begin{frame}{time reversal formulaの例(OU過程)}
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & dX_t = -X_tdt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & X_0 \sim P_{data}
-            \end{aligned}
-        \right.
-    \end{equation}
-    このとき, 逆向き過程は次のようになる.
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T
-            \end{aligned}
-        \right.
-    \end{equation}
+  \begin{frame}{データの内在次元について}
+    \begin{itemize}
+        \item Huang et alのイントロにいい感じのものがある
+    \end{itemize}
   \end{frame}
-
+  %---------6-------------
   \begin{frame}{time reversal formulaの例(Variance Preserving(VP) SDE)}
     $\beta(t)=\alpha+\frac{t}{T}(\beta-\alpha) \quad (\alpha << \beta)$として, 
     \begin{equation}
@@ -149,6 +135,7 @@
     \end{equation}
     を連続時間化したものである.
   \end{frame}
+  %---------7-------------
   \begin{frame}{拡散モデルのアルゴリズム}
     次のようにすると, 最初に紹介した拡散モデルの目的である$P_{data}$からのサンプリングが実現できる.
     \begin{columns}[T,onlytextwidth]
@@ -509,6 +496,24 @@
 
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
+
+      \bibitem{benton_et_al_2024}
+      Benton, J., De Bortoli, V., Doucet, A. and Deligiannidis, G. (2024).
+      Nearly $d$-linear convergence bounds for diffusion models via stochastic localization.
+      In \textit{International Conference on Learning Representations}.
+      \url{https://proceedings.iclr.cc/paper_files/paper/2024/hash/9edce07129d2ec4c511a8783eb3d81b5-Abstract-Conference.html}
+
+      \bibitem{huang_wei_chen_2026}
+      Huang, Z., Wei, Y. and Chen, Y. (2024; revised 2026).
+      Denoising diffusion probabilistic models are optimally adaptive to unknown low dimensionality.
+      \url{https://arxiv.org/abs/2410.18784}
+
+      
+      \bibitem{chen_lee_lu_2023}
+      Chen, H., Lee, H. and Lu, J. (2023).
+      Improved analysis of score-based generative modeling: user-friendly bounds under minimal smoothness assumptions.
+      In \textit{Proceedings of the 40th International Conference on Machine Learning}.
+      \url{https://proceedings.mlr.press/v202/chen23q.html}
     
     \bibitem{anderson82}
     Anderson, B. D. O. (1982).
@@ -535,6 +540,70 @@
     Borji, A. (2019). Pros and cons of GAN evaluation measures. Comput.
     Vis. Image Underst. 179 41–65.
     \url{https://arxiv.org/abs/1802.03446}
+
+    \bibitem{koike_2026_follmer}
+    Koike, Y. (2026).
+    A note on connections between the F\"ollmer process and the
+    denoising diffusion probabilistic model.
+    arXiv preprint arXiv:2605.18040.
+    \url{https://arxiv.org/abs/2605.18040}
+
+    \bibitem{arsenyan_vardanyan_dalalyan_2025}
+    Arsenyan, V., Vardanyan, E. and Dalalyan, A. S. (2025).
+    Assessing the quality of denoising diffusion models in Wasserstein distance:
+    noisy score and optimal bounds.
+    In \textit{Advances in Neural Information Processing Systems 38}.
+    \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/1c26c389d60ec419fd24b5fee5b35796-Abstract-Conference.html}
+    
+    \bibitem{beyler_bach_2025}
+    Beyler, E. and Bach, F. (2025).
+    Convergence of deterministic and stochastic diffusion-model samplers:
+    a simple analysis in Wasserstein distance.
+    arXiv preprint arXiv:2508.03210.
+    \url{https://arxiv.org/abs/2508.03210}
+    
+    \bibitem{bruno_sabanis_2025}
+    Bruno, S. and Sabanis, S. (2025).
+    Wasserstein convergence of score-based generative models under
+    semiconvexity and discontinuous gradients.
+    \textit{Transactions on Machine Learning Research}.
+    \url{https://openreview.net/forum?id=vS9iVRB7XF}
+    
+    \bibitem{gao_nguyen_zhu_2025}
+    Gao, X., Nguyen, H. M. and Zhu, L. (2025).
+    Wasserstein convergence guarantees for a general class of
+    score-based generative models.
+    \textit{Journal of Machine Learning Research} 26(43), 1--54.
+    \url{https://jmlr.org/papers/v26/24-0902.html}
+    
+    \bibitem{gentiloni_silveri_ocello_2025}
+    Gentiloni Silveri, M. and Ocello, A. (2025).
+    Beyond log-concavity and score regularity:
+    improved convergence bounds for score-based generative models
+    in $W_2$-distance.
+    In \textit{Proceedings of the 42nd International Conference on Machine Learning},
+    Proceedings of Machine Learning Research 267, 55631--55656.
+    \url{https://proceedings.mlr.press/v267/silveri25a.html}
+    
+    \bibitem{pfarr_timofte_werner_2026}
+    Pfarr, E., Timofte, R. and Werner, F. (2026).
+    Analyzing the error of generative diffusion models:
+    from Euler--Maruyama to higher-order schemes.
+    arXiv preprint arXiv:2601.18425.
+    \url{https://arxiv.org/abs/2601.18425}
+    
+    \bibitem{strasman_et_al_2025}
+    Strasman, S., Ocello, A., Boyer, C., Le Corff, S. and Lemaire, V. (2025).
+    An analysis of the noise schedule for score-based generative models.
+    \textit{Transactions on Machine Learning Research}.
+    \url{https://openreview.net/forum?id=BlYIPa0Fx1}
+    
+    \bibitem{yu_yu_2025}
+    Yu, Y. and Yu, L. (2025).
+    Advancing Wasserstein convergence analysis of score-based models:
+    insights from discretization and second-order acceleration.
+    In \textit{Advances in Neural Information Processing Systems 38}.
+    \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/c9d9659d1d960b53e8121469ef1f2df5-Abstract-Conference.html}
 
     \bibitem{D_Bakry}
     D. Bakry, I. Gentil, and M. Ledoux. Analysis and geometry of Markov diffusion operators. Vol. 348. Grundlehren der Mathematischen Wissenschaften [Fundamental Principles of Mathematical Sciences]. Springer, Cham, 2014, pp. xx+552.
