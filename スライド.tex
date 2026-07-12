@@ -70,7 +70,7 @@
  %2
   \begin{frame}{目次}
     \begin{itemize}
-      \item イントロダクション
+      \item 先行研究
       \begin{itemize}
         \item 拡散モデルの収束解析について
         \item 拡散モデルの収束解析について (KL ダイバージェンス)
@@ -215,10 +215,46 @@
         \begin{equation}
           A\subset \cup_{i=1}^sB(x_i,\epsilon_0)
         \end{equation}
-        また, $\log{N^{cover}(A,\|\|_2,\epsilon_0)}$ を \textbf{metric entropy} という.
+        また, $\log{N_{cover}(A,\|\|_2,\epsilon_0)}$ を \textbf{metric entropy} という.
       \end{definition}
     \end{frame}
-
+    %---------14-------------
+    \begin{frame}{データの内在次元の仮定について}
+      $p_{data}$ の サポートを $\chi_{data}$ とする.
+      \cite{li_yan_2024_low_dimensional,huang_wei_chen_2026} に従い, データの内在次元に関する2つの仮定を置く. 以下の $k$ を $\chi_{data}$ の内在次元という.
+      \begin{assumption}
+        $C_0 > 0$ を十分大きな定数とする. $\epsilon_0=k^{-C_0}$ に対して, ある $C_{cover}>0$ が存在して, 
+        \begin{equation}
+          \log{N_{cover}(\chi_{data},\|\|_2,\epsilon_0)}\leqq C_{cover}k\log{\frac{1}{\epsilon_0}}
+        \end{equation}
+        を満たすと仮定する.
+      \end{assumption}
+      \begin{assumption}
+        ある定数 $C_R>0$ が存在して, 次が成立すると仮定する.
+        \begin{equation}
+          \sup\limits_{x\in \chi_{data}}\|x\|_2\leqq k^{C_R}
+        \end{equation}
+      \end{assumption}
+    \end{frame}
+    %---------15-------------
+    \begin{frame}{スコア関数に対する仮定}
+      \begin{assumption}
+          ある二乗可積分な関数 $L:(0,1)\rightarrow [0,\infty)$ が存在して, 次の式が成立する.
+          \begin{equation}
+              \|\hat{s}_t(x)-\hat{s}_t(y)\|\leqq L(t)\|x-y\| \quad  ^{\forall}(t,x,y)\in (0,1)\times \mathbb{R}^d\times \mathbb{R}^d
+          \end{equation}
+      \end{assumption}
+      \begin{assumption}
+          \begin{equation}
+              \mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2^2]\leqq \epsilon^2(t_i)<\infty\quad (0\leqq i \leqq N-1)
+          \end{equation}
+      \end{assumption}
+    \end{frame}
+    %---------16-------------
+    \begin{frame}{主定理}
+      前頁までの仮定のもと, 次の評価が成立する.
+      
+    \end{frame}
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
 
