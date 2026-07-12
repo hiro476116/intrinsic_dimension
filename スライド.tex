@@ -183,20 +183,42 @@
           &=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
       \end{align}
     \end{frame}
+    %---------11-------------
     \begin{frame}{実際の生成アルゴリズムとの対応}
       前頁の(8)式のSDE
       \begin{align}
           dY_t=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
       \end{align}
-      に対して, スコア関数の推定量を$\hat{s}$ として, 次のSDEを考える.
+      に対して, スコア関数の推定量を$\hat{s}$ , $\hat{\mu}_t(x)=\frac{1}{\sqrt{1-\sigma^2_t}}(x+\sigma^2_t\hat{s}_t(x))$ として, $\{\hat{Y}_t\}_{t\in[0,T]}$ を, $\hat{Y}_0\sim \mathcal{N}(0,I_d)$ であるような次のSDEの解とする.
       \begin{align}
-          dY_t=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
+          d\hat{Y}_t=\{(1-\frac{2}{\sigma^2_{T-t}})\hat{Y}_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\}dt+\sqrt{2}dB_t \notag\\
+          (t\in (t_n,t_{n+1}])
       \end{align}
     \end{frame}
-    %---------11-------------
-    \begin{frame}{}
-      
+    %---------12-------------
+    \begin{frame}{実際の生成アルゴリズムとの対応}
+      前頁の $\{\hat{Y}_t\}_{t\in[0,T]}$  に対して, 次の定理が成立する.
+      \begin{theorem}
+          任意の $n=0,\cdots, N-1$ に対して, ある独立同分布で標準正規分布に従う $\{Z_n\}_{n=0,\cdots, N-1}$ がが存在して, 次の関係が成り立つ.
+          \begin{equation}
+            \hat{Y}_{n+1}=\frac{1}{\sqrt{\alpha_n}}(\hat{Y}_{n}+(1-\alpha_n)\hat{s}_{T-t_n}(\hat{Y}_{n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n
+          \end{equation}
+      \end{theorem}
+      この定理により, (10) のSDEは (2) のアルゴリズムを連続時間補完したものと解釈できることがわかる.
     \end{frame}
+    %---------13-------------
+    \begin{frame}{データの内在次元の仮定について}
+      データの内在次元を考えるために, 集合の複雑さに関する概念を定義する.
+      \begin{definition}
+        $A\subset \mathbb{R}^d$ に対する, スケール $\epsilon_0$ における \textbf{covering number} $N^{cover}(A,\|\|_2,\epsilon_0)$ という値を, 次の関係を満たす $x_1,\cdots, x_s \in \mathbb{R}^d$ 
+        が存在するような最小の自然数 $s$ として定義する.
+        \begin{equation}
+          A\subset \cup_{i=1}^sB(x_i,\epsilon_0)
+        \end{equation}
+        また, $\log{N^{cover}(A,\|\|_2,\epsilon_0)}$ を \textbf{metric entropy} という.
+      \end{definition}
+    \end{frame}
+
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
 
