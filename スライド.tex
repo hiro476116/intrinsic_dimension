@@ -28,7 +28,12 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{xcolor}
+\usepackage[authoryear,round]{natbib}
+\bibpunct{(}{)}{;}{a}{ }{,}
+\let\oldcite\cite
+\renewcommand{\cite}[1]{\citep{#1}}
 \newcommand{\E}{\mathbb{E}}
+\newcommand{\Tr}{\operatorname{Tr}}
 
 % ------------------------------
 % Beamer のテーマや色の設定
@@ -301,7 +306,7 @@
     \end{frame}
 
     \begin{frame}{証明の概要：$Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}$ の計算}
-      $Y_{t_{n+1}}$, $\hat{Y}_{t_{n+1}}$ は次のように書ける.
+      $Y_{t_{n+1}}$, $\hat{Y}_{t_{n+1}}$ は次のように書ける. ($h_n:=t_{n+1}-t_n$ とする.)
         \begin{align}
           \hat{Y}_{t_{n+1}}
           &=
@@ -368,19 +373,158 @@
         \right\}}_{\text{離散化誤差}}d u
       \end{align}
     \end{frame}
+    \begin{frame}{証明の概要 : $\E[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2]^{\frac{1}{2}}$ の評価につなげるための補題}
+      \begin{lemma}[\cite{arsenyan_vardanyan_dalalyan_2025}]
+        非負数列 $(x_n)_{n\geqq0}$, $(B_n)_{n\geqq0}$,
+        $(C_n)_{n\geqq0}$ と実数列 $(A_n)_{n\geqq0}$ が
+        \begin{equation}
+            x_{n+1}^2\leqq(e^{A_n}x_n+B_n)^2+C_n^2
+        \end{equation}
+        を満たすとする.
+        このとき, 任意の $n\geqq0$ に対して
+        \begin{align}
+            x_{n+1}
+            &\leqq
+            \exp\left(\sum_{i=0}^{n}A_i\right)x_0
+            +
+            \sum_{j=0}^{n}
+            \exp\left(\sum_{i=j+1}^{n}A_i\right)B_j
+            \notag\\
+            &\quad+
+            \left\{
+                \sum_{j=0}^{n}
+                \exp\left(2\sum_{i=j+1}^{n}A_i\right)C_j^2
+            \right\}^{\frac{1}{2}}
+        \end{align}
+        が成立する.
+      \end{lemma}
+    \end{frame}
 
-    
+    \begin{frame}{証明の概要 : $\mu_{T-t}(Y_t)$ のマルチンゲール性を使った誤差分解}
+        $\mu_{T-t}(Y_t)$ は $\mathcal{F}_t :=\sigma(Y_s,Z|0\leqq s\leqq t)$ に関してマルチンゲールである
+        ことに注意すると, (23) 式の最初の3項の和を $S_n$, 最後の項を $R_n$ としたとき, $S_n$ は $\mathcal{F}_{t_n}$ 可測であり, $\E[R_n|\mathcal{F}_{t_n}]=0$ となることがわかる. 
+        よって, 
+        \begin{equation}
+          \E[\langle S_n,R_n\rangle]=\E[\langle S_n,\E[R_n|\mathcal{F}_{t_n}]\rangle]=0
+        \end{equation}
+        となる. よって, 
+        \begin{align}
+          \E[\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|_2^2]&=\E[\|S_n+R_n\|_2^2]\notag\\
+          &=\E[\|S_n\|_2^2]+\E[\|R_n\|_2^2]+2\E[\langle S_n,R_n\rangle]\notag\\
+          &=\E[\|S_n\|_2^2]+\E[\|R_n\|_2^2]
+        \end{align}
+    \end{frame}
 
-    \begin{frame}{証明の概要：初期分布誤差は $\Delta_0$ に入る}
+    \begin{frame}{証明の概要 : $\E[\|S_n\|_2^2]$ の評価}
+      \begin{align}
+        S_n&=e^{h_n}(Y_{t_n}-\hat{Y}_{t_n})
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})
+        \underbrace{\left\{
+            s_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(Y_{t_n})
+        \right\}}_{{\text{スコア推定誤差}}}
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})
+        \underbrace{\left\{
+            \hat{s}_{T-t_n}(Y_{t_n})
+            -\hat{s}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}}_{\text{リプシッツ連続性で評価可能な誤差}}
+      \end{align}
+      に対して, 仮定と三角不等式を用いると, 
+      \begin{align}
+        \E[\|S_n\|_2^2]^{\frac{1}{2}}&\leqq
+        e^{h_n}\{1+L(T-t_n)(1-e^{-2h_n})\}
+        \left(\E\|Y_{t_n}-\hat{Y}_{t_n}\|_2^2\right)^{1/2}
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})\epsilon(t_n).
+      \end{align}
+      が得られる.
+    \end{frame}
+
+    \begin{frame}{証明の概要 : 補題を適用する}
+      前頁の評価により, 
+      {\small
+      \begin{align}
+        \E\|Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}\|_2^2
+        &\leqq
+        \Bigg[
+            e^{h_n}
+            \left\{
+                1+L(T-t_n)(1-e^{-2h_n})
+            \right\}
+            \notag\\
+        &\quad\quad\times
+            \E\left[\|Y_{t_n}-\hat{Y}_{t_n}\|_2^2\right]^{1/2}
+        \notag\\
+        &\quad\quad
+            +e^{h_n}(1-e^{-2h_n})\epsilon(t_n)
+        \Bigg]^2
+        +\E[\|R_n\|_2^2]
+      \end{align}
+      }
+      が得られる. ここに
+      {\small
+      \begin{align}
+        x_n&=\E[\|Y_{t_n}-\hat{Y}_{t_n}\|_2^2]^{\frac{1}{2}},&
+        A_n&=h_n+\log\{1+L(T-t_n)(1-e^{-2h_n})\},\notag\\
+        B_n&=e^{h_n}(1-e^{-2h_n})\epsilon(t_n),&
+        C_n&=\E[\|R_n\|_2^2]^{\frac{1}{2}}
+      \end{align}
+      }
+      とすることで補題が適用できる.
+    \end{frame}
+
+    \begin{frame}{証明の概要 : 補題を適用する}
+      補題より, 
+      {\small
+      \begin{align}
+        \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{1/2}
+        &\leqq
+        \left(
+            \prod_{i=0}^{N-1}
+            e^{h_i}
+            \left\{
+                1+L(T-t_i)(1-e^{-2h_i})
+            \right\}
+        \right)\notag\\
+        &\times
+        \Bigg[
+            \E\left[\|Y_0-\hat{Y}_0\|_2^2\right]^{1/2}\notag\\
+            &
+            +\sum_{j=0}^{N-1}
+            e^{h_j}(1-e^{-2h_j})\epsilon(t_j)
+            +\left(
+                \sum_{j=0}^{N-1}\E[\|R_j\|_2^2]
+            \right)^{1/2}
+        \Bigg]\notag\\
+        &\leqq
+        e^{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)}\notag\\
+        &\times
+        \Bigg[
+            \E\left[\|Y_0-\hat{Y}_0\|_2^2\right]^{1/2}
+            +e^{\kappa}(1-e^{-2\kappa})\sum_{j=0}^{N-1}
+            \epsilon(t_j)\notag\\
+        &\quad\quad
+            +\left(
+                \sum_{j=0}^{N-1}\E[\|R_j\|_2^2]
+            \right)^{1/2}
+        \Bigg].
+      \end{align}
+      }
+    \end{frame}
+
+    \begin{frame}{証明の概要：初期分布誤差を評価}
       初期値の取り方より
       \begin{equation}
-        \Delta_0
-        =Y_0-\hat{Y}_0
+        Y_0-\hat{Y}_0
         =e^{-T}X_0+(\sigma_T-1)Z.
       \end{equation}
       よって, $X_0$ と $Z$ が独立であることから,
       \begin{align}
-        \E\left[\|\Delta_0\|_2^2\right]
+        \E\left[\|Y_0-\hat{Y}_0\|_2^2\right]
         &\leqq
         e^{-2T}\E\left[\|X_0\|_2^2\right]
         +(1-\sigma_T)^2d.
@@ -390,116 +534,20 @@
         (1-\sigma_T)^2
         =
         \left(1-\sqrt{1-e^{-2T}}\right)^2
-        =O(e^{-4T})
+        \leqq e^{-4T}
       \end{equation}
-      である. したがって, 初期分布の違いは $\Delta_0$ の評価として現れる.
-    \end{frame}
-
-    \begin{frame}{証明の概要：}
-
-    \begin{frame}{証明の概要：交差項が消える理由}
-      一段誤差を
-      \begin{equation}
-        \Delta_{n+1}=A_n+R_n
-      \end{equation}
-      と書く. ここで $A_n$ は前頁の $R_n$ 以外の3項であり, $\mathcal{F}_{t_n}$ 可測である.
-      \vspace{1mm}
-
-      逆過程に沿って $\{\mu_{T-t}(Y_t)\}_{t\in[0,T)}$ はマルチンゲールなので,
-      {\small
+      なので, 
       \begin{align}
-        \E[R_n\mid\mathcal{F}_{t_n}]
-        &=
-        \int_{t_n}^{t_{n+1}}
-        e^{-(t_{n+1}-u)}
-        \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
-        \frac{2\sqrt{1-\sigma_{T-u}^2}}{\sigma_{T-u}^2}
-        \notag\\
-        &\quad\times
-        \E\left[
-        \mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})
-        \mid\mathcal{F}_{t_n}
-        \right]du
-        =0.
-      \end{align}
-      }
-      したがって,
-      \begin{equation}
-        \E\langle A_n,R_n\rangle
-        =\E\left[\langle A_n,\E[R_n\mid\mathcal{F}_{t_n}]\rangle\right]
-        =0.
-      \end{equation}
-    \end{frame}
-
-    \begin{frame}{証明の概要：一段再帰}
-      前頁より
-      \begin{equation}
-        \E\|\Delta_{n+1}\|_2^2
-        =
-        \E\|A_n\|_2^2+
-        \E\|R_n\|_2^2
-      \end{equation}
-      と分けて評価できる.
-      \vspace{1mm}
-
-      リプシッツ連続性とスコア推定誤差の仮定から,
-      {\small
-      \begin{align}
-        \left(\E\|A_n\|_2^2\right)^{1/2}
+        \E\left[\|Y_0-\hat{Y}_0\|_2^2\right]
         &\leqq
-        e^{h_n}\{1+L(T-t_n)(1-e^{-2h_n})\}
-        \left(\E\|\Delta_n\|_2^2\right)^{1/2}
-        \notag\\
-        &\quad+
-        e^{h_n}(1-e^{-2h_n})\epsilon(t_n).
+        e^{-2T}\E\left[\|X_0\|_2^2\right]
+        +e^{-4T}d.
       \end{align}
-      }
-      この再帰を繰り返すと,
-      {\small
-      \begin{align}
-        \left(\E\|\Delta_N\|_2^2\right)^{1/2}
-        &\leqq
-        e^{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)}
-        \Bigg[
-        \left(\E\|\Delta_0\|_2^2\right)^{1/2}
-        \notag\\
-        &\quad+
-        \sum_{i=0}^{N-1}e^{h_i}(1-e^{-2h_i})\epsilon(t_i)
-        +
-        \left(\sum_{i=0}^{N-1}\E\|R_i\|_2^2\right)^{1/2}
-        \Bigg].
-      \end{align}
-      }
     \end{frame}
 
-    \begin{frame}{証明の概要：内在次元が現れる部分}
-      残る課題は $R_n$ の二乗平均を評価することである. ここでTweedieの公式と伊藤の公式から,
-      \begin{equation}
-        \E\left[\|\mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})\|_2^2\right]
-      \end{equation}
-      は事後共分散 $\Sigma_{T-u}(Y_u)$ によって評価できる.
-      \begin{itemize}
-        \item 事後共分散は, 時刻 $T-u$ で観測したときに $X_0$ に残る不確実性を表す.
-        \item データが低次元集合に集中していると, この不確実性は周囲次元 $d$ ではなく内在次元 $k$ によって抑えられる.
-      \end{itemize}
-      具体的には, 被覆数の仮定から
-      \begin{equation}
-        \E[\operatorname{Tr}(\Sigma_{T-u}(Y_u))]
-        \leqq
-        C\min\left\{
-        \E\|X_0\|_2^2,
-        \frac{\sigma_{T-u}^2}{1-\sigma_{T-u}^2}k\log k
-        \right\}
-      \end{equation}
-      が得られる.
-    \end{frame}
 
-    \begin{frame}{証明の概要：離散化誤差はまとめて評価する}
-      前頁の事後共分散評価を $R_n$ の評価に代入し, 時間分割の条件
-      \begin{equation}
-        h_n\leqq\kappa\min\{1,T-t_n\}
-      \end{equation}
-      を用いると,
+    \begin{frame}{証明の概要：離散化誤差を評価}
+      \cite{huang_wei_chen_2026} より, 次の評価が得られる.
       \begin{equation}
         \sum_{n=0}^{N-1}\E\|R_n\|_2^2
         \leqq
@@ -508,120 +556,134 @@
         +\kappa^2Nk\log k
         \right\}
       \end{equation}
-      が得られる. この部分では時間区間ごとの細かい評価が必要になるが, 証明全体の構造としては
-      \begin{equation}
-        \text{事後平均のマルチンゲール性}
-        +
-        \text{事後共分散の内在次元評価}
+      これは主に, 次の2つの補題から得られる.
+      \begin{lemma}
+        \begin{align}\label{eq:posterior-mean-increment}
+          \E\left[
+              \|\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\|_2^2
+          \right]=
+          \E\left[Tr\left(\Sigma_{T-s}(Y_s)\right)\right]
+          -
+          \E\left[Tr\left(\Sigma_{T-t}(Y_t)\right)\right]
+      \end{align}
+      \end{lemma}
+      \begin{lemma}
+        ある定数 $C>0$ が存在して, 
+        \begin{equation}\label{eq:posterior-covariance-bound}
+          \E\left[\Tr\left(\Sigma_{T-t}(Y_t)\right)\right]
+          \leqq
+          C\min\left\{
+              \E\|X_0\|_2^2,
+              \frac{\sigma_{T-t}^2}{1-\sigma_{T-t}^2}k\log k
+          \right\}
       \end{equation}
-      が中心である.
+      \end{lemma}
     \end{frame}
 
-    \begin{frame}{まとめ}
-      本結果のポイントは次の3点である.
-      \begin{itemize}
-        \item $Y_t$ と $\hat{Y}_t$ を同じブラウン運動で動かし,
-        \begin{equation}
-          W_2(p_\delta,\mathcal{L}(\hat{Y}_{t_N}))
-          \leqq
-          \left(\E\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right)^{1/2}
-        \end{equation}
-        と評価した.
-        \item 一段誤差の恒等式により, 初期分布誤差, スコア推定誤差, 誤差の増幅, 離散化誤差がどの項から来るかを分離した.
-        \item 事後共分散を内在次元 $k$ で評価することで, 離散化誤差に現れる次元依存を $d$ から $k$ に置き換えた.
-      \end{itemize}
+    \begin{frame}{証明の概要：最後の評価}
+      前頁までの評価をまとめると, 
+      \begin{align}
+        \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{1/2}\leqq& e^{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)}[\{e^{-2T}\E[\|X_0\|_2^2]+e^{-4T}d\}^{\frac{1}{2}}\notag\\
+        &+e^\kappa(1-e^{-2\kappa})\sum_{i=0}^{N-1}\epsilon(t_i)\notag\\
+        &+C\{\kappa\min\{\E[\|X_0\|_2^2],Tk\log{k}\}+\kappa^2Nk\log{k}\}^\frac{1}{2}]
+%            &+        \left\{
+%              (1-e^{-\delta})^2\E\|X_0\|_2^2
+%              +(1-e^{-2\delta})d
+%          \right\}^{1/2}
+      \end{align}
+      が得られる.
     \end{frame}
 
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
 
-      \bibitem{benton_et_al_2024}
+      \bibitem[Benton et~al.(2024)]{benton_et_al_2024}
       Benton, J., De Bortoli, V., Doucet, A. and Deligiannidis, G. (2024).
       Nearly $d$-linear convergence bounds for diffusion models via stochastic localization.
       In \textit{International Conference on Learning Representations}.
       \url{https://proceedings.iclr.cc/paper_files/paper/2024/hash/9edce07129d2ec4c511a8783eb3d81b5-Abstract-Conference.html}
 
-      \bibitem{huang_wei_chen_2026}
+      \bibitem[Huang et~al.(2026)]{huang_wei_chen_2026}
       Huang, Z., Wei, Y. and Chen, Y. (2024; revised 2026).
       Denoising diffusion probabilistic models are optimally adaptive to unknown low dimensionality.
       \url{https://arxiv.org/abs/2410.18784}
 
       
-      \bibitem{chen_lee_lu_2023}
+      \bibitem[Chen et~al.(2023a)]{chen_lee_lu_2023}
       Chen, H., Lee, H. and Lu, J. (2023).
       Improved analysis of score-based generative modeling: user-friendly bounds under minimal smoothness assumptions.
       In \textit{Proceedings of the 40th International Conference on Machine Learning}.
       \url{https://proceedings.mlr.press/v202/chen23q.html}
     
-    \bibitem{anderson82}
+    \bibitem[Anderson(1982)]{anderson82}
     Anderson, B. D. O. (1982).
     Reverse-time diffusion equation models.
     Stochastic Process. Appl. 12 313–326.
     \url{https://mathscinet.ams.org/mathscinet/article?mr=656280}
     
-    \bibitem{haussmann_pardoux86}
+    \bibitem[Haussmann and Pardoux(1986)]{haussmann_pardoux86}
     Haussmann, U. G. and Pardoux, E. (1986).
     Time reversal of diffusions.
     Ann. Probab. 14 1188–1205.
     \url{https://mathscinet.ams.org/mathscinet/article?mr=866342}
     
-    \bibitem{tang_zhao_2024}
+    \bibitem[Tang and Zhao(2024)]{tang_zhao_2024}
     Wenpin Tang and Hanyang Zhao (2024).
     Score-based Diffusion Models via Stochastic Differential Equations -- a Technical Tutorial.
     \url{https://arxiv.org/abs/2402.07487}
 
-    \bibitem{efron_2011_tweedie}
+    \bibitem[Efron(2011)]{efron_2011_tweedie}
     Efron, B. (2011).
     Tweedie's formula and selection bias.
     \textit{Journal of the American Statistical Association}
     106(496), 1602--1614.
     \url{https://doi.org/10.1198/jasa.2011.tm11181}
     
-    \bibitem{chen_et_al_2023}
+    \bibitem[Chen et~al.(2023b)]{chen_et_al_2023}
     Chen, S., Chewi, S., Li, J., Li, Y., Salim, A. and Zhang, A. R. (2023).
     Sampling is as easy as learning the score: theory for diffusion models with minimal data assumptions.
     \url{https://arxiv.org/abs/2209.11215}
-    \bibitem{borgi_a_2019}
+    \bibitem[Borji(2019)]{borgi_a_2019}
     Borji, A. (2019). Pros and cons of GAN evaluation measures. Comput.
     Vis. Image Underst. 179 41–65.
     \url{https://arxiv.org/abs/1802.03446}
 
-    \bibitem{koike_2026_follmer}
+    \bibitem[Koike(2026)]{koike_2026_follmer}
     Koike, Y. (2026).
     A note on connections between the F\"ollmer process and the
     denoising diffusion probabilistic model.
     arXiv preprint arXiv:2605.18040.
     \url{https://arxiv.org/abs/2605.18040}
 
-    \bibitem{arsenyan_vardanyan_dalalyan_2025}
+    \bibitem[Arsenyan et~al.(2025)]{arsenyan_vardanyan_dalalyan_2025}
     Arsenyan, V., Vardanyan, E. and Dalalyan, A. S. (2025).
     Assessing the quality of denoising diffusion models in Wasserstein distance:
     noisy score and optimal bounds.
     In \textit{Advances in Neural Information Processing Systems 38}.
     \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/1c26c389d60ec419fd24b5fee5b35796-Abstract-Conference.html}
     
-    \bibitem{beyler_bach_2025}
+    \bibitem[Beyler and Bach(2025)]{beyler_bach_2025}
     Beyler, E. and Bach, F. (2025).
     Convergence of deterministic and stochastic diffusion-model samplers:
     a simple analysis in Wasserstein distance.
     arXiv preprint arXiv:2508.03210.
     \url{https://arxiv.org/abs/2508.03210}
     
-    \bibitem{bruno_sabanis_2025}
+    \bibitem[Bruno and Sabanis(2025)]{bruno_sabanis_2025}
     Bruno, S. and Sabanis, S. (2025).
     Wasserstein convergence of score-based generative models under
     semiconvexity and discontinuous gradients.
     \textit{Transactions on Machine Learning Research}.
     \url{https://openreview.net/forum?id=vS9iVRB7XF}
     
-    \bibitem{gao_nguyen_zhu_2025}
+    \bibitem[Gao et~al.(2025)]{gao_nguyen_zhu_2025}
     Gao, X., Nguyen, H. M. and Zhu, L. (2025).
     Wasserstein convergence guarantees for a general class of
     score-based generative models.
     \textit{Journal of Machine Learning Research} 26(43), 1--54.
     \url{https://jmlr.org/papers/v26/24-0902.html}
     
-    \bibitem{gentiloni_silveri_ocello_2025}
+    \bibitem[Gentiloni Silveri and Ocello(2025)]{gentiloni_silveri_ocello_2025}
     Gentiloni Silveri, M. and Ocello, A. (2025).
     Beyond log-concavity and score regularity:
     improved convergence bounds for score-based generative models
@@ -630,61 +692,61 @@
     Proceedings of Machine Learning Research 267, 55631--55656.
     \url{https://proceedings.mlr.press/v267/silveri25a.html}
     
-    \bibitem{pfarr_timofte_werner_2026}
+    \bibitem[Pfarr et~al.(2026)]{pfarr_timofte_werner_2026}
     Pfarr, E., Timofte, R. and Werner, F. (2026).
     Analyzing the error of generative diffusion models:
     from Euler--Maruyama to higher-order schemes.
     arXiv preprint arXiv:2601.18425.
     \url{https://arxiv.org/abs/2601.18425}
     
-    \bibitem{strasman_et_al_2025}
+    \bibitem[Strasman et~al.(2025)]{strasman_et_al_2025}
     Strasman, S., Ocello, A., Boyer, C., Le Corff, S. and Lemaire, V. (2025).
     An analysis of the noise schedule for score-based generative models.
     \textit{Transactions on Machine Learning Research}.
     \url{https://openreview.net/forum?id=BlYIPa0Fx1}
     
-    \bibitem{yu_yu_2025}
+    \bibitem[Yu and Yu(2025)]{yu_yu_2025}
     Yu, Y. and Yu, L. (2025).
     Advancing Wasserstein convergence analysis of score-based models:
     insights from discretization and second-order acceleration.
     In \textit{Advances in Neural Information Processing Systems 38}.
     \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/c9d9659d1d960b53e8121469ef1f2df5-Abstract-Conference.html}
 
-    \bibitem{D_Bakry}
+    \bibitem[Bakry et~al.(2014)]{D_Bakry}
     D. Bakry, I. Gentil, and M. Ledoux. Analysis and geometry of Markov diffusion operators. Vol. 348. Grundlehren der Mathematischen Wissenschaften [Fundamental Principles of Mathematical Sciences]. Springer, Cham, 2014, pp. xx+552.
     \url{https://link.springer.com/book/10.1007/978-3-319-00227-9}
-    \bibitem{azangulov_deligiannidis_rousseau_2024}
+    \bibitem[Azangulov et~al.(2024)]{azangulov_deligiannidis_rousseau_2024}
     Azangulov, I., Deligiannidis, G. and Rousseau, J. (2024).
     Convergence of diffusion models under the manifold hypothesis
     in high dimensions.
     arXiv preprint arXiv:2409.18804.
     \url{https://arxiv.org/abs/2409.18804}
-    \bibitem{ho_jain_abbeel_2020}
+    \bibitem[Ho et~al.(2020)]{ho_jain_abbeel_2020}
     Ho, J., Jain, A. and Abbeel, P. (2020).
     Denoising diffusion probabilistic models.
     In \textit{Advances in Neural Information Processing Systems 33},
     6840--6851.
     \url{https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html}
 
-    \bibitem{li_yan_2024_low_dimensional}
+    \bibitem[Li and Yan(2024)]{li_yan_2024_low_dimensional}
     Li, G. and Yan, Y. (2024).
     Adapting to unknown low-dimensional structures in
     score-based diffusion models.
     In \textit{Advances in Neural Information Processing Systems 37}.
     \url{https://proceedings.neurips.cc/paper_files/paper/2024/hash/e46c303cfd3b93bd32ecf6070318efc3-Abstract-Conference.html}
 
-    \bibitem{pope_et_al_2021}
+    \bibitem[Pope et~al.(2021)]{pope_et_al_2021}
     Pope, P., Zhu, C., Abdelkader, A., Goldblum, M. and Goldstein, T. (2021).
     The intrinsic dimension of images and its impact on learning.
     In \textit{International Conference on Learning Representations}.
     \url{https://openreview.net/forum?id=XJk19XzGq2J}
 
-    \bibitem{heusel_et_al_2017}
+    \bibitem[Heusel et~al.(2017)]{heusel_et_al_2017}
     Heusel, M., Ramsauer, H., Unterthiner, T., Nessler, B. and Hochreiter, S. (2017).
     GANs trained by a two time-scale update rule converge to a local Nash equilibrium.
     In \textit{Advances in Neural Information Processing Systems 30}.
     \url{https://proceedings.neurips.cc/paper/2017/hash/8a1d694707eb0fefe65871369074926d-Abstract.html}
-    \bibitem{song_et_al_2021}
+    \bibitem[Song et~al.(2021)]{song_et_al_2021}
     Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A.,
     Ermon, S. and Poole, B. (2021).
     Score-based generative modeling through stochastic differential equations.
