@@ -28,6 +28,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{xcolor}
+\newcommand{\E}{\mathbb{E}}
 
 % ------------------------------
 % Beamer のテーマや色の設定
@@ -70,17 +71,23 @@
  %2
   \begin{frame}{目次}
     \begin{itemize}
-      \item 先行研究
+      \item 先行研究紹介
       \begin{itemize}
         \item 拡散モデルの収束解析について
-        \item 拡散モデルの収束解析について (KL ダイバージェンス)
-        \item 拡散モデルの収束解析について (2-Wasserstein 距離)
-        \item 2つの評価指標の比較
+        \item 評価指標の比較
         \item データの内在次元について
         \item 内在次元を用いた拡散モデルの収束解析について
       \end{itemize}
       \item 設定
-      \item 主定理の証明概要
+      \begin{itemize}
+        \item 拡散モデルの更新則
+        \item SDEを通じた解釈
+        \item Tweedieの公式
+        \item データの内在次元の仮定について
+        \item スコア関数に対する仮定
+      \end{itemize}
+      \item 定理
+      \item 定理の証明概要
     \end{itemize}
   \end{frame}
   \begin{frame}{拡散モデルの収束解析について}
@@ -92,7 +99,7 @@
   
   \end{frame}
   %-----------3-------------
-  \begin{frame}{拡散モデルの収束解析について(KLダイバージェンス)}
+  \begin{frame}{拡散モデルの収束解析について : KLダイバージェンス}
     \begin{itemize}
       \item KLでの収束解析は \cite{benton_et_al_2024, chen_lee_lu_2023, chen_et_al_2023, koike_2026_follmer} など多くの先行研究がある. 
       \item データは $\mathbb{R}^d$ 上に分布するとしたとき, \cite{benton_et_al_2024} では $KL(p_{data},\hat{p})\leqq O(d)$ の評価が得られており, これは最適なオーダーであることが示されている.
@@ -101,15 +108,16 @@
   
   \end{frame}
   %------------4-----------
-  \begin{frame}{拡散モデルの収束解析について(2-Wasserstein距離)}
+  \begin{frame}{拡散モデルの収束解析について : 2-Wasserstein距離}
     \begin{itemize}
         \item 2-Wasserstein距離での収束解析も近年増加している\cite{arsenyan_vardanyan_dalalyan_2025, beyler_bach_2025, bruno_sabanis_2025, gao_nguyen_zhu_2025} .
+        \item 先行研究ではすでに $W_2(p_{data},\hat{p})\leqq O(\sqrt{d})$ の評価が得られており, これも最適なオーダーであることが示されている.
         \item しかし, これらの先行研究ではデータ分布 $p_{data}$ へのlog-concave性など, 一般的ではない仮定が置かれており, KLと比較して発展途上である.
     \end{itemize}
   \end{frame}
 
   %---------5-------------
-  \begin{frame}{2つの評価指標の比較}
+  \begin{frame}{評価指標の比較}
     \begin{itemize}
         \item KLダイバージェンス
         \begin{itemize}
@@ -199,9 +207,9 @@
     \begin{frame}{実際の生成アルゴリズムとの対応}
       前頁の $\{\hat{Y}_t\}_{t\in[0,T]}$  に対して, 次の定理が成立する.
       \begin{theorem}
-          任意の $n=0,\cdots, N-1$ に対して, ある独立同分布で標準正規分布に従う $\{Z_n\}_{n=0,\cdots, N-1}$ がが存在して, 次の関係が成り立つ.
+          任意の $n=0,\cdots, N-1$ に対して, ある独立同分布で標準正規分布に従う $\{Z_n\}_{n=0,\cdots, N-1}$ が存在して, 次の関係が成り立つ.
           \begin{equation}
-            \hat{Y}_{n+1}=\frac{1}{\sqrt{\alpha_n}}(\hat{Y}_{n}+(1-\alpha_n)\hat{s}_{T-t_n}(\hat{Y}_{n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n
+            \hat{Y}_{t_{n+1}}=\frac{1}{\sqrt{\alpha_n}}(\hat{Y}_{t_n}+(1-\alpha_n)\hat{s}_{T-t_n}(\hat{Y}_{t_n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n
           \end{equation}
       \end{theorem}
       この定理により, (10) のSDEは (2) のアルゴリズムを連続時間補完したものと解釈できることがわかる.
@@ -238,12 +246,14 @@
     \end{frame}
     %---------15-------------
     \begin{frame}{スコア関数に対する仮定}
+      スコアの推定量に対してリプシッツ連続性の仮定を置く. この仮定はKLダイバージェンスの場合は課されていない. しかし, Wasserstein距離での収束解析の先行研究では現状このような仮定が置かれている場合が多い.
       \begin{assumption}
-          ある二乗可積分な関数 $L:(0,1)\rightarrow [0,\infty)$ が存在して, 次の式が成立する.
+          ある二乗可積分な関数 $L:(0,1)\rightarrow [0,\infty)$ が存在して, 次が成立する.
           \begin{equation}
               \|\hat{s}_t(x)-\hat{s}_t(y)\|\leqq L(t)\|x-y\| \quad  ^{\forall}(t,x,y)\in (0,1)\times \mathbb{R}^d\times \mathbb{R}^d
           \end{equation}
       \end{assumption}
+      次に, スコアの推定精度に関する仮定を置く. これはあらゆる拡散モデルの収束解析で課されているものであり, 学習の損失関数の形からも自然な仮定である.
       \begin{assumption}
           \begin{equation}
               \mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2^2]\leqq \epsilon^2(t_i)<\infty\quad (0\leqq i \leqq N-1)
@@ -251,10 +261,277 @@
       \end{assumption}
     \end{frame}
     %---------16-------------
-    \begin{frame}{主定理}
+    \begin{frame}{定理}
       前頁までの仮定のもと, 次の評価が成立する.
-      
+      \begin{theorem}
+        $\delta:=T-t_N$ とし, $\kappa$ を,  $t_{n+1}-t_n\leqq\kappa\min\{1,T-t_n\}\quad (0\leqq n\leqq N-1)$ を満たす最小の正数とする. 
+        このとき, ある定数$C>0$ が存在して, 次が成立する.
+        \begin{align}
+            W_2(p_{\delta}, \mathcal{L}(\hat{Y}_{t_N}))\leqq& e^{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)}[\{e^{-2T}\E[\|X_0\|_2^2]+e^{-4T}d\}^{\frac{1}{2}}\notag\\
+            &+e^\kappa(1-e^{-2\kappa})\sum_{i=0}^{N-1}\epsilon(t_i)\notag\\
+            &+C\{\kappa\min\{\E[\|X_0\|_2^2],Tk\log{k}\}+\kappa^2Nk\log{k}\}^\frac{1}{2}]
+%            &+        \left\{
+%              (1-e^{-\delta})^2\E\|X_0\|_2^2
+%              +(1-e^{-2\delta})d
+%          \right\}^{1/2}
+        \end{align}
+      \end{theorem}
     \end{frame}
+    %---------17-------------
+    \begin{frame}{証明の概要：同じ確率空間, 同じブラウン運動で比較する}
+      \begin{itemize}
+        \item $Y$ の初期分布を
+        \begin{equation}
+          Y_0=e^{-T}X_0+\sigma_TZ,\qquad Z\sim\mathcal{N}(0,I_d)
+        \end{equation}
+        と取る. このとき $Y_0\stackrel{\mathrm{d}}{=}X_T$ である.
+        \item $\hat{Y}$ の初期分布を
+        \begin{equation}
+          \hat{Y}_0=Z
+        \end{equation}
+        とし, さらに $Y_t$ と $\hat{Y}_t$ を同じブラウン運動 $B_t$ で駆動する.
+        \item このとき, Wasserstein距離の定義から, 
+        \begin{equation}
+          W_2(p_{\delta},\mathcal{L}(\hat{Y}_{t_N}))
+          \leqq
+          \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{1/2}.
+        \end{equation}
+        となる.
+      \end{itemize}
+    \end{frame}
+
+    \begin{frame}{証明の概要：$Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}$ の計算}
+      $Y_{t_{n+1}}$, $\hat{Y}_{t_{n+1}}$ は次のように書ける.
+        \begin{align}
+          \hat{Y}_{t_{n+1}}
+          &=
+          e^{-h_n}
+          \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-t_n}^2}
+          \hat{Y}_{t_n}+
+          \frac{
+              e^{-(T-t_{n+1})}(1-e^{-2h_n})
+          }{\sigma_{T-t_n}^2}
+          \hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
+          \notag\\
+          &\quad+
+          \sqrt{2}\int_{t_n}^{t_{n+1}}
+          e^{-(t_{n+1}-u)}
+          \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+          d B_u.
+        \end{align}
+        \begin{align}
+          Y_{t_{n+1}}
+          &=
+          e^{-h_n}
+          \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-t_n}^2}
+          Y_{t_n}\notag\\
+          &+
+          \int_{t_n}^{t_{n+1}}
+          e^{-(t_{n+1}-u)}
+          \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+          \frac{2\sqrt{1-\sigma_{T-u}^2}}{\sigma_{T-u}^2}
+          \mu_{T-u}(Y_u)d u
+          \notag\\
+          &\quad+
+          \sqrt{2}\int_{t_n}^{t_{n+1}}
+          e^{-(t_{n+1}-u)}
+          \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+          d B_u.
+      \end{align}
+    \end{frame}
+    \begin{frame}{証明の概要：$Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}$ の計算}
+      差を取り, 整理すると次のようになる.
+      \begin{align}
+        Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}
+        &=e^{h_n}(Y_{t_n}-\hat{Y}_{t_n})
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})
+        \underbrace{\left\{
+            s_{T-t_n}(Y_{t_n})-\hat{s}_{T-t_n}(Y_{t_n})
+        \right\}}_{{\text{スコア推定誤差}}}
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})
+        \underbrace{\left\{
+            \hat{s}_{T-t_n}(Y_{t_n})
+            -\hat{s}_{T-t_n}(\hat{Y}_{t_n})
+        \right\}}_{\text{リプシッツ連続性で評価可能な誤差}}\notag\\
+        &\quad+\int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+        \frac{2\sqrt{1-\sigma_{T-u}^2}}{\sigma_{T-u}^2}
+        \notag\\
+        &\quad\quad \quad\quad\times
+        \underbrace{\left\{
+            \mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})
+        \right\}}_{\text{離散化誤差}}d u
+      \end{align}
+    \end{frame}
+
+    
+
+    \begin{frame}{証明の概要：初期分布誤差は $\Delta_0$ に入る}
+      初期値の取り方より
+      \begin{equation}
+        \Delta_0
+        =Y_0-\hat{Y}_0
+        =e^{-T}X_0+(\sigma_T-1)Z.
+      \end{equation}
+      よって, $X_0$ と $Z$ が独立であることから,
+      \begin{align}
+        \E\left[\|\Delta_0\|_2^2\right]
+        &\leqq
+        e^{-2T}\E\left[\|X_0\|_2^2\right]
+        +(1-\sigma_T)^2d.
+      \end{align}
+      また,
+      \begin{equation}
+        (1-\sigma_T)^2
+        =
+        \left(1-\sqrt{1-e^{-2T}}\right)^2
+        =O(e^{-4T})
+      \end{equation}
+      である. したがって, 初期分布の違いは $\Delta_0$ の評価として現れる.
+    \end{frame}
+
+    \begin{frame}{証明の概要：}
+
+    \begin{frame}{証明の概要：交差項が消える理由}
+      一段誤差を
+      \begin{equation}
+        \Delta_{n+1}=A_n+R_n
+      \end{equation}
+      と書く. ここで $A_n$ は前頁の $R_n$ 以外の3項であり, $\mathcal{F}_{t_n}$ 可測である.
+      \vspace{1mm}
+
+      逆過程に沿って $\{\mu_{T-t}(Y_t)\}_{t\in[0,T)}$ はマルチンゲールなので,
+      {\small
+      \begin{align}
+        \E[R_n\mid\mathcal{F}_{t_n}]
+        &=
+        \int_{t_n}^{t_{n+1}}
+        e^{-(t_{n+1}-u)}
+        \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+        \frac{2\sqrt{1-\sigma_{T-u}^2}}{\sigma_{T-u}^2}
+        \notag\\
+        &\quad\times
+        \E\left[
+        \mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})
+        \mid\mathcal{F}_{t_n}
+        \right]du
+        =0.
+      \end{align}
+      }
+      したがって,
+      \begin{equation}
+        \E\langle A_n,R_n\rangle
+        =\E\left[\langle A_n,\E[R_n\mid\mathcal{F}_{t_n}]\rangle\right]
+        =0.
+      \end{equation}
+    \end{frame}
+
+    \begin{frame}{証明の概要：一段再帰}
+      前頁より
+      \begin{equation}
+        \E\|\Delta_{n+1}\|_2^2
+        =
+        \E\|A_n\|_2^2+
+        \E\|R_n\|_2^2
+      \end{equation}
+      と分けて評価できる.
+      \vspace{1mm}
+
+      リプシッツ連続性とスコア推定誤差の仮定から,
+      {\small
+      \begin{align}
+        \left(\E\|A_n\|_2^2\right)^{1/2}
+        &\leqq
+        e^{h_n}\{1+L(T-t_n)(1-e^{-2h_n})\}
+        \left(\E\|\Delta_n\|_2^2\right)^{1/2}
+        \notag\\
+        &\quad+
+        e^{h_n}(1-e^{-2h_n})\epsilon(t_n).
+      \end{align}
+      }
+      この再帰を繰り返すと,
+      {\small
+      \begin{align}
+        \left(\E\|\Delta_N\|_2^2\right)^{1/2}
+        &\leqq
+        e^{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)}
+        \Bigg[
+        \left(\E\|\Delta_0\|_2^2\right)^{1/2}
+        \notag\\
+        &\quad+
+        \sum_{i=0}^{N-1}e^{h_i}(1-e^{-2h_i})\epsilon(t_i)
+        +
+        \left(\sum_{i=0}^{N-1}\E\|R_i\|_2^2\right)^{1/2}
+        \Bigg].
+      \end{align}
+      }
+    \end{frame}
+
+    \begin{frame}{証明の概要：内在次元が現れる部分}
+      残る課題は $R_n$ の二乗平均を評価することである. ここでTweedieの公式と伊藤の公式から,
+      \begin{equation}
+        \E\left[\|\mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})\|_2^2\right]
+      \end{equation}
+      は事後共分散 $\Sigma_{T-u}(Y_u)$ によって評価できる.
+      \begin{itemize}
+        \item 事後共分散は, 時刻 $T-u$ で観測したときに $X_0$ に残る不確実性を表す.
+        \item データが低次元集合に集中していると, この不確実性は周囲次元 $d$ ではなく内在次元 $k$ によって抑えられる.
+      \end{itemize}
+      具体的には, 被覆数の仮定から
+      \begin{equation}
+        \E[\operatorname{Tr}(\Sigma_{T-u}(Y_u))]
+        \leqq
+        C\min\left\{
+        \E\|X_0\|_2^2,
+        \frac{\sigma_{T-u}^2}{1-\sigma_{T-u}^2}k\log k
+        \right\}
+      \end{equation}
+      が得られる.
+    \end{frame}
+
+    \begin{frame}{証明の概要：離散化誤差はまとめて評価する}
+      前頁の事後共分散評価を $R_n$ の評価に代入し, 時間分割の条件
+      \begin{equation}
+        h_n\leqq\kappa\min\{1,T-t_n\}
+      \end{equation}
+      を用いると,
+      \begin{equation}
+        \sum_{n=0}^{N-1}\E\|R_n\|_2^2
+        \leqq
+        C\left\{
+        \kappa\min\{\E\|X_0\|_2^2,Tk\log k\}
+        +\kappa^2Nk\log k
+        \right\}
+      \end{equation}
+      が得られる. この部分では時間区間ごとの細かい評価が必要になるが, 証明全体の構造としては
+      \begin{equation}
+        \text{事後平均のマルチンゲール性}
+        +
+        \text{事後共分散の内在次元評価}
+      \end{equation}
+      が中心である.
+    \end{frame}
+
+    \begin{frame}{まとめ}
+      本結果のポイントは次の3点である.
+      \begin{itemize}
+        \item $Y_t$ と $\hat{Y}_t$ を同じブラウン運動で動かし,
+        \begin{equation}
+          W_2(p_\delta,\mathcal{L}(\hat{Y}_{t_N}))
+          \leqq
+          \left(\E\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right)^{1/2}
+        \end{equation}
+        と評価した.
+        \item 一段誤差の恒等式により, 初期分布誤差, スコア推定誤差, 誤差の増幅, 離散化誤差がどの項から来るかを分離した.
+        \item 事後共分散を内在次元 $k$ で評価することで, 離散化誤差に現れる次元依存を $d$ から $k$ に置き換えた.
+      \end{itemize}
+    \end{frame}
+
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
 
