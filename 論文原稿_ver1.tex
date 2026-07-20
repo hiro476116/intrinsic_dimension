@@ -1,0 +1,900 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[authoryear,round]{natbib}
+\setcitestyle{authoryear,open={(},close={)},aysep={ },citesep={; }}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\crefname{assumption}{Assumption}{Assumptions}
+\Crefname{assumption}{Assumption}{Assumptions}
+\crefname{lemma}{Lemma}{Lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Proposition}{Propositions}
+\Crefname{proposition}{Proposition}{Propositions}
+\crefname{remark}{Remark}{Remarks}
+\Crefname{remark}{Remark}{Remarks}
+\crefname{definition}{Definition}{Definitions}
+\Crefname{definition}{Definition}{Definitions}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\Law}{\mathcal{L}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\Id}{I_d}
+\newcommand{\pdata}{p_{\mathrm{data}}}
+\newcommand{\Wtwo}{W_2}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert_2}
+\newcommand{\ip}[2]{\left\langle #1,#2\right\rangle}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\lesssimc}{\lesssim}
+
+\title{Intrinsic-Dimension-Dependent Wasserstein Bounds\\
+for Denoising Diffusion Probabilistic Models}
+\author{Kazuma Hiro}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study the convergence of the denoising diffusion probabilistic model (DDPM) in the 2-Wasserstein distance when the target distribution has low intrinsic complexity. The data distribution may be singular with respect to Lebesgue measure; its low-dimensional structure is quantified by a metric-entropy condition on its support. We represent the original DDPM update as the grid-point values of a semilinear stochastic differential equation and compare this interpolation with the exact reverse-time Ornstein--Uhlenbeck diffusion by a synchronous coupling. Tweedie's formula rewrites the nonlinear drift in terms of the posterior mean of the clean data. Along the reverse process, this posterior mean is a square-integrable martingale, which yields an orthogonal decomposition between the propagated sampling error and the local time-discretization error. A posterior-covariance estimate inherited from the metric-entropy structure then converts the ambient-dimensional discretization term into a quantity of order $k\log k$, where $k$ is the intrinsic dimension. The final non-asymptotic bound separates early-stopping, Gaussian-initialization, score-estimation, and time-discretization errors. In particular, the discretization component depends on the intrinsic dimension rather than directly on the ambient dimension. We also identify the remaining sources of ambient-dimensional dependence and the regularity assumptions needed by the coupling argument.
+\end{abstract}
+
+\paragraph{Keywords.}
+Diffusion models; DDPM; Wasserstein distance; intrinsic dimension; metric entropy; reverse-time diffusion; Tweedie's formula.
+
+\section{Introduction}
+
+Diffusion models have become a leading approach to generative modeling, with strong empirical performance in image, audio, video, scientific, and other high-dimensional data domains \citep{ho2020ddpm,song2021score}. Given independent observations from an unknown probability distribution $\pdata$ on $\R^d$, a diffusion model gradually perturbs the data by Gaussian noise and then learns to reverse this noising mechanism. If $\hat p$ denotes the distribution produced by the resulting sampler, a central theoretical problem is to quantify the discrepancy between $\pdata$ and $\hat p$ under a probability metric or divergence.
+
+\paragraph{Convergence analysis in KL divergence.}
+A large part of the existing theory measures the sampling error by Kullback--Leibler divergence. 
+This choice is analytically convenient because Girsanov's theorem converts 
+an error between reverse-time drifts into a path-space relative-entropy estimate. 
+Under weak assumptions on the data distribution, 
+dimension-dependent convergence guarantees have been obtained by, among others, 
+\citet{chen2023sampling}, \citet{chen2023improved}, \citet{benton2024nearly}, and \citet{koike2026follmer}. 
+In particular, the sharpest general results exhibit a leading ambient-dimensional dependence of order $d$, up to the accuracy, score-estimation, and time-discretization factors appearing in the corresponding theorem; this order is essentially unavoidable without additional structure \citep{benton2024nearly}. Thus, from the viewpoint of KL divergence, the full-dimensional convergence theory of diffusion models is now comparatively well developed.
+
+\paragraph{Convergence analysis in 2-Wasserstein distance.}
+Convergence in the 2-Wasserstein distance has also received increasing attention \citep{gao2025wasserstein,bruno2025wasserstein,arsenyan2025assessing,gentiloni2025beyond,beyler2025convergence,yu2025advancing}. Existing results obtain the natural ambient-dimensional scale $\Wtwo(\pdata,\hat p)=O(\sqrt d)$ in several regimes. Compared with the KL theory, however, these results generally require stronger assumptions, such as log-concavity, semiconvexity, one-sided curvature conditions, or regularity of the true or learned score. The reason is that the path-space change-of-measure argument available for KL divergence does not directly control a Wasserstein distance; one must instead construct and stabilize a coupling between the exact and approximate sampling trajectories.
+
+Wasserstein error is nevertheless important for both theoretical and practical reasons. It is defined for singular target distributions as soon as the relevant moments are finite, and it incorporates the geometry of the sample space through transportation cost. Moreover, the Fr\'echet Inception Distance used in image-generation evaluation is the squared $2$-Wasserstein distance between Gaussian approximations of feature distributions in the Inception representation \citep{heusel2017gans}. By contrast, small KL divergence alone does not, without further integrability assumptions, provide a uniform quantitative control of means, covariances, or Euclidean transportation error \citep{beyler2025convergence}. These observations motivate a direct $W_2$ analysis rather than obtaining geometric conclusions indirectly from a divergence bound.
+
+\paragraph{Low-dimensional structure of data.}
+Worst-case rates expressed in the ambient dimension can be highly pessimistic for modern data. 
+The manifold hypothesis asserts that high-dimensional observations are often concentrated on, 
+or close to, a set describable by substantially fewer effective variables. 
+This effective number of variables is commonly called the intrinsic dimension. 
+For example, although an ImageNet image 
+ lies in an ambient space of dimension $224\times224\times3 = 150{,}528$, 
+\citet{pope2021intrinsic} empirically estimate the intrinsic dimension of ImageNet to be approximately $43$.
+Similar phenomena are observed for MNIST and CIFAR-10. This gap raises a fundamental question: can the convergence complexity of a diffusion sampler depend on the intrinsic dimension of the data rather than on the ambient dimension of the representation?
+
+Recent work has answered this question affirmatively for several diffusion-model guarantees. \citet{li2024adapting} studied adaptation to unknown low-dimensional structure, \citet{azangulov2024manifold} analyzed diffusion models under a manifold hypothesis, and \citet{huang2026optimal} established a sharp intrinsic-dimension dependence for the original DDPM sampler under a metric-entropy assumption on the data support. In the latter framework, the support need not be a smooth manifold and the target measure need not have a Lebesgue density. The low-dimensional complexity is encoded by a covering-number bound, and the resulting KL analysis replaces the ambient dimension by an intrinsic quantity of order $k$ up to logarithmic factors. A corresponding convergence theory in 2-Wasserstein distance was left open.
+
+\paragraph{Our contribution.}
+This paper develops an intrinsic-dimension-dependent $W_2$ analysis for the original DDPM coefficients. We assume that the support of $\pdata$ has metric entropy of order $k\log(1/\varepsilon)$ at a polynomially fine scale, where $k$ plays the role of intrinsic dimension. We do not assume that the target distribution is log-concave, absolutely continuous, or supported on a smooth manifold.
+
+The proof proceeds by interpreting the DDPM update as the grid-point values of a semilinear stochastic differential equation and synchronously coupling this interpolation with the exact reverse-time Ornstein--Uhlenbeck diffusion. Tweedie's formula rewrites the score contribution in terms of the posterior mean
+\[
+    \mu_t(x)=\E[X_0\mid X_t=x].
+\]
+Along the exact reverse process, $\mu_{T-t}(Y_t)$ is a square-integrable martingale. This structure makes the local time-discretization remainder conditionally centered and yields an orthogonal decomposition between the propagated sampling error and the local discretization error. The temporal fluctuation of the posterior mean is then controlled by the posterior covariance. By adapting the metric-entropy localization argument of \citet{huang2026optimal}, we obtain
+\[
+    \E\Tr\Sigma_{T-t}(Y_t)
+    \lesssim
+    \min\left\{\E\norm{X_0}^2,
+    \frac{\sigma_{T-t}^2}{1-\sigma_{T-t}^2}k\log k\right\}.
+\]
+This estimate converts the main time-discretization contribution from an ambient-dimensional quantity into one governed by $k\log k$.
+
+Our final non-asymptotic bound separates four error sources: early stopping, replacement of the terminal forward marginal by a standard Gaussian, score estimation, and time discretization. Up to a stability factor determined by the spatial Lipschitz modulus of the learned score, the discretization term is bounded by
+\[
+    C\Bigl\{\kappa\min\bigl(\E\norm{X_0}^2,Tk\log k\bigr)
+      +\kappa^2Nk\log k\Bigr\}^{1/2}.
+\]
+Thus, the principal discretization error adapts to the intrinsic dimension of the data support. The theorem also makes explicit where ambient dimension still enters: namely, in the early-stopping and Gaussian-initialization errors. This separation clarifies both the gain from low-dimensional structure and the remaining obstacles to a completely intrinsic-dimensional Wasserstein guarantee.
+
+\paragraph{Organization.}
+\Cref{sec:setup} introduces the forward diffusion, the reverse-time SDE, and the continuous-time interpolation of DDPM. \Cref{sec:assumptions} states the metric-entropy, mesh, and score assumptions. \Cref{sec:main} presents the main Wasserstein bound. \Cref{sec:proof} proves the theorem by combining the reverse posterior martingale, a 2-discrete recursion, and the intrinsic-dimensional posterior-covariance estimate. The appendices provide details of the metric-entropy localization and the summation-by-parts argument.
+
+\section{Diffusion model and continuous interpolation}
+\label{sec:setup}
+
+\subsection{Forward Ornstein--Uhlenbeck process}
+
+Let $X_0\sim\pdata$ be an $\R^d$-valued random vector satisfying $\E\norm{X_0}^2<\infty$. Consider the Ornstein--Uhlenbeck process
+\begin{equation}
+    \dd X_t=-X_t\dd t+\sqrt{2}\,\dd W_t,
+    \qquad t\in[0,T],
+    \label{eq:forward-sde}
+\end{equation}
+where $W$ is a standard $d$-dimensional Brownian motion independent of $X_0$. Its marginal law admits the representation
+\begin{equation}
+    X_t\overset{\mathrm d}=e^{-t}X_0+\sigma_t Z,
+    \qquad
+    \sigma_t:=\sqrt{1-e^{-2t}},
+    \qquad Z\sim\N(0,\Id),
+    \label{eq:forward-marginal}
+\end{equation}
+with $Z$ independent of $X_0$. For $t>0$, let $q_t$ be the density of $X_t$ and define the score
+\begin{equation}
+    s_t(x):=\nabla\log q_t(x).
+    \label{eq:true-score}
+\end{equation}
+
+\subsection{Reverse-time diffusion}
+
+The reverse-time SDE associated with \eqref{eq:forward-sde} is
+\begin{equation}
+    \dd Y_t=\bigl\{Y_t+2s_{T-t}(Y_t)\bigr\}\dd t+\sqrt{2}\,\dd B_t,
+    \qquad t\in[0,T),
+    \label{eq:reverse-sde}
+\end{equation}
+where $B$ is a Brownian motion in the reverse filtration. If $Y_0\sim\Law(X_T)$, then
+\begin{equation}
+    Y_t\overset{\mathrm d}=X_{T-t},
+    \qquad 0\le t\le T.
+    \label{eq:time-reversal-marginal}
+\end{equation}
+
+For later use, define the posterior mean and posterior covariance
+\begin{equation}
+    \mu_t(x):=\E[X_0\mid X_t=x],
+    \qquad
+    \Sigma_t(x):=\Cov(X_0\mid X_t=x).
+    \label{eq:posterior-defs}
+\end{equation}
+Tweedie's formula \citep{efron2011tweedie} gives
+\begin{equation}
+    \mu_t(x)=\frac{x+\sigma_t^2s_t(x)}{e^{-t}},
+    \qquad
+    s_t(x)=\frac{e^{-t}}{\sigma_t^2}\mu_t(x)-\frac{x}{\sigma_t^2}.
+    \label{eq:tweedie}
+\end{equation}
+Consequently, \eqref{eq:reverse-sde} can be rewritten as
+\begin{equation}
+    \dd Y_t=
+    \left\{
+       \left(1-\frac{2}{\sigma_{T-t}^2}\right)Y_t
+       +\frac{2e^{-(T-t)}}{\sigma_{T-t}^2}\mu_{T-t}(Y_t)
+    \right\}\dd t+\sqrt{2}\,\dd B_t.
+    \label{eq:reverse-posterior}
+\end{equation}
+
+\subsection{DDPM and its semilinear interpolation}
+
+Choose grid points
+\begin{equation}
+    0=t_0<t_1<\cdots<t_N<t_{N+1}=T,
+    \qquad h_n:=t_{n+1}-t_n.
+    \label{eq:grid}
+\end{equation}
+Set
+\begin{equation}
+    \alpha_n:=e^{-2h_n},
+    \qquad
+    \bar\alpha_n:=\prod_{i=n}^{N}\alpha_i=e^{-2(T-t_n)}.
+    \label{eq:alpha}
+\end{equation}
+Given score estimators $\hat s_t$, the DDPM update is
+\begin{equation}
+\begin{split}
+    \hat Y_{t_0}&\sim\N(0,\Id),\\
+    \hat Y_{t_{n+1}}
+    &=\frac{1}{\sqrt{\alpha_n}}
+       \left\{\hat Y_{t_n}+(1-\alpha_n)
+       \hat s_{T-t_n}(\hat Y_{t_n})\right\}
+       +\sqrt{\frac{(1-\alpha_n)(1-\bar\alpha_{n+1})}
+       {1-\bar\alpha_n}}\,Z_n,
+\end{split}
+\label{eq:ddpm-update}
+\end{equation}
+where $Z_0,\dots,Z_{N-1}$ are independent standard Gaussian vectors.
+
+Define the posterior-mean estimator induced by $\hat s_t$ as
+\begin{equation}
+    \hat\mu_t(x):=\frac{x+\sigma_t^2\hat s_t(x)}{e^{-t}}.
+    \label{eq:muhat}
+\end{equation}
+On each interval $[t_n,t_{n+1}]$, consider the semilinear SDE
+\begin{equation}
+    \dd\hat Y_t=
+    \left\{
+       \left(1-\frac{2}{\sigma_{T-t}^2}\right)\hat Y_t
+       +\frac{2e^{-(T-t)}}{\sigma_{T-t}^2}
+         \hat\mu_{T-t_n}(\hat Y_{t_n})
+    \right\}\dd t+\sqrt{2}\,\dd B_t.
+    \label{eq:interpolation}
+\end{equation}
+The linear part is integrated exactly, while the nonlinear posterior-mean term is frozen at the left endpoint.
+
+\begin{proposition}[Exact grid-point representation]
+\label{prop:interpolation}
+The grid-point values of \eqref{eq:interpolation} satisfy \eqref{eq:ddpm-update} in distribution. In particular, \eqref{eq:interpolation} is a continuous-time interpolation of the original DDPM sampler.
+\end{proposition}
+
+\begin{proof}
+Applying the variation-of-constants formula on $[t_n,t_{n+1}]$ gives
+\begin{equation}
+\begin{split}
+\hat Y_{t_{n+1}}
+={}&e^{-h_n}\frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-t_n}^2}\hat Y_{t_n}
++\frac{e^{-(T-t_{n+1})}(1-e^{-2h_n})}{\sigma_{T-t_n}^2}
+ \hat\mu_{T-t_n}(\hat Y_{t_n})\\
+&+\sqrt{2}\int_{t_n}^{t_{n+1}}
+ e^{-(t_{n+1}-u)}
+ \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}\,\dd B_u.
+\end{split}
+\label{eq:interpolation-solution}
+\end{equation}
+Substituting \eqref{eq:muhat} and using
+\[
+ e^{-h_n}\frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-t_n}^2}
+ +\frac{e^{h_n}(1-e^{-2h_n})}{\sigma_{T-t_n}^2}=e^{h_n}
+\]
+produces the deterministic part of \eqref{eq:ddpm-update}. A direct It\^o-isometry calculation shows that the Gaussian integral in \eqref{eq:interpolation-solution} has covariance
+\[
+    \frac{(1-\alpha_n)(1-\bar\alpha_{n+1})}{1-\bar\alpha_n}\,\Id.
+\]
+Independence across disjoint time intervals completes the proof.
+\end{proof}
+
+\section{Intrinsic dimension and analytic assumptions}
+\label{sec:assumptions}
+
+\subsection{Metric-entropy structure}
+
+\begin{definition}[Covering number]
+For $A\subset\R^d$ and $\varepsilon>0$, let
+$N_{\mathrm{cov}}(A,\norm{\cdot},\varepsilon)$ be the smallest integer $m$ for which there exist $x_1,\dots,x_m\in\R^d$ such that
+\[
+    A\subset\bigcup_{i=1}^m B(x_i,\varepsilon).
+\]
+\end{definition}
+
+Let $\mathcal X:=\supp(\pdata)$.
+
+\begin{assumption}[Metric-entropy dimension]
+\label{ass:entropy}
+Let $k\ge2$. There are fixed constants $C_0,C_{\mathrm{cov}}>0$ such that, with
+$\varepsilon_0=k^{-C_0}$,
+\begin{equation}
+    \log N_{\mathrm{cov}}(\mathcal X,\norm{\cdot},\varepsilon_0)
+    \le C_{\mathrm{cov}}k\log(1/\varepsilon_0).
+    \label{eq:entropy-assumption}
+\end{equation}
+\end{assumption}
+
+\begin{assumption}[Bounded support]
+\label{ass:support}
+For a fixed constant $C_R>0$,
+\begin{equation}
+    \sup_{x\in\mathcal X}\norm{x}\le R,
+    \qquad R\le k^{C_R}.
+    \label{eq:support-bound}
+\end{equation}
+\end{assumption}
+
+The dimension $k$ in Assumption~\ref{ass:entropy} is a metric-entropy notion of intrinsic dimension. No manifold parametrization, smoothness, or absolute continuity of $\pdata$ is required.
+
+\subsection{Time mesh and score assumptions}
+
+Let the early-stopping time be
+\begin{equation}
+    \delta:=T-t_N.
+    \label{eq:delta}
+\end{equation}
+Define the relative mesh size $\kappa$ by requiring
+\begin{equation}
+    h_n\le\kappa\min\{1,T-t_n\},
+    \qquad 0\le n\le N-1.
+    \label{eq:mesh-assumption}
+\end{equation}
+For notational simplicity, we assume that the grid contains $T-1$, so that $t_M=T-1$ for some $M\in\{0,\dots,N\}$. This restriction can be removed by splitting the interval containing $T-1$ and modifying only universal constants.
+
+\begin{assumption}[Spatial regularity of the learned score]
+\label{ass:lipschitz}
+There is a measurable function $L:[\delta,T]\to[0,\infty)$ such that
+\begin{equation}
+    \norm{\hat s_r(x)-\hat s_r(y)}
+    \le L(r)\norm{x-y},
+    \qquad r\in[\delta,T],\quad x,y\in\R^d.
+    \label{eq:lipschitz-score}
+\end{equation}
+\end{assumption}
+
+\begin{assumption}[Score estimation along the forward marginals]
+\label{ass:score-error}
+For $n=0,\dots,N-1$, there are finite numbers $\varepsilon_n\ge0$ such that
+\begin{equation}
+    \E\norm{s_{T-t_n}(X_{T-t_n})-
+    \hat s_{T-t_n}(X_{T-t_n})}^2\le\varepsilon_n^2.
+    \label{eq:score-error}
+\end{equation}
+\end{assumption}
+
+\section{Main result}
+\label{sec:main}
+
+Define the stability factor
+\begin{equation}
+    \mathcal G_N
+    :=\prod_{i=0}^{N-1}
+       e^{h_i}\left\{1+L(T-t_i)(1-e^{-2h_i})\right\}.
+    \label{eq:growth-factor}
+\end{equation}
+
+\begin{theorem}[Intrinsic-dimension-dependent Wasserstein bound]
+\label{thm:main}
+Suppose Assumptions~\ref{ass:entropy}--\ref{ass:score-error} hold. Assume $T>1$, $k\ge2$, and that for fixed constants $C_d,C_\delta>0$,
+\begin{equation}
+    d\le k^{C_d},
+    \qquad
+    k^{-C_\delta}\le\delta<1,
+    \qquad
+    \kappa\le0.9.
+    \label{eq:poly-regime}
+\end{equation}
+Then there is a constant $C>0$, depending only on the fixed constants in the assumptions, such that
+\begin{align}
+&\Wtwo\bigl(\pdata,\Law(\hat Y_{t_N})\bigr)
+\nonumber\\
+&\quad\le
+\underbrace{\left\{(1-e^{-\delta})^2\E\norm{X_0}^2+\sigma_\delta^2d\right\}^{1/2}}_{\text{early-stopping error}}
+\nonumber\\
+&\qquad+\mathcal G_N\Biggl[
+\underbrace{\left\{e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d\right\}^{1/2}}_{\text{Gaussian-initialization error}}
+\nonumber\\
+&\hspace{7.4em}
++\underbrace{\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})\varepsilon_j}_{\text{score-estimation error}}
+\nonumber\\
+&\hspace{7.4em}
++\underbrace{C\left\{\kappa\min\bigl(\E\norm{X_0}^2,Tk\log k\bigr)
++\kappa^2Nk\log k\right\}^{1/2}}_{\text{time-discretization error}}
+\Biggr].
+\label{eq:main-bound}
+\end{align}
+Moreover,
+\begin{equation}
+    \mathcal G_N
+    \le\exp\left\{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)\right\}.
+    \label{eq:growth-simple}
+\end{equation}
+\end{theorem}
+
+\begin{remark}[Where the ambient dimension remains]
+The principal discretization term in \eqref{eq:main-bound} is governed by $k\log k$. The ambient dimension $d$ remains in the early-stopping and Gaussian-initialization errors. These terms arise before the intrinsic-dimensional posterior fluctuation estimate is used. Choosing $T$ large and $\delta$ small controls them, but the required choices may depend on $d$.
+\end{remark}
+
+\begin{remark}[Score regularity]
+The Lipschitz assumption is imposed only on the learned score, not on the target density or the true score. It enters through the pathwise stability of the synchronous coupling. Removing this assumption would require a different stability mechanism, such as one-sided contractivity or a localized argument.
+\end{remark}
+
+\section{Proof of the main theorem}
+\label{sec:proof}
+
+\subsection{A coupling compatible with the reverse filtration}
+
+A subtle point is that the martingale argument below must remain valid after the approximate process is introduced. We therefore use a coupling that preserves the conditional structure of the reverse process.
+
+Let $(X_0,(Y_t)_{0\le t\le t_N})$ be a realization of the exact reverse process satisfying \eqref{eq:time-reversal-marginal}. Couple $Y_0\sim\Law(X_T)$ and $\hat Y_0\sim\N(0,\Id)$ through an optimal $W_2$ coupling. Equivalently, conditionally on $Y_0$, generate $\hat Y_0$ from a Markov kernel that realizes an optimal transport plan. The auxiliary randomness used by this kernel is conditionally independent of $X_0$ given $Y_0$. Starting from $(Y_0,\hat Y_0)$, drive \eqref{eq:reverse-posterior} and \eqref{eq:interpolation} with the same Brownian motion.
+
+Let
+\[
+    \mathcal F_t:=\sigma\{Y_s,\hat Y_s:0\le s\le t\}.
+\]
+After the usual completion, because $\hat Y_0$ reveals no additional information about $X_0$ once $Y_0$ is known, and because $\hat Y$ is generated from $(\hat Y_0,B)$, the reverse Markov property gives
+\begin{equation}
+    \E[X_0\mid\mathcal F_t]=\mu_{T-t}(Y_t).
+    \label{eq:martingale-conditional}
+\end{equation}
+This construction avoids enlarging the filtration by a noise variable that would reveal extra information about $X_0$.
+
+The initialization distance is bounded independently by the explicit marginal coupling in \eqref{eq:forward-marginal}:
+\begin{equation}
+\begin{split}
+    \Wtwo^2\bigl(\Law(X_T),\N(0,\Id)\bigr)
+    &\le \E\norm{e^{-T}X_0+(\sigma_T-1)Z}^2\\
+    &=e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d.
+\end{split}
+\label{eq:init-bound}
+\end{equation}
+
+\subsection{Posterior-mean martingale}
+
+\begin{lemma}[Reverse posterior martingale]
+\label{lem:martingale}
+The process
+\begin{equation}
+    M_t:=\mu_{T-t}(Y_t),
+    \qquad 0\le t\le t_N,
+    \label{eq:M-def}
+\end{equation}
+is a square-integrable $\mathcal F_t$-martingale. Moreover, for $0\le s\le t\le t_N$,
+\begin{equation}
+    \E\norm{M_t-M_s}^2
+    =\E\Tr\Sigma_{T-s}(Y_s)-\E\Tr\Sigma_{T-t}(Y_t).
+    \label{eq:martingale-isometry}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Equation \eqref{eq:martingale-conditional} proves the martingale property. For $s\le t$, the orthogonality of conditional expectations yields
+\[
+    \E\norm{X_0-M_s}^2
+    =\E\norm{X_0-M_t}^2+\E\norm{M_t-M_s}^2.
+\]
+Since
+\[
+    \E\norm{X_0-M_r}^2=\E\Tr\Sigma_{T-r}(Y_r),
+\]
+we obtain \eqref{eq:martingale-isometry}.
+\end{proof}
+
+\subsection{One-step error decomposition}
+
+Let
+\[
+    \Delta_n:=Y_{t_n}-\hat Y_{t_n}.
+\]
+The exact reverse process satisfies
+\begin{equation}
+\begin{split}
+Y_{t_{n+1}}
+={}&e^{-h_n}\frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-t_n}^2}Y_{t_n}\\
+&+\int_{t_n}^{t_{n+1}}
+ e^{-(t_{n+1}-u)}
+ \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+ \frac{2e^{-(T-u)}}{\sigma_{T-u}^2}\mu_{T-u}(Y_u)\dd u\\
+&+\sqrt{2}\int_{t_n}^{t_{n+1}}
+ e^{-(t_{n+1}-u)}
+ \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}\dd B_u.
+\end{split}
+\label{eq:exact-mild}
+\end{equation}
+A direct calculation gives
+\begin{equation}
+\int_{t_n}^{t_{n+1}}
+ e^{-(t_{n+1}-u)}
+ \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+ \frac{2e^{-(T-u)}}{\sigma_{T-u}^2}\dd u
+ =\frac{e^{-(T-t_{n+1})}(1-e^{-2h_n})}{\sigma_{T-t_n}^2}.
+\label{eq:kernel-integral}
+\end{equation}
+Define the local remainder
+\begin{equation}
+\begin{split}
+    R_n:=\int_{t_n}^{t_{n+1}}
+ &e^{-(t_{n+1}-u)}
+ \frac{\sigma_{T-t_{n+1}}^2}{\sigma_{T-u}^2}
+ \frac{2e^{-(T-u)}}{\sigma_{T-u}^2}\\
+ &\times\bigl\{\mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})\bigr\}\dd u.
+\end{split}
+\label{eq:Rn}
+\end{equation}
+Subtracting \eqref{eq:interpolation-solution} from \eqref{eq:exact-mild}, using \eqref{eq:tweedie}--\eqref{eq:muhat}, yields
+\begin{equation}
+\begin{split}
+    \Delta_{n+1}
+    ={}&e^{h_n}\Delta_n\\
+    &+e^{h_n}(1-e^{-2h_n})
+      \bigl\{s_{T-t_n}(Y_{t_n})-
+      \hat s_{T-t_n}(Y_{t_n})\bigr\}\\
+    &+e^{h_n}(1-e^{-2h_n})
+      \bigl\{\hat s_{T-t_n}(Y_{t_n})-
+      \hat s_{T-t_n}(\hat Y_{t_n})\bigr\}
+      +R_n.
+\end{split}
+\label{eq:error-recursion-vector}
+\end{equation}
+Let $S_n$ denote the first three terms on the right-hand side. Since $M_t$ is a martingale and the kernel in \eqref{eq:Rn} is deterministic,
+\begin{equation}
+    \E[R_n\mid\mathcal F_{t_n}]=0.
+    \label{eq:Rn-centered}
+\end{equation}
+Because $S_n$ is $\mathcal F_{t_n}$-measurable,
+\begin{equation}
+    \E\norm{\Delta_{n+1}}^2
+    =\E\norm{S_n}^2+\E\norm{R_n}^2.
+    \label{eq:orthogonal-split}
+\end{equation}
+By Minkowski's inequality, Assumptions~\ref{ass:lipschitz} and~\ref{ass:score-error}, and
+$Y_{t_n}\overset{\mathrm d}=X_{T-t_n}$,
+\begin{equation}
+\begin{split}
+    \bigl(\E\norm{S_n}^2\bigr)^{1/2}
+    \le{}&e^{h_n}\bigl\{1+L(T-t_n)(1-e^{-2h_n})\bigr\}
+    \bigl(\E\norm{\Delta_n}^2\bigr)^{1/2}\\
+    &+e^{h_n}(1-e^{-2h_n})\varepsilon_n.
+\end{split}
+\label{eq:Sn-bound}
+\end{equation}
+
+\subsection{A discrete quadratic recursion}
+
+\begin{lemma}[quadratic discrete Gronwall inequality]
+\label{lem:discrete}
+Let $x_n,B_n,C_n\ge0$ and $A_n\in\R$ satisfy
+\begin{equation}
+    x_{n+1}^2\le(e^{A_n}x_n+B_n)^2+C_n^2.
+    \label{eq:discrete-hyp}
+\end{equation}
+Then
+\begin{equation}
+\begin{split}
+    x_{n+1}\le{}&e^{\sum_{i=0}^nA_i}x_0
+    +\sum_{j=0}^n e^{\sum_{i=j+1}^nA_i}B_j\\
+    &+\left\{\sum_{j=0}^n e^{2\sum_{i=j+1}^nA_i}C_j^2\right\}^{1/2}.
+\end{split}
+\label{eq:discrete-conclusion}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+View the right-hand side of \eqref{eq:discrete-hyp} as the squared Euclidean norm of $(e^{A_n}x_n+B_n,C_n)\in\R^2$ and iterate Minkowski's inequality.
+\end{proof}
+
+Applying Lemma~\ref{lem:discrete} to \eqref{eq:orthogonal-split}--\eqref{eq:Sn-bound} and using that each stability factor is at least one gives
+\begin{equation}
+\begin{split}
+    \bigl(\E\norm{\Delta_N}^2\bigr)^{1/2}
+    \le \mathcal G_N\Biggl[
+       &\bigl(\E\norm{\Delta_0}^2\bigr)^{1/2}
+       +\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})\varepsilon_j\\
+       &+\left\{\sum_{j=0}^{N-1}\E\norm{R_j}^2\right\}^{1/2}
+    \Biggr].
+\end{split}
+\label{eq:global-recursion}
+\end{equation}
+By the optimal initial coupling and \eqref{eq:init-bound},
+\begin{equation}
+    \E\norm{\Delta_0}^2
+    \le e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d.
+    \label{eq:delta0-bound}
+\end{equation}
+
+\subsection{Intrinsic-dimensional posterior covariance}
+
+The key geometric input is the following estimate.
+
+\begin{lemma}[Posterior covariance bound]
+\label{lem:posterior-cov}
+Under Assumptions~\ref{ass:entropy} and~\ref{ass:support} and \eqref{eq:poly-regime}, there is a constant $C_\Sigma>0$ such that, for $0\le t\le t_N$,
+\begin{equation}
+    \E\Tr\Sigma_{T-t}(Y_t)
+    \le C_\Sigma\min\left\{
+       \E\norm{X_0}^2,
+       \frac{\sigma_{T-t}^2}{1-\sigma_{T-t}^2}k\log k
+    \right\}.
+    \label{eq:posterior-cov-bound}
+\end{equation}
+\end{lemma}
+
+A proof is given in \Cref{app:posterior}. The first bound follows from the least-squares optimality of conditional expectation. The second is obtained by covering $\mathcal X$ by an $\varepsilon_0$-net, discarding cells of exponentially small mass, and applying Gaussian concentration to localize the posterior around the net point compatible with the noisy observation. The polynomial assumptions on $d$, $R$, and $\delta^{-1}$ absorb the exponentially small exceptional terms.
+
+\subsection{Discretization remainder}
+
+\begin{lemma}[Accumulated local remainder]
+\label{lem:remainder}
+Under the assumptions of \Cref{thm:main},
+\begin{equation}
+    \sum_{n=0}^{N-1}\E\norm{R_n}^2
+    \le C\left\{
+       \kappa\min\bigl(\E\norm{X_0}^2,Tk\log k\bigr)
+       +\kappa^2Nk\log k
+    \right\}.
+    \label{eq:remainder-bound}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Cauchy--Schwarz, the mesh condition, and elementary bounds on the deterministic kernel in \eqref{eq:Rn},
+\begin{equation}
+    \E\norm{R_n}^2
+    \le 4\int_{t_n}^{t_{n+1}}
+       \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
+       \E\norm{M_u-M_{t_n}}^2\dd u.
+    \label{eq:Rn-pre}
+\end{equation}
+Using \eqref{eq:martingale-isometry}, define
+\[
+    V(t):=\E\Tr\Sigma_{T-t}(Y_t).
+\]
+Then $V$ is nonincreasing and
+\begin{equation}
+    \sum_{n=0}^{N-1}\E\norm{R_n}^2
+    \le4\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
+       \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
+       \{V(t_n)-V(u)\}\dd u.
+    \label{eq:Rn-V}
+\end{equation}
+
+We split the sum at $t_M=T-1$.
+For $u\le T-1$, the denominator is bounded away from zero. Discrete summation by parts, the monotonicity of $V$, and the two alternatives in \eqref{eq:posterior-cov-bound} give
+\begin{equation}
+\begin{split}
+&\sum_{n=0}^{M-1}\int_{t_n}^{t_{n+1}}
+       \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
+       \{V(t_n)-V(u)\}\dd u\\
+&\qquad\le C\kappa\min\bigl\{\E\norm{X_0}^2,Tk\log k\bigr\}.
+\end{split}
+\label{eq:early-remainder}
+\end{equation}
+For $T-1\le u\le T-\delta$,
+\begin{equation}
+    \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
+    =\frac{e^{-2(T-u)}}{(1-e^{-2(T-u)})^2}
+    \le\frac{C}{(T-u)^2}.
+    \label{eq:singular-kernel}
+\end{equation}
+Moreover, \eqref{eq:mesh-assumption} implies
+\begin{equation}
+    h_n\le\frac{\kappa}{1-\kappa}(T-t_{n+1}).
+    \label{eq:mesh-rearrange}
+\end{equation}
+A second discrete summation-by-parts argument therefore yields
+\begin{equation}
+\begin{split}
+&\sum_{n=M}^{N-1}\int_{t_n}^{t_{n+1}}
+       \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
+       \{V(t_n)-V(u)\}\dd u\\
+&\qquad\le C\kappa V(T-1)
+ +C\kappa^2\sum_{n=M+1}^{N-1}\frac{V(t_n)}{T-t_n}.
+\end{split}
+\label{eq:late-sbp}
+\end{equation}
+By \eqref{eq:posterior-cov-bound} and
+\[
+    \frac{1}{r}\frac{\sigma_r^2}{1-\sigma_r^2}
+    =\frac{e^{2r}-1}{r}\le2e^2,
+    \qquad 0<r\le1,
+\]
+we obtain
+\begin{equation}
+    \eqref{eq:late-sbp}
+    \le C\kappa\min\{\E\norm{X_0}^2,k\log k\}
+       +C\kappa^2Nk\log k.
+    \label{eq:late-remainder}
+\end{equation}
+Combining \eqref{eq:Rn-V}, \eqref{eq:early-remainder}, and \eqref{eq:late-remainder} proves the claim.
+\end{proof}
+
+\subsection{Conclusion of the proof}
+
+Since $Y_{t_N}\overset{\mathrm d}=X_\delta$,
+\begin{equation}
+    \Wtwo\bigl(\Law(Y_{t_N}),\Law(\hat Y_{t_N})\bigr)
+    \le\bigl(\E\norm{\Delta_N}^2\bigr)^{1/2}.
+    \label{eq:w2-coupling}
+\end{equation}
+The explicit forward coupling gives
+\begin{equation}
+\begin{split}
+    \Wtwo^2\bigl(\pdata,\Law(X_\delta)\bigr)
+    &\le\E\norm{X_0-e^{-\delta}X_0-\sigma_\delta Z}^2\\
+    &=(1-e^{-\delta})^2\E\norm{X_0}^2+\sigma_\delta^2d.
+\end{split}
+\label{eq:early-stopping}
+\end{equation}
+The triangle inequality, \eqref{eq:global-recursion}, \eqref{eq:delta0-bound}, and Lemma~\ref{lem:remainder} yield \eqref{eq:main-bound}. Finally, $1+x\le e^x$ and $1-e^{-2h_i}\le2h_i$ imply
+\[
+\mathcal G_N
+\le\exp\left\{\sum_{i=0}^{N-1}h_i
++2\sum_{i=0}^{N-1}h_iL(T-t_i)\right\},
+\]
+which is \eqref{eq:growth-simple}. This completes the proof of \Cref{thm:main}.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Why the posterior mean is the right state variable.}
+A direct discretization estimate for the score can introduce derivatives of the score and ambient-dimensional moment terms. Tweedie's formula replaces the nonlinear score contribution by the posterior mean. Its reverse-time martingale structure then turns temporal increments into differences of posterior variances, which can be bounded by intrinsic geometry.
+
+\paragraph{Role of the exponential integrator.}
+The interpolation \eqref{eq:interpolation} exactly reproduces the DDPM coefficients at grid points. This exact correspondence is useful for interpreting the theorem as a guarantee for the original DDPM sampler rather than for a nearby Euler--Maruyama scheme. A standard Euler discretization can also be analyzed, but it produces additional local errors from the singular linear coefficient near the data endpoint and no longer matches \eqref{eq:ddpm-update} exactly.
+
+\paragraph{Limitations.}
+The theorem requires bounded support, a one-scale metric-entropy condition, a polynomial relation between $d$ and $k$, and a Lipschitz learned score. The stability factor may be large when the learned score has a large Lipschitz modulus. In addition, ambient dimension remains in the initialization and early-stopping terms. Obtaining a completely intrinsic-dimensional $W_2$ bound under minimal score regularity remains open.
+
+\paragraph{Possible extensions.}
+Natural directions include replacing global Lipschitz continuity by one-sided or average regularity, extending the posterior-covariance argument to unbounded distributions with concentration assumptions, optimizing the nonuniform time mesh, and analyzing the robustness of the intrinsic-dimensional bound under perturbations of the DDPM coefficients.
+
+\appendix
+
+\section{Posterior covariance under metric entropy}
+\label{app:posterior}
+
+We give the argument underlying Lemma~\ref{lem:posterior-cov}. Let $r=T-t\in[\delta,T]$. By \eqref{eq:time-reversal-marginal},
+\begin{equation}
+    \E\Tr\Sigma_{T-t}(Y_t)=\E\Tr\Sigma_r(X_r).
+    \label{eq:posterior-forward}
+\end{equation}
+The least-squares property of conditional expectation immediately gives
+\begin{equation}
+    \E\Tr\Sigma_r(X_r)
+    =\E\norm{X_0-\E[X_0\mid X_r]}^2
+    \le\E\norm{X_0}^2.
+    \label{eq:posterior-trivial}
+\end{equation}
+
+For the intrinsic-dimensional estimate, let $\{x_i^*\}_{i=1}^m$ be an $\varepsilon_0$-net of $\mathcal X$. By Assumption~\ref{ass:entropy},
+\begin{equation}
+    m\le\exp(Ck\log k).
+    \label{eq:net-size}
+\end{equation}
+Partition $\mathcal X$ into measurable sets $B_i\subset B(x_i^*,\varepsilon_0)$. Retain the cells whose masses are at least $\exp(-C_6k\log k)$, where $C_6$ is a sufficiently large constant. The total mass of discarded cells is at most $\exp(-cC_6k\log k)$.
+
+Write $X_r=e^{-r}X_0+\sigma_rZ$. A union bound combined with Gaussian concentration produces an event $\mathcal G$ with probability at least $1-\exp(-cC_6k\log k)$ on which all pairwise Gaussian inner products associated with the net are bounded by $C\sqrt{k\log k}$ times the corresponding net distance. The standard Bayes-ratio comparison used in metric-entropy analyses of DDPMs then implies that, for every typical observation $x$, the conditional law of $X_0$ given $X_r=x$ is concentrated around a compatible net point $x_{i(x)}^*$ at radius
+\begin{equation}
+    C\frac{\sigma_r}{e^{-r}}\sqrt{k\log k}
+    =C\left(\frac{\sigma_r^2}{1-\sigma_r^2}k\log k\right)^{1/2},
+    \label{eq:posterior-radius}
+\end{equation}
+up to conditional probability $\exp(-ck\log k)$. This posterior-localization statement is precisely the covering argument developed for the low-dimensional DDPM analysis of \citet{huang2026optimal}.
+
+By conditional least-squares optimality,
+\begin{equation}
+\begin{split}
+    \Tr\Sigma_r(x)
+    &\le\E\bigl[\norm{X_0-x_{i(x)}^*}^2\mid X_r=x\bigr]\\
+    &\le C\frac{\sigma_r^2}{1-\sigma_r^2}k\log k
+       +4R^2e^{-ck\log k}
+\end{split}
+\label{eq:conditional-cov}
+\end{equation}
+for typical $x$, while the exceptional observations contribute at most
+$R^2e^{-ck\log k}$. Hence
+\begin{equation}
+    \E\Tr\Sigma_r(X_r)
+    \le C\frac{\sigma_r^2}{1-\sigma_r^2}k\log k
+       +CR^2e^{-ck\log k}.
+    \label{eq:cov-before-absorb}
+\end{equation}
+Because $r\ge\delta\ge k^{-C_\delta}$,
+\[
+    \frac{\sigma_r^2}{1-\sigma_r^2}=e^{2r}-1\ge c\delta\ge ck^{-C_\delta}.
+\]
+Together with $R\le k^{C_R}$ and $d\le k^{C_d}$, this polynomial lower bound absorbs the exponentially small term in \eqref{eq:cov-before-absorb} after increasing the universal constants. Combining the result with \eqref{eq:posterior-trivial} proves \eqref{eq:posterior-cov-bound}.
+
+\section{A summation-by-parts identity}
+\label{app:sbp}
+
+For completeness, we record the elementary identity used in the remainder analysis. Let $a_0,\dots,a_m\ge0$ and let $v_0\ge v_1\ge\cdots\ge v_{m+1}\ge0$. Then
+\begin{equation}
+    \sum_{j=0}^m a_j(v_j-v_{j+1})
+    =a_0v_0-a_mv_{m+1}
+     +\sum_{j=1}^m(a_j-a_{j-1})v_j.
+    \label{eq:sbp-identity}
+\end{equation}
+Upper bounds follow by controlling the positive increments of $a_j$. In Lemma~\ref{lem:remainder}, $v_j$ is a posterior-variance sequence and $a_j$ is obtained by integrating the deterministic singular kernel over the $j$th time interval.
+
+\begin{thebibliography}{99}
+
+\bibitem[Anderson(1982)]{anderson1982reverse}
+B. D. O. Anderson.
+\newblock Reverse-time diffusion equation models.
+\newblock \emph{Stochastic Processes and their Applications}, 12(3):313--326, 1982.
+
+\bibitem[Arsenyan et al.(2025)Arsenyan, Vardanyan, and Dalalyan]{arsenyan2025assessing}
+V. Arsenyan, E. Vardanyan, and A. S. Dalalyan.
+\newblock Assessing the quality of denoising diffusion models in Wasserstein distance: noisy score and optimal bounds.
+\newblock In \emph{Advances in Neural Information Processing Systems 38}, 2025.
+
+\bibitem[Azangulov et al.(2024)Azangulov, Deligiannidis, and Rousseau]{azangulov2024manifold}
+I. Azangulov, G. Deligiannidis, and J. Rousseau.
+\newblock Convergence of diffusion models under the manifold hypothesis in high dimensions.
+\newblock arXiv:2409.18804, 2024.
+
+\bibitem[Benton et al.(2024)Benton, De Bortoli, Doucet, and Deligiannidis]{benton2024nearly}
+J. Benton, V. De Bortoli, A. Doucet, and G. Deligiannidis.
+\newblock Nearly $d$-linear convergence bounds for diffusion models via stochastic localization.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Beyler and Bach(2025)]{beyler2025convergence}
+E. Beyler and F. Bach.
+\newblock Convergence of deterministic and stochastic diffusion-model samplers: a simple analysis in Wasserstein distance.
+\newblock arXiv:2508.03210, 2025.
+
+\bibitem[Bruno and Sabanis(2025)]{bruno2025wasserstein}
+S. Bruno and S. Sabanis.
+\newblock Wasserstein convergence of score-based generative models under semiconvexity and discontinuous gradients.
+\newblock \emph{Transactions on Machine Learning Research}, 2025.
+
+\bibitem[Chen et al.(2023a)Chen, Chewi, Li, Li, Salim, and Zhang]{chen2023sampling}
+S. Chen, S. Chewi, J. Li, Y. Li, A. Salim, and A. R. Zhang.
+\newblock Sampling is as easy as learning the score: theory for diffusion models with minimal data assumptions.
+\newblock In \emph{International Conference on Learning Representations}, 2023a.
+
+\bibitem[Chen et al.(2023b)Chen, Lee, and Lu]{chen2023improved}
+H. Chen, H. Lee, and J. Lu.
+\newblock Improved analysis of score-based generative modeling: user-friendly bounds under minimal smoothness assumptions.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine Learning}, 2023b.
+
+\bibitem[Efron(2011)]{efron2011tweedie}
+B. Efron.
+\newblock Tweedie's formula and selection bias.
+\newblock \emph{Journal of the American Statistical Association}, 106(496):1602--1614, 2011.
+
+\bibitem[Gao et al.(2025)Gao, Nguyen, and Zhu]{gao2025wasserstein}
+X. Gao, H. M. Nguyen, and L. Zhu.
+\newblock Wasserstein convergence guarantees for a general class of score-based generative models.
+\newblock \emph{Journal of Machine Learning Research}, 26(43):1--54, 2025.
+
+\bibitem[Gentiloni Silveri and Ocello(2025)]{gentiloni2025beyond}
+M. Gentiloni Silveri and A. Ocello.
+\newblock Beyond log-concavity and score regularity: improved convergence bounds for score-based generative models in $W_2$-distance.
+\newblock In \emph{Proceedings of the 42nd International Conference on Machine Learning}, volume 267 of \emph{Proceedings of Machine Learning Research}, pages 55631--55656, 2025.
+
+\bibitem[Heusel et al.(2017)Heusel, Ramsauer, Unterthiner, Nessler, and Hochreiter]{heusel2017gans}
+M. Heusel, H. Ramsauer, T. Unterthiner, B. Nessler, and S. Hochreiter.
+\newblock GANs trained by a two time-scale update rule converge to a local Nash equilibrium.
+\newblock In \emph{Advances in Neural Information Processing Systems 30}, 2017.
+
+\bibitem[Haussmann and Pardoux(1986)]{haussmann1986time}
+U. G. Haussmann and E. Pardoux.
+\newblock Time reversal of diffusions.
+\newblock \emph{The Annals of Probability}, 14(4):1188--1205, 1986.
+
+\bibitem[Ho et al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
+J. Ho, A. Jain, and P. Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{Advances in Neural Information Processing Systems 33}, pages 6840--6851, 2020.
+
+\bibitem[Huang et al.(2026)Huang, Wei, and Chen]{huang2026optimal}
+Z. Huang, Y. Wei, and Y. Chen.
+\newblock Denoising diffusion probabilistic models are optimally adaptive to unknown low dimensionality.
+\newblock arXiv:2410.18784, originally posted 2024; revised 2026.
+
+\bibitem[Koike(2026)]{koike2026follmer}
+Y. Koike.
+\newblock A note on connections between the F\"ollmer process and the denoising diffusion probabilistic model.
+\newblock arXiv:2605.18040, 2026.
+
+\bibitem[Li and Yan(2024)]{li2024adapting}
+G. Li and Y. Yan.
+\newblock Adapting to unknown low-dimensional structures in score-based diffusion models.
+\newblock In \emph{Advances in Neural Information Processing Systems 37}, 2024.
+
+\bibitem[Potaptchik et al.(2024)Potaptchik, Azangulov, and Deligiannidis]{potaptchik2024linear}
+P. Potaptchik, I. Azangulov, and G. Deligiannidis.
+\newblock Linear convergence of diffusion models under the manifold hypothesis.
+\newblock arXiv:2410.09046, 2024.
+
+\bibitem[Pope et al.(2021)Pope, Zhu, Abdelkader, Goldblum, and Goldstein]{pope2021intrinsic}
+P. Pope, C. Zhu, A. Abdelkader, M. Goldblum, and T. Goldstein.
+\newblock The intrinsic dimension of images and its impact on learning.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Song et al.(2021)Song, Sohl-Dickstein, Kingma, Kumar, Ermon, and Poole]{song2021score}
+Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Yu and Yu(2025)]{yu2025advancing}
+Y. Yu and L. Yu.
+\newblock Advancing Wasserstein convergence analysis of score-based models: insights from discretization and second-order acceleration.
+\newblock In \emph{Advances in Neural Information Processing Systems 38}, 2025.
+
+\end{thebibliography}
+
+\end{document}
