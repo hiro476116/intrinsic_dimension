@@ -45,6 +45,8 @@
 \setbeamertemplate{footline}[frame number]
 % ナビゲーションアイコンを消す場合
 \setbeamertemplate{navigation symbols}{}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
 
 
 % for hyperref
@@ -95,53 +97,95 @@
       \item 定理の証明概要
     \end{itemize}
   \end{frame}
-  \begin{frame}{拡散モデルの収束解析について}
-    \begin{itemize}
-      \item 拡散モデルは, 未知の確率測度 $p_{data}$ に従って独立に得られるデータ $x_1,\cdots, x_n$ を用いて $p_{data}$ に従うデータを新たに近似的に生み出す手法である.
-      \item 近似的に生み出すデータが従う確率測度を $\hat{p}$ とした時に,何かしらの確率測度の評価指標 $\rho$ を用いて $\rho(p_{data},\hat{p})$ を評価することが収束解析の主な目的である.
-      \item 先行研究では, 評価指標 $\rho$ として主にKLダイバージェンスと2-Wasserstein距離が用いられている.(KLダイバージェンスは距離の公理は満たさないがよく用いられている)
-    \end{itemize}
-  
-  \end{frame}
-  %-----------3-------------
   \begin{frame}{拡散モデルについて : 生成とは}
     \begin{itemize}
-      \item KLでの収束解析は \cite{benton_et_al_2024, chen_lee_lu_2023, chen_et_al_2023, koike_2026_follmer} など多くの先行研究がある. 
-      \item データは $\mathbb{R}^d$ 上に分布するとしたとき, \cite{benton_et_al_2024} では $KL(p_{data},\hat{p})\leqq O(d)$ の評価が得られており, これは最適なオーダーであることが示されている.
-      \item この結果は, $p_{data}$ に関する一般的な仮定のもとで得られている.
+      \item 未知の確率測度 $P$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}$ があるとする.
+      \item このデータを用いて, $P$ に従う新たなデータを近似的に生み出すことを\textbf{生成}という.
+      \item 機械学習の分野で近年大きな成功を収めている生成の方法の1つに, \textbf{拡散モデル}がある.
     \end{itemize}
-  
+    \vspace{0.2cm}
+
+    \begin{center}
+    \begin{tikzpicture}[
+      node distance=2.2cm,
+      box/.style={
+        draw,
+        rounded corners,
+        minimum width=3.0cm,
+        minimum height=1.3cm,
+        align=center
+      },
+      arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+      }
+    ]
+    
+    \node[box] (data) {
+      $x_1,\ldots,x_n \sim P$\\
+      \small データ
+    };
+    
+    \node[box, right=of data] (model) {
+      $x_{\text{new}}\sim \widehat{P}$\\
+      \small 近似的にデータを生成
+    };
+    
+    \draw[arrow] (data) -- node[above] {\small } (model);
+    
+    \node at ($(data.south)!0.5!(model.south)+(0,-0.55cm)$) {
+        $P \approx \widehat{P}$
+      };
+    
+    \end{tikzpicture}
+    \end{center}
+    
+  \end{frame}
+  %-----------3-------------
+  \begin{frame}{拡散モデルについて : 拡散モデルの原理}
+    \begin{itemize}
+      \item 拡散モデルでは, 確率微分方程式(SDE)を用いてデータを生成する.
+    \end{itemize}
+    \begin{align}
+        dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t\quad (t\in[0,T])
+    \end{align}
+    \begin{itemize}
+        \item 上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ で, 容易にサンプリングが得られる正規分布などを初期分布 ($Y_0\sim N(0,I)$) としたときに, $Y_T\sim P$ となるような $b, \sigma$ を構成できないだろうか？
+        \item そのような $b,\sigma$ が得られた場合, (1) をシミュレーションすることで $P$ からのサンプリングが無数に得られる. 
+    \end{itemize}
   \end{frame}
   %------------4-----------
-  \begin{frame}{拡散モデルの収束解析について : 2-Wasserstein距離}
+  \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
+    \begin{equation}
+      dX_t=-X_tdt+\sqrt{2}dW_t \quad (t\in[0,T])
+    \end{equation}
     \begin{itemize}
-        \item 2-Wasserstein距離での収束解析も近年増加している\cite{arsenyan_vardanyan_dalalyan_2025, beyler_bach_2025, bruno_sabanis_2025, gao_nguyen_zhu_2025} .
-        \item 先行研究ではすでに $W_2(p_{data},\hat{p})\leqq O(\sqrt{d})$ の評価が得られており, これも最適なオーダーであることが示されている.
-        \item しかし, これらの先行研究ではデータ分布 $p_{data}$ へのlog-concave性など, 一般的ではない仮定が置かれており, KLと比較して発展途上である.
+      \item (2)の解を $\{X_t\}_{t\in[0,T]}$ とし, $X_t$ の密度を $p_t$ とする. このとき, 次の結果が知られている. 
     \end{itemize}
+    \begin{theorem}[\cite{anderson82}]
+      $\{Y_t\}_{t\in[0,T]}$ を次のSDEの解とする.
+      \begin{equation}
+        \left\{ \,
+            \begin{aligned}
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0\leqq t \leqq T) \\
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T
+            \end{aligned}
+        \right.
+      \end{equation}
+      このとき, 任意の $t\in[0,T]$ に対して, $Y_t\stackrel{\mathrm{d}}{=}X_{T-t}$ が成り立つ.
+    \end{theorem}
   \end{frame}
 
   %---------5-------------
-  \begin{frame}{評価指標の比較}
+  \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{itemize}
-        \item KLダイバージェンス
-        \begin{itemize}
-          \item ギルザノフの定理を使うことで容易に評価が可能であり, 一般的な仮定のもとで最適と思われるオーダー評価ができている.
-          \item KLダイバージェンスが近くても平均や共分散が近いとは限らないなどの問題点がある \cite{beyler_bach_2025}.
-        \end{itemize}
-        \item 2-Wasserstein距離
-        \begin{itemize}
-          \item 画像生成の評価指標として広く用いられているFréchet Inception Distance \cite{heusel_et_al_2017} が2-Wasserstein距離と関連があるため, 重要と言われている \cite{arsenyan_vardanyan_dalalyan_2025}.
-        \end{itemize}
+        \item 画像からノイズへの画像などを貼って直感的に説明するページにする
     \end{itemize}
   \end{frame}
   %---------6-------------
-  \begin{frame}{データの内在次元について}
+  \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{itemize}
-        \item 現実世界のデータ分布はごく少数の変数で記述されると考えられている. これは多様体仮説と呼ばれ, 機械学習の成功の基盤と考えられている \cite{pope_et_al_2021}.
-        \item データ分布を記述する上で必要な変数の数を, データ分布の\textbf{内在次元 (intrinsic dimension)} と呼ぶ.
-        \item \cite{pope_et_al_2021} は, MNIST、CIFAR-10、ImageNet などの代表的な画像データセットの内在次元推定を行った.
-        \item 次元推定の結果, ImageNetでは各画像が $224\times 224 \times 3 = 15028$ の画素値を持つが, 内在次元は $26\sim 43$ 程度であるとされている.
+        \item 誤差解析について言及する
     \end{itemize}
   \end{frame}
   %---------7-------------
