@@ -96,20 +96,20 @@ This paper develops an intrinsic-dimension-dependent $W_2$ analysis for the orig
 
 The proof proceeds by interpreting the DDPM update as the grid-point values of a semilinear stochastic differential equation and synchronously coupling this interpolation with the exact reverse-time Ornstein--Uhlenbeck diffusion. Tweedie's formula rewrites the score contribution in terms of the posterior mean
 \[
-    \mu_t(x)=\E[X_0\mid X_t=x].
+    \mu_t(x)=\E\left[X_0\mid X_t=x\right].
 \]
 Along the exact reverse process, $\mu_{T-t}(Y_t)$ is a square-integrable martingale. This structure makes the local time-discretization remainder conditionally centered and yields an orthogonal decomposition between the propagated sampling error and the local discretization error. The temporal fluctuation of the posterior mean is then controlled by the posterior covariance. By adapting the metric-entropy localization argument of \citet{huang2026optimal}, we obtain
 \[
-    \E\Tr\Sigma_{T-t}(Y_t)
+    \E\left[\Tr\Sigma_{T-t}(Y_t)\right]
     \lesssim
-    \min\left\{\E\norm{X_0}^2,
+    \min\left\{\E\left[\norm{X_0}^2\right],
     \frac{\sigma_{T-t}^2}{1-\sigma_{T-t}^2}k\log k\right\}.
 \]
 This estimate converts the main time-discretization contribution from an ambient-dimensional quantity into one governed by $k\log k$.
 
 Our final non-asymptotic bound separates four error sources: early stopping, replacement of the terminal forward marginal by a standard Gaussian, score estimation, and time discretization. Up to a stability factor determined by the spatial Lipschitz modulus of the learned score, the discretization term is bounded by
 \[
-    C\Bigl\{\kappa\min\bigl(\E\norm{X_0}^2,Tk\log k\bigr)
+    C\Bigl\{\kappa\min\bigl(\E\left[\norm{X_0}^2\right],Tk\log k\bigr)
       +\kappa^2Nk\log k\Bigr\}^{1/2}.
 \]
 Thus, the principal discretization error adapts to the intrinsic dimension of the data support. The theorem also makes explicit where ambient dimension still enters: namely, in the early-stopping and Gaussian-initialization errors. This separation clarifies both the gain from low-dimensional structure and the remaining obstacles to a completely intrinsic-dimensional Wasserstein guarantee.
@@ -122,7 +122,7 @@ Thus, the principal discretization error adapts to the intrinsic dimension of th
 
 \subsection{Forward Ornstein--Uhlenbeck process}
 
-Let $X_0\sim\pdata$ be an $\R^d$-valued random vector satisfying $\E\norm{X_0}^2<\infty$. Consider the Ornstein--Uhlenbeck process
+Let $X_0\sim\pdata$ be an $\R^d$-valued random vector satisfying $\E\left[\norm{X_0}^2\right]<\infty$. Consider the Ornstein--Uhlenbeck process
 \begin{equation}
     \dd X_t=-X_t\dd t+\sqrt{2}\,\dd W_t,
     \qquad t\in[0,T],
@@ -159,7 +159,7 @@ where $B$ is a Brownian motion in the reverse filtration. If $Y_0\sim\Law(X_T)$,
 
 For later use, define the posterior mean and posterior covariance
 \begin{equation}
-    \mu_t(x):=\E[X_0\mid X_t=x],
+    \mu_t(x):=\E\left[X_0\mid X_t=x\right],
     \qquad
     \Sigma_t(x):=\Cov(X_0\mid X_t=x).
     \label{eq:posterior-defs}
@@ -327,8 +327,10 @@ There is a measurable function $L:[\delta,T]\to[0,\infty)$ such that
 \label{ass:score-error}
 For $n=0,\dots,N-1$, there are finite numbers $\varepsilon_n\ge0$ such that
 \begin{equation}
-    \E\norm{s_{T-t_n}(X_{T-t_n})-
-    \hat s_{T-t_n}(X_{T-t_n})}^2\le\varepsilon_n^2.
+    \E\left[
+    \norm{s_{T-t_n}(X_{T-t_n})-
+    \hat s_{T-t_n}(X_{T-t_n})}^2
+    \right]\le\varepsilon_n^2.
     \label{eq:score-error}
 \end{equation}
 \end{assumption}
@@ -360,9 +362,9 @@ Then there is a constant $C>0$, depending only on the fixed constants in the ass
 &\Wtwo\bigl(\pdata,\Law(\hat Y_{t_N})\bigr)
 \nonumber\\
 &\quad\le
-\underbrace{\left\{(1-e^{-\delta})^2\E\norm{X_0}^2+\sigma_\delta^2d\right\}^{1/2}}_{\text{early-stopping error}}\\
+\underbrace{\left\{(1-e^{-\delta})^2\E\left[\norm{X_0}^2\right]+\sigma_\delta^2d\right\}^{1/2}}_{\text{early-stopping error}}\\
 &+\mathcal \exp\left\{t_N+2\sum_{i=0}^{N-1}h_iL(T-t_i)\right\}\Biggl[
-\underbrace{\left\{e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d\right\}^{1/2}}_{\text{Gaussian-initialization error}}
+\underbrace{\left\{e^{-2T}\E\left[\norm{X_0}^2\right]+(1-\sigma_T)^2d\right\}^{1/2}}_{\text{Gaussian-initialization error}}
 \nonumber\\
 &
 +\underbrace{\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})\varepsilon_j}_{\text{score-estimation error}}
@@ -383,37 +385,75 @@ The Lipschitz assumption is imposed only on the learned score, not on the target
 \section{Proof of the main theorem}
 \label{sec:proof}
 
-\subsection{A coupling compatible with the reverse filtration}
-
-A subtle point is that the martingale argument below must remain valid after the approximate process is introduced. We therefore use a coupling that preserves the conditional structure of the reverse process.
-
-Let $(X_0,(Y_t)_{0\le t\le t_N})$ be a realization of the exact reverse process satisfying \eqref{eq:time-reversal-marginal}. Couple $Y_0\sim\Law(X_T)$ and $\hat Y_0\sim\N(0,\Id)$ through an optimal $W_2$ coupling. Equivalently, conditionally on $Y_0$, generate $\hat Y_0$ from a Markov kernel that realizes an optimal transport plan. The auxiliary randomness used by this kernel is conditionally independent of $X_0$ given $Y_0$. Starting from $(Y_0,\hat Y_0)$, drive \eqref{eq:reverse-posterior} and \eqref{eq:interpolation} with the same Brownian motion.
-
-Let
-\[
-    \mathcal F_t:=\sigma\{Y_s,\hat Y_s:0\le s\le t\}.
-\]
-After the usual completion, because $\hat Y_0$ reveals no additional information about $X_0$ once $Y_0$ is known, and because $\hat Y$ is generated from $(\hat Y_0,B)$, the reverse Markov property gives
-\begin{equation}
-    \E[X_0\mid\mathcal F_t]=\mu_{T-t}(Y_t).
-    \label{eq:martingale-conditional}
-\end{equation}
-This construction avoids enlarging the filtration by a noise variable that would reveal extra information about $X_0$.
-
-The initialization distance is bounded independently by the explicit marginal coupling in \eqref{eq:forward-marginal}:
+We begin by separating the early-stopping error from the error between the exact and approximate reverse processes. Since $Y_{t_N}\overset{\mathrm d}=X_\delta$, the triangle inequality gives
 \begin{equation}
 \begin{split}
-    \Wtwo^2\bigl(\Law(X_T),\N(0,\Id)\bigr)
-    &\le \E\norm{e^{-T}X_0+(\sigma_T-1)Z}^2\\
-    &=e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d.
+    \Wtwo\bigl(\pdata,\Law(\hat Y_{t_N})\bigr)
+    &\le
+    \Wtwo\bigl(\pdata,\Law(X_\delta)\bigr)
+    +\Wtwo\bigl(\Law(Y_{t_N}),\Law(\hat Y_{t_N})\bigr).
 \end{split}
-\label{eq:init-bound}
+\label{eq:total-error-decomposition}
+\end{equation}
+The explicit forward coupling in \eqref{eq:forward-marginal} yields
+\begin{equation}
+\begin{split}
+    \Wtwo^2\bigl(\pdata,\Law(X_\delta)\bigr)
+    &\le\E\left[\norm{X_0-e^{-\delta}X_0-\sigma_\delta Z}^2\right]\\
+    &=(1-e^{-\delta})^2\E\left[\norm{X_0}^2\right]+\sigma_\delta^2d.
+\end{split}
+\label{eq:early-stopping}
+\end{equation}
+
+\subsection{Synchronous coupling and initialization error}
+
+We now specify the initial coupling explicitly. Let $\widetilde X_0$ be an independent copy of $X_0$, let $Z\sim\N(0,\Id)$ be independent of $\widetilde X_0$, and set
+\begin{equation}
+    Y_0=e^{-T}\widetilde X_0+\sigma_T Z,
+    \qquad
+    \hat Y_0=Z.
+    \label{eq:explicit-initial-coupling}
+\end{equation}
+It follows from \eqref{eq:forward-marginal} that
+\[
+    Y_0\sim\Law(X_T),
+    \qquad
+    \hat Y_0\sim\N(0,\Id).
+\]
+Starting from these initial values, drive the exact reverse process \eqref{eq:reverse-posterior} and the interpolation \eqref{eq:interpolation} with the same Brownian motion $B$.
+This coupling gives
+\begin{equation}
+    \Wtwo\bigl(\Law(Y_{t_N}),\Law(\hat Y_{t_N})\bigr)
+    \le\left(\E\left[\norm{Y_{t_N}-\hat Y_{t_N}}^2\right]\right)^{1/2}.
+    \label{eq:w2-coupling}
+\end{equation}
+At time zero, \eqref{eq:explicit-initial-coupling} gives
+\[
+    Y_0-\hat Y_0
+    =e^{-T}\widetilde X_0+(\sigma_T-1)Z.
+\]
+Since $\widetilde X_0$ and $Z$ are independent and $\E\left[Z\right]=0$,
+\begin{equation}
+\begin{split}
+    \E\left[\norm{Y_0-\hat Y_0}^2\right]
+    &=e^{-2T}\E\left[\norm{\widetilde X_0}^2\right]+(1-\sigma_T)^2d.
+\end{split}
+\label{eq:delta0-bound}
 \end{equation}
 
 \subsection{Posterior-mean martingale}
 
 \begin{lemma}[Reverse posterior martingale]
 \label{lem:martingale}
+Let
+\[
+    \mathcal F_t:=\sigma\{Y_s,\hat Y_s:0\le s\le t\}.
+\]
+Conditionally on $Y_0$, realize $(X_0,(Y_t)_{0\le t\le t_N})$ according to the exact reverse-process law, independently of the auxiliary variable $Z$ used in \eqref{eq:explicit-initial-coupling}. In particular, $X_0\mid Y_0$ has the posterior law $\Law(X_0\mid X_T=Y_0)$, while $\hat Y_0=Z$ is conditionally independent of $X_0$ given $Y_0$. The reverse Markov property therefore gives
+\begin{equation}
+    \E\left[X_0\mid\mathcal F_t\right]=\mu_{T-t}(Y_t).
+    \label{eq:martingale-conditional}
+\end{equation}
 The process
 \begin{equation}
     M_t:=\mu_{T-t}(Y_t),
@@ -422,8 +462,9 @@ The process
 \end{equation}
 is a square-integrable $\mathcal F_t$-martingale. Moreover, for $0\le s\le t\le t_N$,
 \begin{equation}
-    \E\norm{M_t-M_s}^2
-    =\E\Tr\Sigma_{T-s}(Y_s)-\E\Tr\Sigma_{T-t}(Y_t).
+    \E\left[\norm{M_t-M_s}^2\right]
+    =\E\left[\Tr\Sigma_{T-s}(Y_s)\right]
+    -\E\left[\Tr\Sigma_{T-t}(Y_t)\right].
     \label{eq:martingale-isometry}
 \end{equation}
 \end{lemma}
@@ -431,22 +472,20 @@ is a square-integrable $\mathcal F_t$-martingale. Moreover, for $0\le s\le t\le 
 \begin{proof}
 Equation \eqref{eq:martingale-conditional} proves the martingale property. For $s\le t$, the orthogonality of conditional expectations yields
 \[
-    \E\norm{X_0-M_s}^2
-    =\E\norm{X_0-M_t}^2+\E\norm{M_t-M_s}^2.
+    \E\left[\norm{X_0-M_s}^2\right]
+    =\E\left[\norm{X_0-M_t}^2\right]
+    +\E\left[\norm{M_t-M_s}^2\right].
 \]
 Since
 \[
-    \E\norm{X_0-M_r}^2=\E\Tr\Sigma_{T-r}(Y_r),
+    \E\left[\norm{X_0-M_r}^2\right]
+    =\E\left[\Tr\Sigma_{T-r}(Y_r)\right],
 \]
 we obtain \eqref{eq:martingale-isometry}.
 \end{proof}
 
 \subsection{One-step error decomposition}
 
-Let
-\[
-    \Delta_n:=Y_{t_n}-\hat Y_{t_n}.
-\]
 The exact reverse process satisfies
 \begin{equation}
 \begin{split}
@@ -485,8 +524,8 @@ Define the local remainder
 Subtracting \eqref{eq:interpolation-solution} from \eqref{eq:exact-mild}, using \eqref{eq:tweedie}--\eqref{eq:muhat}, yields
 \begin{equation}
 \begin{split}
-    \Delta_{n+1}
-    ={}&e^{h_n}\Delta_n\\
+    Y_{t_{n+1}}-\hat Y_{t_{n+1}}
+    ={}&e^{h_n}\bigl(Y_{t_n}-\hat Y_{t_n}\bigr)\\
     &+e^{h_n}(1-e^{-2h_n})
       \bigl\{s_{T-t_n}(Y_{t_n})-
       \hat s_{T-t_n}(Y_{t_n})\bigr\}\\
@@ -499,22 +538,22 @@ Subtracting \eqref{eq:interpolation-solution} from \eqref{eq:exact-mild}, using 
 \end{equation}
 Let $S_n$ denote the first three terms on the right-hand side. Since $M_t$ is a martingale and the kernel in \eqref{eq:Rn} is deterministic,
 \begin{equation}
-    \E[R_n\mid\mathcal F_{t_n}]=0.
+    \E\left[R_n\mid\mathcal F_{t_n}\right]=0.
     \label{eq:Rn-centered}
 \end{equation}
 Because $S_n$ is $\mathcal F_{t_n}$-measurable,
 \begin{equation}
-    \E\norm{\Delta_{n+1}}^2
-    =\E\norm{S_n}^2+\E\norm{R_n}^2.
+    \E\left[\norm{Y_{t_{n+1}}-\hat Y_{t_{n+1}}}^2\right]
+    =\E\left[\norm{S_n}^2\right]+\E\left[\norm{R_n}^2\right].
     \label{eq:orthogonal-split}
 \end{equation}
 By Minkowski's inequality, Assumptions~\ref{ass:lipschitz} and~\ref{ass:score-error}, and
 $Y_{t_n}\overset{\mathrm d}=X_{T-t_n}$,
 \begin{equation}
 \begin{split}
-    \bigl(\E\norm{S_n}^2\bigr)^{1/2}
+    \left(\E\left[\norm{S_n}^2\right]\right)^{1/2}
     \le{}&e^{h_n}\bigl\{1+L(T-t_n)(1-e^{-2h_n})\bigr\}
-    \bigl(\E\norm{\Delta_n}^2\bigr)^{1/2}\\
+    \left(\E\left[\norm{Y_{t_n}-\hat Y_{t_n}}^2\right]\right)^{1/2}\\
     &+e^{h_n}(1-e^{-2h_n})\varepsilon_n.
 \end{split}
 \label{eq:Sn-bound}
@@ -547,20 +586,14 @@ View the right-hand side of \eqref{eq:discrete-hyp} as the squared Euclidean nor
 Applying Lemma~\ref{lem:discrete} to \eqref{eq:orthogonal-split}--\eqref{eq:Sn-bound} and using that each stability factor is at least one gives
 \begin{equation}
 \begin{split}
-    \bigl(\E\norm{\Delta_N}^2\bigr)^{1/2}
+    \left(\E\left[\norm{Y_{t_N}-\hat Y_{t_N}}^2\right]\right)^{1/2}
     \le \mathcal G_N\Biggl[
-       &\bigl(\E\norm{\Delta_0}^2\bigr)^{1/2}
+       &\left(\E\left[\norm{Y_0-\hat Y_0}^2\right]\right)^{1/2}
        +\sum_{j=0}^{N-1}e^{h_j}(1-e^{-2h_j})\varepsilon_j\\
-       &+\left\{\sum_{j=0}^{N-1}\E\norm{R_j}^2\right\}^{1/2}
+       &+\left\{\sum_{j=0}^{N-1}\E\left[\norm{R_j}^2\right]\right\}^{1/2}
     \Biggr].
 \end{split}
 \label{eq:global-recursion}
-\end{equation}
-By the optimal initial coupling and \eqref{eq:init-bound},
-\begin{equation}
-    \E\norm{\Delta_0}^2
-    \le e^{-2T}\E\norm{X_0}^2+(1-\sigma_T)^2d.
-    \label{eq:delta0-bound}
 \end{equation}
 
 \subsection{Intrinsic-dimensional posterior covariance}
@@ -571,9 +604,9 @@ The key geometric input is the following estimate.
 \label{lem:posterior-cov}
 Under Assumptions~\ref{ass:entropy} and~\ref{ass:support} and \eqref{eq:poly-regime}, there is a constant $C_\Sigma>0$ such that, for $0\le t\le t_N$,
 \begin{equation}
-    \E\Tr\Sigma_{T-t}(Y_t)
+    \E\left[\Tr\Sigma_{T-t}(Y_t)\right]
     \le C_\Sigma\min\left\{
-       \E\norm{X_0}^2,
+       \E\left[\norm{X_0}^2\right],
        \frac{\sigma_{T-t}^2}{1-\sigma_{T-t}^2}k\log k
     \right\}.
     \label{eq:posterior-cov-bound}
@@ -588,9 +621,9 @@ A proof is given in \Cref{app:posterior}. The first bound follows from the least
 \label{lem:remainder}
 Under the assumptions of \Cref{thm:main},
 \begin{equation}
-    \sum_{n=0}^{N-1}\E\norm{R_n}^2
+    \sum_{n=0}^{N-1}\E\left[\norm{R_n}^2\right]
     \le C\left\{
-       \kappa\min\bigl(\E\norm{X_0}^2,Tk\log k\bigr)
+       \kappa\min\bigl(\E\left[\norm{X_0}^2\right],Tk\log k\bigr)
        +\kappa^2Nk\log k
     \right\}.
     \label{eq:remainder-bound}
@@ -600,19 +633,19 @@ Under the assumptions of \Cref{thm:main},
 \begin{proof}
 By Cauchy--Schwarz, the mesh condition, and elementary bounds on the deterministic kernel in \eqref{eq:Rn},
 \begin{equation}
-    \E\norm{R_n}^2
+    \E\left[\norm{R_n}^2\right]
     \le 4\int_{t_n}^{t_{n+1}}
        \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
-       \E\norm{M_u-M_{t_n}}^2\dd u.
+       \E\left[\norm{M_u-M_{t_n}}^2\right]\dd u.
     \label{eq:Rn-pre}
 \end{equation}
 Using \eqref{eq:martingale-isometry}, define
 \[
-    V(t):=\E\Tr\Sigma_{T-t}(Y_t).
+    V(t):=\E\left[\Tr\Sigma_{T-t}(Y_t)\right].
 \]
 Then $V$ is nonincreasing and
 \begin{equation}
-    \sum_{n=0}^{N-1}\E\norm{R_n}^2
+    \sum_{n=0}^{N-1}\E\left[\norm{R_n}^2\right]
     \le4\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
        \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
        \{V(t_n)-V(u)\}\dd u.
@@ -626,7 +659,7 @@ For $u\le T-1$, the denominator is bounded away from zero. Discrete summation by
 &\sum_{n=0}^{M-1}\int_{t_n}^{t_{n+1}}
        \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
        \{V(t_n)-V(u)\}\dd u\\
-&\qquad\le C\kappa\min\bigl\{\E\norm{X_0}^2,Tk\log k\bigr\}.
+&\qquad\le C\kappa\min\bigl\{\E\left[\norm{X_0}^2\right],Tk\log k\bigr\}.
 \end{split}
 \label{eq:early-remainder}
 \end{equation}
@@ -662,37 +695,22 @@ By \eqref{eq:posterior-cov-bound} and
 we obtain
 \begin{equation}
     \eqref{eq:late-sbp}
-    \le C\kappa\min\{\E\norm{X_0}^2,k\log k\}
+    \le C\kappa\min\{\E\left[\norm{X_0}^2\right],k\log k\}
        +C\kappa^2Nk\log k.
     \label{eq:late-remainder}
 \end{equation}
 Combining \eqref{eq:Rn-V}, \eqref{eq:early-remainder}, and \eqref{eq:late-remainder} proves the claim.
 \end{proof}
 
-\subsection{Conclusion of the proof}
+\subsection{Completion of the proof}
 
-Since $Y_{t_N}\overset{\mathrm d}=X_\delta$,
-\begin{equation}
-    \Wtwo\bigl(\Law(Y_{t_N}),\Law(\hat Y_{t_N})\bigr)
-    \le\bigl(\E\norm{\Delta_N}^2\bigr)^{1/2}.
-    \label{eq:w2-coupling}
-\end{equation}
-The explicit forward coupling gives
-\begin{equation}
-\begin{split}
-    \Wtwo^2\bigl(\pdata,\Law(X_\delta)\bigr)
-    &\le\E\norm{X_0-e^{-\delta}X_0-\sigma_\delta Z}^2\\
-    &=(1-e^{-\delta})^2\E\norm{X_0}^2+\sigma_\delta^2d.
-\end{split}
-\label{eq:early-stopping}
-\end{equation}
-The triangle inequality, \eqref{eq:global-recursion}, \eqref{eq:delta0-bound}, and Lemma~\ref{lem:remainder} yield \eqref{eq:main-bound}. Finally, $1+x\le e^x$ and $1-e^{-2h_i}\le2h_i$ imply
+Combining \eqref{eq:total-error-decomposition}, \eqref{eq:early-stopping}, \eqref{eq:w2-coupling}, \eqref{eq:global-recursion}, \eqref{eq:delta0-bound}, and Lemma~\ref{lem:remainder} yields \eqref{eq:main-bound}. Finally, $1+x\le e^x$ and $1-e^{-2h_i}\le2h_i$ imply
 \[
 \mathcal G_N
 \le\exp\left\{\sum_{i=0}^{N-1}h_i
 +2\sum_{i=0}^{N-1}h_iL(T-t_i)\right\},
 \]
-which is \eqref{eq:growth-simple}. This completes the proof of \Cref{thm:main}.
+which is the exponential stability factor appearing in \eqref{eq:main-bound}. This completes the proof of \Cref{thm:main}.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -716,14 +734,17 @@ Natural directions include replacing global Lipschitz continuity by one-sided or
 
 We give the argument underlying Lemma~\ref{lem:posterior-cov}. Let $r=T-t\in[\delta,T]$. By \eqref{eq:time-reversal-marginal},
 \begin{equation}
-    \E\Tr\Sigma_{T-t}(Y_t)=\E\Tr\Sigma_r(X_r).
+    \E\left[\Tr\Sigma_{T-t}(Y_t)\right]
+    =\E\left[\Tr\Sigma_r(X_r)\right].
     \label{eq:posterior-forward}
 \end{equation}
 The least-squares property of conditional expectation immediately gives
 \begin{equation}
-    \E\Tr\Sigma_r(X_r)
-    =\E\norm{X_0-\E[X_0\mid X_r]}^2
-    \le\E\norm{X_0}^2.
+    \E\left[\Tr\Sigma_r(X_r)\right]
+    =\E\left[
+        \norm{X_0-\E\left[X_0\mid X_r\right]}^2
+    \right]
+    \le\E\left[\norm{X_0}^2\right].
     \label{eq:posterior-trivial}
 \end{equation}
 
@@ -746,7 +767,7 @@ By conditional least-squares optimality,
 \begin{equation}
 \begin{split}
     \Tr\Sigma_r(x)
-    &\le\E\bigl[\norm{X_0-x_{i(x)}^*}^2\mid X_r=x\bigr]\\
+    &\le\E\left[\norm{X_0-x_{i(x)}^*}^2\mid X_r=x\right]\\
     &\le C\frac{\sigma_r^2}{1-\sigma_r^2}k\log k
        +4R^2e^{-ck\log k}
 \end{split}
@@ -755,7 +776,7 @@ By conditional least-squares optimality,
 for typical $x$, while the exceptional observations contribute at most
 $R^2e^{-ck\log k}$. Hence
 \begin{equation}
-    \E\Tr\Sigma_r(X_r)
+    \E\left[\Tr\Sigma_r(X_r)\right]
     \le C\frac{\sigma_r^2}{1-\sigma_r^2}k\log k
        +CR^2e^{-ck\log k}.
     \label{eq:cov-before-absorb}
