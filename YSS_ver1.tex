@@ -123,20 +123,16 @@
     
     \node[box] (data) {
       $x_1,\ldots,x_n \sim P$\\
-      \small データ
+      \small 既存のデータ
     };
     
     \node[box, right=of data] (model) {
-      $x_{\text{new}}\sim \widehat{P}$\\
-      \small 近似的にデータを生成
+      $x_{\text{new}}\sim \widehat{P}\approx P$\\
+      \small 新たなデータを生成
     };
     
     \draw[arrow] (data) -- node[above] {\small } (model);
-    
-    \node at ($(data.south)!0.5!(model.south)+(0,-0.55cm)$) {
-        $P \approx \widehat{P}$
-      };
-    
+
     \end{tikzpicture}
     \end{center}
     
@@ -160,14 +156,14 @@
       dX_t=-X_tdt+\sqrt{2}dW_t \quad (t\in[0,T])
     \end{equation}
     \begin{itemize}
-      \item (2)の解を $\{X_t\}_{t\in[0,T]}$ とし, $X_t$ の密度を $p_t$ とする. このとき, 次の結果が知られている. 
+      \item (2)の解を $\{X_t\}_{t\in[0,T]}$ とし, $t>0$ のとき, $X_t$ の密度を $p_t$ とする. このとき, 次の結果が知られている. 
     \end{itemize}
     \begin{theorem}[\cite{anderson82}]
       $\{Y_t\}_{t\in[0,T]}$ を次のSDEの解とする.
       \begin{equation}
         \left\{ \,
             \begin{aligned}
-            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0\leqq t \leqq T) \\
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0\leqq t < T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
