@@ -385,7 +385,40 @@ The Lipschitz assumption is imposed only on the learned score, not on the target
 \section{Proof of the main theorem}
 \label{sec:proof}
 
-We begin by separating the early-stopping error from the error between the exact and approximate reverse processes. Since $Y_{t_N}\overset{\mathrm d}=X_\delta$, the triangle inequality gives
+We work on the probability space carrying the forward
+Ornstein--Uhlenbeck process $(X_t)_{0\le t\le T}$ and define its
+canonical time reversal by
+\[
+    Y_t:=X_{T-t},
+    \qquad 0\le t\le t_N.
+\]
+Thus,
+\[
+    Y_t=X_{T-t}
+    \qquad\text{almost surely},
+\]
+and, in particular,
+\[
+    Y_{t_N}=X_\delta
+    \qquad\text{almost surely}.
+\]
+
+By the time-reversal theorem
+\citep{anderson1982reverse,haussmann1986time}, there exists a
+$d$-dimensional Brownian motion $B$, with respect to the completed
+natural reverse filtration
+\[
+    \mathcal G_t:=\sigma\{Y_s:0\le s\le t\},
+\]
+such that $Y$ satisfies \eqref{eq:reverse-posterior}. Notice that
+$Y$ is not chosen as an arbitrary weak solution of the reverse SDE:
+it is fixed as the canonical time reversal of the forward process.
+Consequently, no uniqueness in law for the reverse SDE is needed in
+order to identify its marginals with those of the forward process.
+
+We begin by separating the early-stopping error from the error
+between the exact and approximate reverse processes. Since
+$Y_{t_N}=X_\delta$ almost surely, the triangle inequality gives
 \begin{equation}
 \begin{split}
     \Wtwo\bigl(\pdata,\Law(\hat Y_{t_N})\bigr)
@@ -399,91 +432,305 @@ The explicit forward coupling in \eqref{eq:forward-marginal} yields
 \begin{equation}
 \begin{split}
     \Wtwo^2\bigl(\pdata,\Law(X_\delta)\bigr)
-    &\le\E\left[\norm{X_0-e^{-\delta}X_0-\sigma_\delta Z}^2\right]\\
-    &=(1-e^{-\delta})^2\E\left[\norm{X_0}^2\right]+\sigma_\delta^2d.
+    &\le
+    \E\left[
+        \norm{X_0-e^{-\delta}X_0-\sigma_\delta Z}^2
+    \right]\\
+    &=
+    (1-e^{-\delta})^2\E\left[\norm{X_0}^2\right]
+    +\sigma_\delta^2d.
 \end{split}
 \label{eq:early-stopping}
 \end{equation}
 
 \subsection{Synchronous coupling and initialization error}
 
-We now specify the initial coupling explicitly. Let $\widetilde X_0$ be an independent copy of $X_0$, let $Z\sim\N(0,\Id)$ be independent of $\widetilde X_0$, and set
+Let
+\[
+    \gamma_d:=\N(0,\Id).
+\]
+Since $T>0$, the forward marginal $q_T=\Law(X_T)$ is the convolution
+of the law of $e^{-T}X_0$ with the nondegenerate Gaussian law
+$\N(0,\sigma_T^2\Id)$. Hence $q_T$ is absolutely continuous with
+respect to Lebesgue measure. Moreover, both $q_T$ and $\gamma_d$
+have finite second moments.
+
+Therefore, by Brenier's theorem
+\citep[Theorem~9.4]{villani2009optimal}, there exists a Borel
+measurable optimal transport map
+\[
+    \mathcal T_T:\R^d\to\R^d
+\]
+such that
+\[
+    (\mathcal T_T)_{\#}q_T=\gamma_d
+\]
+and
+\[
+    W_2^2(q_T,\gamma_d)
+    =
+    \int_{\R^d}
+    \norm{y-\mathcal T_T(y)}^2\,q_T(\dd y).
+\]
+More precisely, $\mathcal T_T$ is given $q_T$-almost everywhere by
+the gradient of a convex function.
+
+We define the initial value of the approximate reverse process by
 \begin{equation}
-    Y_0=e^{-T}\widetilde X_0+\sigma_T Z,
-    \qquad
-    \hat Y_0=Z.
+    \hat Y_0:=\mathcal T_T(Y_0).
     \label{eq:explicit-initial-coupling}
 \end{equation}
-It follows from \eqref{eq:forward-marginal} that
+Then
 \[
-    Y_0\sim\Law(X_T),
-    \qquad
-    \hat Y_0\sim\N(0,\Id).
+    \hat Y_0\sim\gamma_d=\N(0,\Id)
 \]
-Starting from these initial values, drive the exact reverse process \eqref{eq:reverse-posterior} and the interpolation \eqref{eq:interpolation} with the same Brownian motion $B$.
-This coupling gives
+and
+\[
+    \E\left[\norm{Y_0-\hat Y_0}^2\right]
+    =
+    W_2^2(q_T,\gamma_d).
+\]
+In particular, $\hat Y_0$ is $\mathcal G_0$-measurable.
+
+Starting from \eqref{eq:explicit-initial-coupling}, construct
+$\hat Y$ recursively on each interval $[t_n,t_{n+1}]$ using
+\eqref{eq:interpolation}, driven by the same Brownian motion $B$ as
+the canonical reverse process $Y$. On $[t_n,t_{n+1}]$, the random
+vector
+\[
+    \hat\mu_{T-t_n}(\hat Y_{t_n})
+\]
+is frozen at the left endpoint. Conditional on $\mathcal G_{t_n}$,
+\eqref{eq:interpolation} is therefore a linear SDE and is uniquely
+defined by its variation-of-constants formula.
+
+Since $B$ is a Brownian motion with respect to
+$(\mathcal G_t)_{0\le t\le t_N}$, its increments are independent of
+$\mathcal G_0$ and hence independent of $\hat Y_0$. It follows from
+Proposition~\ref{prop:interpolation} that the grid-point values
+$(\hat Y_{t_n})_{n=0}^N$ have the same distribution as the DDPM
+sampler \eqref{eq:ddpm-update}.
+
+The resulting synchronous coupling gives
 \begin{equation}
     \Wtwo\bigl(\Law(Y_{t_N}),\Law(\hat Y_{t_N})\bigr)
-    \le\left(\E\left[\norm{Y_{t_N}-\hat Y_{t_N}}^2\right]\right)^{1/2}.
+    \le
+    \left(
+        \E\left[\norm{Y_{t_N}-\hat Y_{t_N}}^2\right]
+    \right)^{1/2}.
     \label{eq:w2-coupling}
 \end{equation}
-At time zero, \eqref{eq:explicit-initial-coupling} gives
+
+We next bound the initial transportation cost. Let
+$\widetilde X_0$ be an independent copy of $X_0$, and let
+$Z\sim\N(0,\Id)$ be independent of $\widetilde X_0$. Then
 \[
-    Y_0-\hat Y_0
-    =e^{-T}\widetilde X_0+(\sigma_T-1)Z.
+    e^{-T}\widetilde X_0+\sigma_TZ\sim q_T,
+    \qquad
+    Z\sim\gamma_d.
 \]
-Since $\widetilde X_0$ and $Z$ are independent and $\E\left[Z\right]=0$,
+Thus,
+$\bigl(e^{-T}\widetilde X_0+\sigma_TZ,Z\bigr)$ is an admissible
+coupling of $q_T$ and $\gamma_d$, and hence
 \begin{equation}
 \begin{split}
     \E\left[\norm{Y_0-\hat Y_0}^2\right]
-    &=e^{-2T}\E\left[\norm{\widetilde X_0}^2\right]+(1-\sigma_T)^2d.
+    &=
+    W_2^2(q_T,\gamma_d)\\
+    &\le
+    \E\left[
+        \norm{e^{-T}\widetilde X_0+\sigma_TZ-Z}^2
+    \right]\\
+    &=
+    e^{-2T}\E\left[\norm{X_0}^2\right]
+    +(1-\sigma_T)^2d.
 \end{split}
 \label{eq:delta0-bound}
 \end{equation}
+The explicit Gaussian coupling above is used only to bound the
+optimal transportation cost. The actual initial coupling employed
+in the synchronous construction is the optimal-map coupling
+\eqref{eq:explicit-initial-coupling}.
+
+We finally record the filtration associated with this construction.
+Since $\hat Y_0$ is $\mathcal G_0$-measurable and $\hat Y$ is
+constructed recursively from $\hat Y_0$ and the Brownian path
+$(B_s)_{0\le s\le t}$, we have
+\[
+    \sigma\{\hat Y_s:0\le s\le t\}
+    \subseteq\mathcal G_t.
+\]
+Consequently, if
+\[
+    \mathcal F_t
+    :=
+    \sigma\{Y_s,\hat Y_s:0\le s\le t\},
+\]
+with the usual completion, then
+\[
+    \mathcal F_t=\mathcal G_t.
+\]
+Thus, adjoining the approximate process $\hat Y$ does not reveal
+any information beyond the path of the canonical reverse process
+$Y$.
 
 \subsection{Posterior-mean martingale}
 
 \begin{lemma}[Reverse posterior martingale]
 \label{lem:martingale}
-Let
-\[
-    \mathcal F_t:=\sigma\{Y_s,\hat Y_s:0\le s\le t\}.
-\]
-Conditionally on $Y_0$, realize $(X_0,(Y_t)_{0\le t\le t_N})$ according to the exact reverse-process law, independently of the auxiliary variable $Z$ used in \eqref{eq:explicit-initial-coupling}. In particular, $X_0\mid Y_0$ has the posterior law $\Law(X_0\mid X_T=Y_0)$, while $\hat Y_0=Z$ is conditionally independent of $X_0$ given $Y_0$. The reverse Markov property therefore gives
+For every $0\le t\le t_N$,
 \begin{equation}
-    \E\left[X_0\mid\mathcal F_t\right]=\mu_{T-t}(Y_t).
+    \E\left[X_0\mid\mathcal F_t\right]
+    =
+    \mu_{T-t}(Y_t).
     \label{eq:martingale-conditional}
 \end{equation}
-The process
+Consequently, the process
 \begin{equation}
     M_t:=\mu_{T-t}(Y_t),
     \qquad 0\le t\le t_N,
     \label{eq:M-def}
 \end{equation}
-is a square-integrable $\mathcal F_t$-martingale. Moreover, for $0\le s\le t\le t_N$,
+is a square-integrable $(\mathcal F_t)$-martingale. Moreover, for
+$0\le s\le t\le t_N$,
 \begin{equation}
     \E\left[\norm{M_t-M_s}^2\right]
-    =\E\left[\Tr\Sigma_{T-s}(Y_s)\right]
-    -\E\left[\Tr\Sigma_{T-t}(Y_t)\right].
+    =
+    \E\left[\Tr\Sigma_{T-s}(Y_s)\right]
+    -
+    \E\left[\Tr\Sigma_{T-t}(Y_t)\right].
     \label{eq:martingale-isometry}
 \end{equation}
 \end{lemma}
 
 \begin{proof}
-Equation \eqref{eq:martingale-conditional} proves the martingale property. For $s\le t$, the orthogonality of conditional expectations yields
+By the construction in the preceding subsection,
+\[
+    \mathcal F_t
+    =
+    \mathcal G_t
+    =
+    \sigma\{Y_s:0\le s\le t\}.
+\]
+Since $Y_s=X_{T-s}$ almost surely,
+\[
+\begin{split}
+    \mathcal F_t
+    &=
+    \sigma\{X_{T-s}:0\le s\le t\}\\
+    &=
+    \sigma\{X_u:T-t\le u\le T\}.
+\end{split}
+\]
+The Markov property of the forward Ornstein--Uhlenbeck process
+implies that, conditionally on $X_{T-t}$, the variable $X_0$ and the
+future path $(X_u)_{T-t\le u\le T}$ are conditionally independent.
+Therefore,
+\[
+    \E\left[
+        X_0
+        \,\middle|\,
+        \sigma\{X_u:T-t\le u\le T\}
+    \right]
+    =
+    \E\left[X_0\mid X_{T-t}\right].
+\]
+Using $Y_t=X_{T-t}$ and the definition of the posterior mean, we
+obtain
+\[
+\begin{split}
+    \E\left[X_0\mid\mathcal F_t\right]
+    &=
+    \E\left[X_0\mid X_{T-t}\right]\\
+    &=
+    \mu_{T-t}(X_{T-t})\\
+    &=
+    \mu_{T-t}(Y_t),
+\end{split}
+\]
+which proves \eqref{eq:martingale-conditional}.
+
+Since $X_0$ is square-integrable and
+\[
+    M_t=\E\left[X_0\mid\mathcal F_t\right],
+\]
+the process $(M_t)_{0\le t\le t_N}$ is a square-integrable
+$(\mathcal F_t)$-martingale.
+
+Now let $0\le s\le t\le t_N$. We have
+\[
+    X_0-M_s
+    =
+    (X_0-M_t)+(M_t-M_s).
+\]
+Moreover, $M_t-M_s$ is $\mathcal F_t$-measurable and
+\[
+    \E\left[X_0-M_t\mid\mathcal F_t\right]=0.
+\]
+Hence
+\[
+\begin{split}
+    \E\left[
+        \ip{X_0-M_t}{M_t-M_s}
+    \right]
+    &=
+    \E\left[
+        \ip{
+            \E[X_0-M_t\mid\mathcal F_t]
+        }{
+            M_t-M_s
+        }
+    \right]\\
+    &=0.
+\end{split}
+\]
+It follows that
 \[
     \E\left[\norm{X_0-M_s}^2\right]
-    =\E\left[\norm{X_0-M_t}^2\right]
-    +\E\left[\norm{M_t-M_s}^2\right].
+    =
+    \E\left[\norm{X_0-M_t}^2\right]
+    +
+    \E\left[\norm{M_t-M_s}^2\right].
 \]
-Since
+
+Finally, for every $r\in[0,t_N]$,
+\[
+    M_r=\E[X_0\mid Y_r].
+\]
+Therefore, by the definition of conditional covariance,
+\[
+\begin{split}
+    \E\left[\norm{X_0-M_r}^2\right]
+    &=
+    \E\left[
+        \E\left[
+            \norm{X_0-\E[X_0\mid Y_r]}^2
+            \,\middle|\,
+            Y_r
+        \right]
+    \right]\\
+    &=
+    \E\left[
+        \Tr\Cov(X_0\mid Y_r)
+    \right].
+\end{split}
+\]
+Since $Y_r=X_{T-r}$ almost surely,
+\[
+    \Cov(X_0\mid Y_r)
+    =
+    \Sigma_{T-r}(Y_r),
+\]
+and hence
 \[
     \E\left[\norm{X_0-M_r}^2\right]
-    =\E\left[\Tr\Sigma_{T-r}(Y_r)\right],
+    =
+    \E\left[\Tr\Sigma_{T-r}(Y_r)\right].
 \]
-we obtain \eqref{eq:martingale-isometry}.
+Substituting this identity with $r=s$ and $r=t$ into the preceding
+orthogonal decomposition proves
+\eqref{eq:martingale-isometry}.
 \end{proof}
-
 \subsection{One-step error decomposition}
 
 The exact reverse process satisfies
