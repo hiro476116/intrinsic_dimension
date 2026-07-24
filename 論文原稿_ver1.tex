@@ -586,15 +586,15 @@ For every $0\le t\le t_N$,
     \label{eq:martingale-conditional}
 \end{equation}
 Consequently, the process
-\begin{equation}
-    M_t:=\mu_{T-t}(Y_t),
-    \qquad 0\le t\le t_N,
-    \label{eq:M-def}
-\end{equation}
+\[
+    \bigl(\mu_{T-t}(Y_t)\bigr)_{0\le t\le t_N}
+\]
 is a square-integrable $(\mathcal F_t)$-martingale. Moreover, for
 $0\le s\le t\le t_N$,
 \begin{equation}
-    \E\left[\norm{M_t-M_s}^2\right]
+    \E\left[
+        \norm{\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)}^2
+    \right]
     =
     \E\left[\Tr\Sigma_{T-s}(Y_s)\right]
     -
@@ -652,33 +652,48 @@ which proves \eqref{eq:martingale-conditional}.
 
 Since $X_0$ is square-integrable and
 \[
-    M_t=\E\left[X_0\mid\mathcal F_t\right],
+    \mu_{T-t}(Y_t)=\E\left[X_0\mid\mathcal F_t\right],
 \]
-the process $(M_t)_{0\le t\le t_N}$ is a square-integrable
+the process
+$\bigl(\mu_{T-t}(Y_t)\bigr)_{0\le t\le t_N}$ is a square-integrable
 $(\mathcal F_t)$-martingale.
 
 Now let $0\le s\le t\le t_N$. We have
 \[
-    X_0-M_s
+    X_0-\mu_{T-s}(Y_s)
     =
-    (X_0-M_t)+(M_t-M_s).
+    \bigl(X_0-\mu_{T-t}(Y_t)\bigr)
+    +\bigl(\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)\bigr).
 \]
-Moreover, $M_t-M_s$ is $\mathcal F_t$-measurable and
+Moreover, $\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)$ is
+$\mathcal F_t$-measurable and
 \[
-    \E\left[X_0-M_t\mid\mathcal F_t\right]=0.
+    \E\left[
+        X_0-\mu_{T-t}(Y_t)
+        \,\middle|\,
+        \mathcal F_t
+    \right]=0.
 \]
 Hence
 \[
 \begin{split}
     \E\left[
-        \ip{X_0-M_t}{M_t-M_s}
+        \ip{
+            X_0-\mu_{T-t}(Y_t)
+        }{
+            \mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)
+        }
     \right]
     &=
     \E\left[
         \ip{
-            \E[X_0-M_t\mid\mathcal F_t]
+            \E\left[
+                X_0-\mu_{T-t}(Y_t)
+                \,\middle|\,
+                \mathcal F_t
+            \right]
         }{
-            M_t-M_s
+            \mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)
         }
     \right]\\
     &=0.
@@ -686,25 +701,27 @@ Hence
 \]
 It follows that
 \[
-    \E\left[\norm{X_0-M_s}^2\right]
+    \E\left[\norm{X_0-\mu_{T-s}(Y_s)}^2\right]
     =
-    \E\left[\norm{X_0-M_t}^2\right]
+    \E\left[\norm{X_0-\mu_{T-t}(Y_t)}^2\right]
     +
-    \E\left[\norm{M_t-M_s}^2\right].
+    \E\left[
+        \norm{\mu_{T-t}(Y_t)-\mu_{T-s}(Y_s)}^2
+    \right].
 \]
 
 Finally, for every $r\in[0,t_N]$,
 \[
-    M_r=\E[X_0\mid Y_r].
+    \mu_{T-r}(Y_r)=\E\left[X_0\mid Y_r\right].
 \]
 Therefore, by the definition of conditional covariance,
 \[
 \begin{split}
-    \E\left[\norm{X_0-M_r}^2\right]
+    \E\left[\norm{X_0-\mu_{T-r}(Y_r)}^2\right]
     &=
     \E\left[
         \E\left[
-            \norm{X_0-\E[X_0\mid Y_r]}^2
+            \norm{X_0-\E\left[X_0\mid Y_r\right]}^2
             \,\middle|\,
             Y_r
         \right]
@@ -723,7 +740,7 @@ Since $Y_r=X_{T-r}$ almost surely,
 \]
 and hence
 \[
-    \E\left[\norm{X_0-M_r}^2\right]
+    \E\left[\norm{X_0-\mu_{T-r}(Y_r)}^2\right]
     =
     \E\left[\Tr\Sigma_{T-r}(Y_r)\right].
 \]
@@ -783,7 +800,9 @@ Subtracting \eqref{eq:interpolation-solution} from \eqref{eq:exact-mild}, using 
 \end{split}
 \label{eq:error-recursion-vector}
 \end{equation}
-Let $S_n$ denote the first three terms on the right-hand side. Since $M_t$ is a martingale and the kernel in \eqref{eq:Rn} is deterministic,
+Let $S_n$ denote the first three terms on the right-hand side. Since
+$\bigl(\mu_{T-t}(Y_t)\bigr)_{0\le t\le t_N}$ is a martingale and the
+kernel in \eqref{eq:Rn} is deterministic,
 \begin{equation}
     \E\left[R_n\mid\mathcal F_{t_n}\right]=0.
     \label{eq:Rn-centered}
@@ -883,7 +902,11 @@ By Cauchy--Schwarz, the mesh condition, and elementary bounds on the determinist
     \E\left[\norm{R_n}^2\right]
     \le 4\int_{t_n}^{t_{n+1}}
        \frac{1-\sigma_{T-u}^2}{\sigma_{T-u}^4}
-       \E\left[\norm{M_u-M_{t_n}}^2\right]\dd u.
+       \E\left[
+          \norm{
+             \mu_{T-u}(Y_u)-\mu_{T-t_n}(Y_{t_n})
+          }^2
+       \right]\dd u.
     \label{eq:Rn-pre}
 \end{equation}
 Using \eqref{eq:martingale-isometry}, define
@@ -1152,6 +1175,12 @@ Y. Song, J. Sohl-Dickstein, D. P. Kingma, A. Kumar, S. Ermon, and B. Poole.
 Y. Yu and L. Yu.
 \newblock Advancing Wasserstein convergence analysis of score-based models: insights from discretization and second-order acceleration.
 \newblock In \emph{Advances in Neural Information Processing Systems 38}, 2025.
+
+\bibitem[Villani(2009)]{villani2009optimal}
+C. Villani.
+\newblock \emph{Optimal Transport: Old and New}.
+\newblock Grundlehren der mathematischen Wissenschaften, volume 338.
+Springer, Berlin, Heidelberg, 2009.
 
 \end{thebibliography}
 
