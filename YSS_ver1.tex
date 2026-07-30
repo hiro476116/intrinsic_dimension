@@ -99,8 +99,8 @@
   \end{frame}
   \begin{frame}{拡散モデルについて : 生成とは}
     \begin{itemize}
-      \item 未知の確率測度 $P$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}$ があるとする.
-      \item このデータを用いて, $P$ に従う新たなデータを近似的に生み出すことを\textbf{生成}という.
+      \item 未知の確率測度 $P_{\text{data}}$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}$ があるとする.
+      \item このデータを用いて, $P_{\text{data}}$ に従う新たなデータを近似的に生み出すことを\textbf{生成}という.
       \item 機械学習の分野で近年大きな成功を収めている生成の方法の1つに, \textbf{拡散モデル}がある.
     \end{itemize}
     \vspace{0.2cm}
@@ -122,12 +122,12 @@
     ]
     
     \node[box] (data) {
-      $x_1,\ldots,x_n \sim P$\\
+      $x_1,\ldots,x_n \sim P_{\text{data}}$\\
       \small 既存のデータ
     };
     
     \node[box, right=of data] (model) {
-      $x_{\text{new}}\sim \widehat{P}\approx P$\\
+      $x_{\text{new}}\sim \widehat{P}\approx P_{\text{data}}$\\
       \small 新たなデータを生成
     };
     
@@ -146,9 +146,40 @@
         dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t\quad (t\in[0,T])
     \end{align}
     \begin{itemize}
-        \item 上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ で, 容易にサンプリングが得られる正規分布などを初期分布 ($Y_0\sim N(0,I)$) としたときに, $Y_T\sim P$ となるような $b, \sigma$ を構成できないだろうか？
-        \item そのような $b,\sigma$ が得られた場合, (1) をシミュレーションすることで $P$ からのサンプリングが無数に得られる. 
+        \item 上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ で, 標準正規分布を初期分布, つまり $Y_0\sim N(0,I)$ としたときに, $Y_T\sim P$ となるような $b, \sigma$ を構成できないだろうか？
     \end{itemize}
+
+    \vspace{0.15cm}
+    \begin{center}
+    \begin{tikzpicture}[
+      node distance=5.2cm,
+      box/.style={
+        draw,
+        rounded corners,
+        minimum width=2.8cm,
+        minimum height=1.15cm,
+        align=center
+      },
+      arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+      }
+    ]
+
+    \node[box] (normal) {
+      $Y_0\sim \mathcal{N}(0,I)$\\
+      \small 標準正規分布
+    };
+
+    \node[box, right=of normal] (data) {
+      $Y_T\sim P$\\
+      \small データ分布
+    };
+
+    \draw[arrow] (normal) -- node[above] {\small $dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t$} (data);
+
+    \end{tikzpicture}
+    \end{center}
   \end{frame}
   %------------4-----------
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
@@ -175,14 +206,89 @@
   %---------5-------------
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{itemize}
-        \item 画像からノイズへの画像などを貼って直感的に説明するページにする
+        \item $dX_t=-X_tdt+\sqrt{2}dW_t$ の解 $\{X_t\}_{t\in[0,T]}$ は, $Z$ を $X_0$ と独立な標準正規分布に従う
+        確率変数としたとき, $X_t\stackrel{\mathrm{d}}{=}e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と表せる. よって,
+        $T$ を十分大きく取ると $X_T\approx \mathcal{N}(0,I)$ となることが期待できる.
+        \item $X_0\sim P_{\text{data}}$ とすると, $\{X_t\}_{t\in[0,T]}$ はデータ分布から時間の経過とともに標準正規分布へ近づいていく確率過程となる.
     \end{itemize}
+
+    \vspace{0.15cm}
+    \begin{center}
+    \begin{tikzpicture}[
+      node distance=5.2cm,
+      box/.style={
+        draw,
+        rounded corners,
+        minimum width=2.8cm,
+        minimum height=1.15cm,
+        align=center
+      },
+      arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+      }
+    ]
+
+    \node[box] (normal) {
+      $X_T\approx \mathcal{N}(0,I)$
+    };
+
+    \node[box, right=of normal] (data) {
+      $X_0\sim P_{\text{data}}$\\
+      \small データ分布
+    };
+
+    \draw[arrow] (data) -- node[above] {\small $dX_t=-X_tdt+\sqrt{2}dW_t$} (normal);
+
+    \end{tikzpicture}
+    \end{center}
   \end{frame}
   %---------6-------------
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{itemize}
-        \item 誤差解析について言及する
+        \item $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $X_T\approx \mathcal{N}(0,I)$ から時間の経過とともに
+        $P_{\text{data}}$ へ近づいていく確率過程となる.
     \end{itemize}
+
+    \vspace{0.8cm}
+    \begin{center}
+    \begin{tikzpicture}[
+      node distance=6.4cm,
+      box/.style={
+        draw,
+        rounded corners,
+        minimum width=2.6cm,
+        minimum height=1.3cm,
+        align=center
+      },
+      arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+      }
+    ]
+
+    \node[box] (normal) {
+      $Y_0\stackrel{\mathrm{d}}{=}X_T$\\
+      $\approx \mathcal{N}(0,I)$
+    };
+
+    \node[box, right=of normal] (data) {
+      $Y_T\stackrel{\mathrm{d}}{=}X_0$\\
+      $\sim P_{\text{data}}$
+    };
+
+    \draw[arrow]
+      ([yshift=0.30cm]normal.east) --
+      node[above=2pt] {\scriptsize $dY_t=(Y_t+\nabla\log p_{T-t}(Y_t))dt+\sqrt{2}dW_t$}
+      ([yshift=0.30cm]data.west);
+
+    \draw[arrow]
+      ([yshift=-0.30cm]data.west) --
+      node[below=2pt] {\small $dX_t=-X_tdt+\sqrt{2}dW_t$}
+      ([yshift=-0.30cm]normal.east);
+
+    \end{tikzpicture}
+    \end{center}
   \end{frame}
   %---------7-------------
     \begin{frame}{内在次元を用いた拡散モデルの収束解析について}
