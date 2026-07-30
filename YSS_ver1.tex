@@ -75,6 +75,22 @@
 \begin{frame}
   \titlepage
 \end{frame}
+\begin{frame}
+  \begin{itemize}
+    \item 拡散モデルは近年機械学習の分野で盛んに研究されている手法である.
+    \item 機械学習のトップ会議 NeurIps 2024では, 大規模言語モデルの次に研究数が多かったのが拡散モデルである.
+  \end{itemize}
+  \vspace{0.1cm}
+  \begin{center}
+    \includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{top_topics_2024.png}\\[-0.15cm]
+    {\tiny
+      Shayan Mousavi,
+      \href{https://shmouses.github.io/NeurIPS2024AITrends/}{NeurIPS 2024 AI Research Trends}
+    }
+  \end{center}
+\end{frame}
+
+
  %2
   \begin{frame}{目次}
     \begin{itemize}
@@ -291,57 +307,97 @@
     \end{center}
   \end{frame}
   %---------7-------------
-    \begin{frame}{内在次元を用いた拡散モデルの収束解析について}
+    \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
+    \begin{equation*}
+        \left\{ \,
+            \begin{aligned}
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation*}
     \begin{itemize}
-        \item データの内在次元を用いた拡散モデルの収束解析は \cite{huang_wei_chen_2026,azangulov_deligiannidis_rousseau_2024,li_yan_2024_low_dimensional} などによって行われており, 
-        \cite{huang_wei_chen_2026} では $KL(p_{data},\hat{p})\leqq O(k)$ の評価が得られている.
-        \item 上記の結果はKLダイバージェンスでの評価であり, 2-Wasserstein距離での収束解析は \cite{huang_wei_chen_2026} ではFuture Work とされている.
-        \item 今回, \cite{huang_wei_chen_2026} の評価方法を参考に2-Wasserstein距離での評価を行った.
+      \item 上記のSDEを最終時刻 $T$ までシミュレーションすると, $Y_T\sim P_{\text{data}}$ からのサンプリングが得られることがわかった. しかし, 現実的には以下の3つの点が問題となる.
+      \begin{itemize}
+        \item 初期分布 $\mathcal{L}(X_T)$ は $T$ を大きくとると $\mathcal{N}(0,I)$ に近づくが, 有限の時刻 $T$ をとる必要があるため, 厳密には $\mathcal{N}(0,I)$ とは一致せず, 初期分布からのサンプリングが得られない.
+        \item SDEのドリフト項に現れるスコア関数 $\nabla \log{p_{T-t}(Y_t)}$ は未知の関数なので, 明示的に得ることができない.
+        \item 非線形SDEを連続時間でシミュレーションすることはできない.
+      \end{itemize}
     \end{itemize}
   \end{frame}
   %---------8-------------
-    \begin{frame}{拡散モデルの更新則}
-      $X_0\sim p_{data}$, $W \sim \mathcal{N}(0,I_d)$ として, 確率過程 $\{X_t\}_{t\in[0,T]}$ を次を満たすものとして定める.
-      \begin{equation}
-         X_t\stackrel{\mathrm{d}}{=}\sqrt{1-\sigma^2_t}X_0+\sigma_tW \quad (\sigma_t=\sqrt{1-e^{-2t}}, \quad t\in[0,T])
-      \end{equation}
-      $X_t$ の密度関数を $p_t$ とし, $s_t(x):=\nabla\log{p_t(x)}$ の推定量を $\hat{s}_t(x)$ として, データを生成する過程 $\{Y_n\}_{n=0,1,\dots, N}$ を次のように定義する.
-      \begin{align}
-          &Y_0\sim \mathcal{N}(0,I_d), \notag\\
-          &Y_{n+1}=\frac{1}{\sqrt{\alpha_n}}(Y_{n}+(1-\alpha_n)\hat{s}_{T-t_n}(Y_{n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n
-      \end{align}
-      ここで, $0=t_0<t_1<\dots < t_N<t_{N+1}=T$, $\alpha_n=e^{-2(t_{n+1}-t_n)}$ , $\bar{\alpha}_n=\prod\limits_{i=n}^N \alpha_i$ , $Z_n\overset{iid}{\sim}\mathcal{N}(0,I_d)$ である. 係数 $\alpha_n$ の値は \cite{ho_jain_abbeel_2020} で提案された.
-    \end{frame}
+    \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
+    \begin{equation*}
+        \left\{ \,
+            \begin{aligned}
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation*}
+    \begin{equation*}
+        \left\{ \,
+            \begin{aligned}
+            & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
+            & \hat{Y}_0 \sim \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation*}
+    \begin{itemize}
+      \item 前頁の3つの問題点に対して, 次のように対処したSDE $\hat{Y}$ を考える.
+      \begin{itemize}
+        \item 初期分布を, $\hat{Y}_0\sim \mathcal{N}(0,I)$ にする.
+        \item スコア関数 $\nabla \log{p_{T-t}}$ を, 推定量 $\hat{s}(t,\cdot)$ に置き換える.
+        \item 時間を離散化する. $(t_0=0\leqq t_1\leqq \dots \leqq t_N=T)$
+      \end{itemize}
+    \end{itemize}
+  \end{frame}
     %---------9-------------
-    \begin{frame}{SDEを通じた解釈}
-      前頁のアルゴリズムの時間を連続化することでSDEを使った解釈が可能である \cite{song_et_al_2021} .
-      \begin{equation}
-          dX_t=-X_tdt+\sqrt{2}dW_t, \quad X_0\sim p_{data}, \quad t\in[0,T]
-      \end{equation}
-      の解 $\{X_t\}_{t\in[0,T]}$ に対して $X_t$ の密度関数を $p_t$ , $s_t(x):=\nabla\log{p_t(x)}$ として, 次のSDEを考える.
-      \begin{equation}
-          dY_t=(Y_t+2s_{T-t}(Y_t))dt+\sqrt{2}dB_t \quad t\in[0,T]
-      \end{equation}
-      $Y_0\stackrel{\mathrm{d}}{=} X_T$ としたとき, (4) の解を $\{Y_t\}_{t\in[0,T]}$ とすると, 任意の時刻 $t\in [0,T]$ において
-      $Y_{T-t}\stackrel{\mathrm{d}}{=}X_t$ が成立する\cite{anderson82}.
-    \end{frame}
+    \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
+    \begin{equation}
+        \left\{ \,
+            \begin{aligned}
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation}
+    \begin{equation}
+        \left\{ \,
+            \begin{aligned}
+            & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
+            & \hat{Y}_0 \sim \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation}
+    \begin{itemize}
+      \item (4) のSDEの解を $\{Y_t\}_{t\in[0,T]}$, (5) のSDEの解を $\{\hat{Y}_t\}_{t\in[0,T]}$ とする.
+      \item 確率測度に対する何らかの距離 $\rho$ を用いて, $\rho(P_{\text{data}},\mathcal{L}(\hat{Y}_T))=\rho(\mathcal{L}(Y_T),\mathcal{L}(\hat{Y}_T))$ を評価することが重要な課題である.
+    \end{itemize}
+  \end{frame}
     %---------10-------------
-    \begin{frame}{Tweedieの公式}
-      $\{X_t\}_{t\in[0,T]}$ を前頁のSDEの解として, 
-      \begin{equation}
-          \mu_t(x)=\mathbb{E}[X_0|X_t=x], \quad \Sigma_t(x)=Cov[X_0|X_t=x]
-      \end{equation}
-      とする. このとき, Tweedieの公式 \cite{efron_2011_tweedie} より, 
-      \begin{equation}
-          \mu_t(X_t)=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_t\nabla \log{p_t(X_t)})=\frac{1}{\sqrt{1-\sigma^2_t}}(X_t+\sigma^2_ts_t(X_t))
-      \end{equation}
-      が得られる.
-      これを用いると, 前頁の時間を反転したSDEは次のように書ける.
-      \begin{align}
-          dY_t&=(Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)-\frac{2}{\sigma^2_{T-t}}Y_t)dt+\sqrt{2}dB_t\\
-          &=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
-      \end{align}
-    \end{frame}
+    \begin{frame}{拡散モデルの収束解析について : KLダイバージェンス}
+    \begin{equation}
+        \left\{ \,
+            \begin{aligned}
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation}
+    \begin{equation}
+        \left\{ \,
+            \begin{aligned}
+            & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
+            & \hat{Y}_0 \sim \mathcal{N}(0,I)
+            \end{aligned}
+        \right.
+    \end{equation}
+    \begin{itemize}
+      \item (4) のSDEの解を $\{Y_t\}_{t\in[0,T]}$, (5) のSDEの解を $\{\hat{Y}_t\}_{t\in[0,T]}$ とする.
+      \item 確率測度に対する何らかの距離 $\rho$ を用いて, $\rho(P_{\text{data}},\mathcal{L}(\hat{Y}_T))=\rho(\mathcal{L}(Y_T),\mathcal{L}(\hat{Y}_T))$ を評価することが重要な課題である.
+    \end{itemize}
+  \end{frame}
     %---------11-------------
     \begin{frame}{実際の生成アルゴリズムとの対応}
       前頁の(8)式のSDE
