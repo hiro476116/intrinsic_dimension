@@ -31,7 +31,7 @@
 \usepackage[authoryear,round]{natbib}
 \bibpunct{(}{)}{;}{a}{ }{,}
 \let\oldcite\cite
-\renewcommand{\cite}[1]{\citep{#1}}
+\renewcommand{\cite}[1]{\citealp{#1}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Tr}{\operatorname{Tr}}
 
@@ -61,7 +61,6 @@
 % ------------------------------
 % タイトル情報
 % ------------------------------
-%1
 \title{データの内在次元を用いた拡散モデルの収束解析}
 %\subtitle{}
 \author{枇榔 一真}
@@ -71,11 +70,31 @@
 % ------------------------------
 \begin{document}
 
-% ---- タイトルスライド ----
+% =====================================================================
+% PDFページ対応表（現在のビルド: 全37ページ）
+% 各frameの直前に「Frame番号 | PDFページ | 内容」を記載している。
+% 参考文献のframeのみ allowframebreaks によりPDF 30--37ページに分割される。
+% frameの追加・削除や参考文献の増減後は、このページ表記も更新すること。
+% =====================================================================
+
+% ===== Frame 01 | PDF p.01 | タイトル =====
 \begin{frame}
   \titlepage
 \end{frame}
-\begin{frame}
+
+% ===== Frame 02 | PDF p.02 | 目次 =====
+  \begin{frame}{目次}
+    \begin{itemize}
+      \item 拡散モデルについて
+      \item 拡散モデルの収束解析について
+      \item 設定
+      \item 主定理
+      \item 主定理の証明概要
+    \end{itemize}
+  \end{frame}
+
+% ===== Frame 03 | PDF p.03 | NeurIPS 2024における拡散モデル研究 =====
+\begin{frame}{拡散モデルについて}
   \begin{itemize}
     \item 拡散モデルは近年機械学習の分野で盛んに研究されている手法である.
     \item 機械学習のトップ会議 NeurIps 2024では, 大規模言語モデルの次に研究数が多かったのが拡散モデルである.
@@ -90,32 +109,10 @@
   \end{center}
 \end{frame}
 
-
- %2
-  \begin{frame}{目次}
-    \begin{itemize}
-      \item 拡散モデルについて
-      \begin{itemize}
-        \item 拡散モデルの収束解析について
-        \item 評価指標の比較
-        \item データの内在次元について
-        \item 内在次元を用いた拡散モデルの収束解析について
-      \end{itemize}
-      \item 設定
-      \begin{itemize}
-        \item 拡散モデルの更新則
-        \item SDEを通じた解釈
-        \item Tweedieの公式
-        \item データの内在次元の仮定について
-        \item スコア関数に対する仮定
-      \end{itemize}
-      \item 定理
-      \item 定理の証明概要
-    \end{itemize}
-  \end{frame}
+% ===== Frame 04 | PDF p.04 | 生成とは =====
   \begin{frame}{拡散モデルについて : 生成とは}
     \begin{itemize}
-      \item 未知の確率測度 $P_{\text{data}}$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}$ があるとする.
+      \item 未知の確率測度 $P_{\text{data}}$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}\subset \mathbb{R}^d$ があるとする.
       \item このデータを用いて, $P_{\text{data}}$ に従う新たなデータを近似的に生み出すことを\textbf{生成}という.
       \item 機械学習の分野で近年大きな成功を収めている生成の方法の1つに, \textbf{拡散モデル}がある.
     \end{itemize}
@@ -153,7 +150,7 @@
     \end{center}
     
   \end{frame}
-  %-----------3-------------
+% ===== Frame 05 | PDF p.05 | 拡散モデルの原理 =====
   \begin{frame}{拡散モデルについて : 拡散モデルの原理}
     \begin{itemize}
       \item 拡散モデルでは, 確率微分方程式(SDE)を用いてデータを生成する.
@@ -162,7 +159,7 @@
         dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t\quad (t\in[0,T])
     \end{align}
     \begin{itemize}
-        \item 上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ で, 標準正規分布を初期分布, つまり $Y_0\sim N(0,I)$ としたときに, $Y_T\sim P$ となるような $b, \sigma$ を構成できないだろうか？
+        \item 上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ で, 標準正規分布を初期分布, つまり $Y_0\sim \mathcal{N}(0,I_d)$ としたときに, $Y_T\sim P_{\text{data}}$ となるような $b, \sigma$ を構成できないだろうか？
     \end{itemize}
 
     \vspace{0.15cm}
@@ -183,12 +180,12 @@
     ]
 
     \node[box] (normal) {
-      $Y_0\sim \mathcal{N}(0,I)$\\
+      $Y_0\sim \mathcal{N}(0,I_d)$\\
       \small 標準正規分布
     };
 
     \node[box, right=of normal] (data) {
-      $Y_T\sim P$\\
+      $Y_T\sim P_{\text{data}}$\\
       \small データ分布
     };
 
@@ -197,7 +194,7 @@
     \end{tikzpicture}
     \end{center}
   \end{frame}
-  %------------4-----------
+% ===== Frame 06 | PDF p.06 | 拡散過程の時間反転構造（導入） =====
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{equation}
       dX_t=-X_tdt+\sqrt{2}dW_t \quad (t\in[0,T])
@@ -210,7 +207,7 @@
       \begin{equation}
         \left\{ \,
             \begin{aligned}
-            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0\leqq t < T) \\
+            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0< t < T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
@@ -219,13 +216,16 @@
     \end{theorem}
   \end{frame}
 
-  %---------5-------------
+% ===== Frame 07 | PDF p.07 | 拡散過程の時間反転構造（2つのSDE） =====
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
     \begin{itemize}
-        \item $dX_t=-X_tdt+\sqrt{2}dW_t$ の解 $\{X_t\}_{t\in[0,T]}$ は, $Z$ を $X_0$ と独立な標準正規分布に従う
-        確率変数としたとき, $X_t\stackrel{\mathrm{d}}{=}e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と表せる. よって,
-        $T$ を十分大きく取ると $X_T\approx \mathcal{N}(0,I)$ となることが期待できる.
-        \item $X_0\sim P_{\text{data}}$ とすると, $\{X_t\}_{t\in[0,T]}$ はデータ分布から時間の経過とともに標準正規分布へ近づいていく確率過程となる.
+        \item $dX_t=-X_tdt+\sqrt{2}dW_t$ の解 $\{X_t\}_{t\in[0,T]}$ は, 
+        \begin{equation*}
+          X_t\stackrel{\mathrm{d}}{=}e^{-t}X_0+\sqrt{1-e^{-2t}}Z\quad (Z\sim \mathcal{N}(0,I_d), \quad Z\perp X_0)
+        \end{equation*}
+        となるので, 
+        $T$ を十分大きく取ると $X_T\approx \mathcal{N}(0,I_d)$ となることが期待できる.
+        \item $X_0\sim P_{\text{data}}$ とすると, $\{X_t\}_{t\in[0,T]}$ は $P_{\text{data}}$ から時間経過とともに $\mathcal{N}(0,I_d)$ へ近づいていく確率過程となる.
     \end{itemize}
 
     \vspace{0.15cm}
@@ -246,7 +246,7 @@
     ]
 
     \node[box] (normal) {
-      $X_T\approx \mathcal{N}(0,I)$
+      $X_T\approx \mathcal{N}(0,I_d)$
     };
 
     \node[box, right=of normal] (data) {
@@ -259,12 +259,10 @@
     \end{tikzpicture}
     \end{center}
   \end{frame}
-  %---------6-------------
+% ===== Frame 08 | PDF p.08 | 拡散過程の時間反転構造（逆向きの図） =====
   \begin{frame}{拡散モデルについて : 拡散過程の時間反転構造}
-    \begin{itemize}
-        \item $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $X_T\approx \mathcal{N}(0,I)$ から時間の経過とともに
+    $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $X_T\approx \mathcal{N}(0,I_d)$ から時間の経過とともに
         $P_{\text{data}}$ へ近づいていく確率過程となる.
-    \end{itemize}
 
     \vspace{0.8cm}
     \begin{center}
@@ -285,7 +283,7 @@
 
     \node[box] (normal) {
       $Y_0\stackrel{\mathrm{d}}{=}X_T$\\
-      $\approx \mathcal{N}(0,I)$
+      $\approx \mathcal{N}(0,I_d)$
     };
 
     \node[box, right=of normal] (data) {
@@ -306,32 +304,33 @@
     \end{tikzpicture}
     \end{center}
   \end{frame}
-  %---------7-------------
+% ===== Frame 09 | PDF p.09 | 3つの誤差の発生源 =====
     \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
     \begin{equation*}
         \left\{ \,
             \begin{aligned}
             & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I_d)
             \end{aligned}
         \right.
     \end{equation*}
-    \begin{itemize}
-      \item 上記のSDEを最終時刻 $T$ までシミュレーションすると, $Y_T\sim P_{\text{data}}$ からのサンプリングが得られることがわかった. しかし, 現実的には以下の3つの点が問題となる.
-      \begin{itemize}
-        \item 初期分布 $\mathcal{L}(X_T)$ は $T$ を大きくとると $\mathcal{N}(0,I)$ に近づくが, 有限の時刻 $T$ をとる必要があるため, 厳密には $\mathcal{N}(0,I)$ とは一致せず, 初期分布からのサンプリングが得られない.
-        \item SDEのドリフト項に現れるスコア関数 $\nabla \log{p_{T-t}(Y_t)}$ は未知の関数なので, 明示的に得ることができない.
-        \item 非線形SDEを連続時間でシミュレーションすることはできない.
-      \end{itemize}
-    \end{itemize}
+      上記のSDEをシミュレーションすると, $Y_T\sim P_{\text{data}}$ からのサンプリングが得られる. しかし, 現実的には以下の3つの点が問題となる.
+      \vspace{0.25cm}
+      \begin{enumerate}
+        \large
+        \setlength{\itemsep}{0.4cm}
+        \item 初期分布 $\mathcal{L}(X_T)$ からの厳密なサンプリングが得られない.
+        \item スコア関数 $\nabla \log{p_{T-t}(Y_t)}$ が明示的に得られない.
+        \item SDEを連続時間でシミュレーションできない.
+      \end{enumerate}
   \end{frame}
-  %---------8-------------
+% ===== Frame 10 | PDF p.10 | 3つの問題点への対応 =====
     \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
     \begin{equation*}
         \left\{ \,
             \begin{aligned}
             & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I_d)
             \end{aligned}
         \right.
     \end{equation*}
@@ -339,135 +338,184 @@
         \left\{ \,
             \begin{aligned}
             & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
-            & \hat{Y}_0 \sim \mathcal{N}(0,I)
+            & \hat{Y}_0 \sim \mathcal{N}(0,I_d)
             \end{aligned}
         \right.
     \end{equation*}
     \begin{itemize}
-      \item 前頁の3つの問題点に対して, 次のように対処したSDE $\hat{Y}$ を考える.
-      \begin{itemize}
-        \item 初期分布を, $\hat{Y}_0\sim \mathcal{N}(0,I)$ にする.
+      \item 前頁の3つの問題点への対応として, 次のようにしたSDE $\hat{Y}$ を考える.
+      \begin{enumerate}
+        \item 初期分布を, $\hat{Y}_0\sim \mathcal{N}(0,I_d)$ にする.
         \item スコア関数 $\nabla \log{p_{T-t}}$ を, 推定量 $\hat{s}(t,\cdot)$ に置き換える.
         \item 時間を離散化する. $(t_0=0\leqq t_1\leqq \dots \leqq t_N=T)$
-      \end{itemize}
+      \end{enumerate}
     \end{itemize}
-  \end{frame}
-    %---------9-------------
-    \begin{frame}{拡散モデルの収束解析について : 3つの誤差の発生源}
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
-            \end{aligned}
-        \right.
-    \end{equation}
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
-            & \hat{Y}_0 \sim \mathcal{N}(0,I)
-            \end{aligned}
-        \right.
-    \end{equation}
     \begin{itemize}
-      \item (4) のSDEの解を $\{Y_t\}_{t\in[0,T]}$, (5) のSDEの解を $\{\hat{Y}_t\}_{t\in[0,T]}$ とする.
-      \item 確率測度に対する何らかの距離 $\rho$ を用いて, $\rho(P_{\text{data}},\mathcal{L}(\hat{Y}_T))=\rho(\mathcal{L}(Y_T),\mathcal{L}(\hat{Y}_T))$ を評価することが重要な課題である.
+      \item 確率測度の近さを測る指標 $\rho$ を用いて, $\rho(P_{\text{data}},\mathcal{L}(\hat{Y}_T))=\rho(\mathcal{L}(Y_T),\mathcal{L}(\hat{Y}_T))$ を評価することが重要な課題である.
     \end{itemize}
   \end{frame}
-    %---------10-------------
-    \begin{frame}{拡散モデルの収束解析について : KLダイバージェンス}
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & dY_t = (Y_t+\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I)
-            \end{aligned}
-        \right.
-    \end{equation}
-    \begin{equation}
-        \left\{ \,
-            \begin{aligned}
-            & d\hat{Y}_t = (\hat{Y}_{t_n}+\hat{s}(t_n,Y_{t_n}))dt+\sqrt{2}dB_t \quad (t_n\leqq t \leqq {t_{n+1}}) \\
-            & \hat{Y}_0 \sim \mathcal{N}(0,I)
-            \end{aligned}
-        \right.
-    \end{equation}
-    \begin{itemize}
-      \item (4) のSDEの解を $\{Y_t\}_{t\in[0,T]}$, (5) のSDEの解を $\{\hat{Y}_t\}_{t\in[0,T]}$ とする.
-      \item 確率測度に対する何らかの距離 $\rho$ を用いて, $\rho(P_{\text{data}},\mathcal{L}(\hat{Y}_T))=\rho(\mathcal{L}(Y_T),\mathcal{L}(\hat{Y}_T))$ を評価することが重要な課題である.
-    \end{itemize}
-  \end{frame}
-    %---------11-------------
-    \begin{frame}{実際の生成アルゴリズムとの対応}
-      前頁の(8)式のSDE
-      \begin{align}
-          dY_t=\{(1-\frac{2}{\sigma^2_{T-t}})Y_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\mu_{T-t}(Y_t)\}dt+\sqrt{2}dB_t
-      \end{align}
-      に対して, スコア関数の推定量を$\hat{s}$ , $\hat{\mu}_t(x)=\frac{1}{\sqrt{1-\sigma^2_t}}(x+\sigma^2_t\hat{s}_t(x))$ として, $\{\hat{Y}_t\}_{t\in[0,T]}$ を, $\hat{Y}_0\sim \mathcal{N}(0,I_d)$ であるような次のSDEの解とする.
-      \begin{align}
-          d\hat{Y}_t=\{(1-\frac{2}{\sigma^2_{T-t}})\hat{Y}_t+\frac{2\sqrt{1-\sigma^2_{T-t}}}{\sigma^2_{T-t}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\}dt+\sqrt{2}dB_t \notag\\
-          (t\in (t_n,t_{n+1}])
-      \end{align}
+% ===== Frame 11 | PDF p.11 | スコア関数の推定方法 =====
+    \begin{frame}{拡散モデルの収束解析について :スコア関数の推定方法}
+      
     \end{frame}
-    %---------12-------------
-    \begin{frame}{実際の生成アルゴリズムとの対応}
-      前頁の $\{\hat{Y}_t\}_{t\in[0,T]}$  に対して, 次の定理が成立する.
-      \begin{theorem}
-          任意の $n=0,\cdots, N-1$ に対して, ある独立同分布で標準正規分布に従う $\{Z_n\}_{n=0,\cdots, N-1}$ が存在して, 次の関係が成り立つ.
-          \begin{equation}
-            \hat{Y}_{t_{n+1}}=\frac{1}{\sqrt{\alpha_n}}(\hat{Y}_{t_n}+(1-\alpha_n)\hat{s}_{T-t_n}(\hat{Y}_{t_n}))+\sqrt{\frac{(1-\alpha_n)(1-\bar{\alpha}_{n+1})}{1-\bar{\alpha_n}}}Z_n
-          \end{equation}
-      \end{theorem}
-      この定理により, (10) のSDEは (2) のアルゴリズムを連続時間補完したものと解釈できることがわかる.
-    \end{frame}
-    %---------13-------------
-    \begin{frame}{データの内在次元の仮定について}
-      データの内在次元を考えるために, 集合の複雑さに関する概念を定義する.
+% ===== Frame 12 | PDF p.12 | KLダイバージェンスの定義 =====
+    \begin{frame}{拡散モデルの収束解析について : Kullback-Leibler divergence}
       \begin{definition}
-        $A\subset \mathbb{R}^d$ に対する, スケール $\epsilon_0$ における \textbf{covering number} $N^{cover}(A,\|\|_2,\epsilon_0)$ という値を, 次の関係を満たす $x_1,\cdots, x_s \in \mathbb{R}^d$ 
-        が存在するような最小の自然数 $s$ として定義する.
-        \begin{equation}
-          A\subset \cup_{i=1}^sB(x_i,\epsilon_0)
-        \end{equation}
-        また, $\log{N_{cover}(A,\|\|_2,\epsilon_0)}$ を \textbf{metric entropy} という.
+        2つの確率測度 $P, Q$ のKullback-Leibler divergence $D_{\text{KL}}(P|Q)$ を, 次のように定義する.
+        \begin{equation*}
+          D_{\text{KL}}(P|Q):=        \left\{ \,
+            \begin{aligned}
+            & \mathbb{E}_P\left[\log{\frac{dP}{dQ}}\right] \quad \bigl(P\ll Q\bigr) \\
+            & \infty \quad \quad \quad\quad \quad \quad(\text{otherwise})
+            \end{aligned}
+        \right.
+        \end{equation*}
       \end{definition}
+      Kullback-Leibler divergence は対称性を持たないため距離の公理を満たさないが, 確率測度の近さの指標としてよく用いられている.
+  \end{frame}
+% ===== Frame 13 | PDF p.13 | KL収束解析の先行研究 =====
+    \begin{frame}{拡散モデルの収束解析について : Kullback-Leibler divergence}
+      \begin{itemize}
+        \setlength{\itemsep}{0.15em}
+        \item KLでの収束解析は盛んに行われている. (\cite{benton_et_al_2024, chen_lee_lu_2023, chen_et_al_2023, koike_2026_follmer})
+        \item  \cite{benton_et_al_2024} で得られた次の結果は, データの次元数 $d$ に関して最良の収束レートを得ている.
+      \end{itemize}
+      \vspace{-0.35em}
+      \begin{theorem}[\cite{benton_et_al_2024}]
+        ある定数 $C>0$ が存在して, 次の不等式が成立する.
+        \begin{equation*}
+          D_{\mathrm{KL}}\bigl(p_{\text{data}}\mid\mathcal{L}(\hat{Y}_{t_N})\bigr)
+          \leqq C(\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}+\underbrace{\kappa^2dN+\kappa dT}_{\text{離散化誤差}}+\underbrace{de^{-2T}}_{\text{初期分布誤差}})
+        \end{equation*}
+        \vspace{-0.45em}
+        \noindent\makebox[\linewidth][l]{%
+          \textcolor{blue!70!black}{$\bullet$}\hspace{0.45em}%
+          $t_0=0\leqq t_1\leqq\dots\leqq t_N=T$%
+          \hspace{2em}
+          \textcolor{blue!70!black}{$\bullet$}\hspace{0.45em}%
+          $\displaystyle \kappa\leqq\max_{i=1,\dots,N}(t_i-t_{i-1})$%
+        }
+        \par\vspace{0.4em}
+        \noindent
+        \textcolor{blue!70!black}{$\bullet$}\hspace{0.45em}%
+        $\displaystyle
+          \epsilon_{\text{score}}
+          =\sum_{i=1}^{N}(t_i-t_{i-1})
+          \mathbb{E}\!\left[
+            \left\|\nabla\log p_{t_i}(X_{t_i})
+            -\hat{s}(t_i,X_{t_i})\right\|^2
+          \right]$
+      \end{theorem}
     \end{frame}
-    %---------14-------------
-    \begin{frame}{データの内在次元の仮定について}
-      $p_{data}$ の サポートを $\chi_{data}$ とする.
-      \cite{li_yan_2024_low_dimensional,huang_wei_chen_2026} に従い, データの内在次元に関する2つの仮定を置く. 以下の $k$ を $\chi_{data}$ の内在次元という.
-      \begin{assumption}
-        $C_0 > 0$ を十分大きな定数とする. $\epsilon_0=k^{-C_0}$ に対して, ある $C_{cover}>0$ が存在して, 
-        \begin{equation}
-          \log{N_{cover}(\chi_{data},\|\|_2,\epsilon_0)}\leqq C_{cover}k\log{\frac{1}{\epsilon_0}}
-        \end{equation}
-        を満たすと仮定する.
-      \end{assumption}
-      \begin{assumption}
-        ある定数 $C_R>0$ が存在して, 次が成立すると仮定する.
-        \begin{equation}
-          \sup\limits_{x\in \chi_{data}}\|x\|_2\leqq k^{C_R}
-        \end{equation}
-      \end{assumption}
+% ===== Frame 14 | PDF p.14 | 拡散モデルの収束解析について : Wasserstein distance =====
+    \begin{frame}{拡散モデルの収束解析について : Wasserstein distance}
+    \begin{definition}
+      $\mathbb{R}^d$上の確率測度$P,Q$に対して, $\Pi(P,Q)=\{\pi\text{:}\mathbb{R}^d\times\mathbb{R}^d\text{上の確率測度}|\pi(\cdot,\mathbb{R}^d)=P,\pi(\mathbb{R}^d,\cdot)=Q\}$とする.
+      このとき, $P,Q$の2-Wasserstein distance $W_2(P,Q)$を次のように定義する
+      \begin{equation*}
+        W_2(P,Q)=\inf_{\pi\in\Pi}\left(\int_{\mathbb{R}^d\times\mathbb{R}^d}|x-y|^2d\pi(x,y)\right)^{\frac{1}{2}}
+      \end{equation*}
+    \end{definition}
+    \begin{itemize}
+      \item Wasserstein distanceは距離の公理を満たす.
+      \item 
+    \end{itemize}
     \end{frame}
-    %---------15-------------
-    \begin{frame}{スコア関数に対する仮定}
-      スコアの推定量に対してリプシッツ連続性の仮定を置く. この仮定はKLダイバージェンスの場合は課されていない. しかし, Wasserstein距離での収束解析の先行研究では現状このような仮定が置かれている場合が多い.
-      \begin{assumption}
-          ある二乗可積分な関数 $L:(0,1)\rightarrow [0,\infty)$ が存在して, 次が成立する.
-          \begin{equation}
-              \|\hat{s}_t(x)-\hat{s}_t(y)\|\leqq L(t)\|x-y\| \quad  ^{\forall}(t,x,y)\in (0,1)\times \mathbb{R}^d\times \mathbb{R}^d
-          \end{equation}
-      \end{assumption}
-      次に, スコアの推定精度に関する仮定を置く. これはあらゆる拡散モデルの収束解析で課されているものであり, 学習の損失関数の形からも自然な仮定である.
-      \begin{assumption}
-          \begin{equation}
-              \mathbb{E}[\|s_{T-t_n}(X_{T-t_n})-\hat{s}_{T-t_n}(X_{T-t_n})\|_2^2]\leqq \epsilon^2(t_i)<\infty\quad (0\leqq i \leqq N-1)
-          \end{equation}
-      \end{assumption}
-    \end{frame}
-    %---------16-------------
+% ===== Frame 15 | PDF p.15 | Koike (2026) のWasserstein評価 =====
+\begin{frame}{拡散モデルの収束解析について : Wasserstein distance}
+  \small
+  \begin{itemize}
+    \setlength{\itemsep}{0.05em}
+    \item \cite{koike_2026_wasserstein} は, 推定スコアの正則性のもとで鋭い評価を得た.
+  \end{itemize}
+
+  \vspace{-0.55em}
+
+  \begin{theorem}[\cite{koike_2026_wasserstein}, Theorem 3.3]
+    \noindent
+    $\E[X_0]=0$, $\E[\|X_0\|_2^2]\leqq d$,
+    $0<\alpha_0=e^{-2T}<\cdots<\alpha_N=1-\delta$,
+    \par\vspace{0.05em}
+    \noindent
+    $h_i:=\alpha_{i+1}-\alpha_i
+      \leqq\kappa\sqrt{1-\alpha_{i+1}}\ (i=0,\dots,N-1)$ とする.
+    \par\vspace{0.1em}
+
+    \vspace{-1.1em}
+    \begin{align*}
+      W_2\bigl(p_{\mathrm{data}},\mathcal{L}(\hat{Y}_{t_N})\bigr)
+      \leqq{}& \sqrt{2}\exp\!\left(\int_{\alpha_0}^{1-\delta}L(s)\,ds\right)\Biggl[
+      \\[-0.2em]
+      &2\sqrt{\epsilon_{\mathrm{score}}}
+      +\kappa\sqrt{d\left(1+\log\frac{1}{\delta}\right)}
+      +\sqrt{2d}\,e^{-2T}\Biggr]
+      +\sqrt{d(\delta+\delta^2)}.
+    \end{align*}
+
+    \vspace{-0.9em}
+    {\footnotesize
+      \centering
+      誤差項は順に「スコア推定・離散化・初期分布・早期停止」に対応する.
+      \par
+    }
+
+    \vspace{-0.65em}
+
+    {\footnotesize
+    \begin{align*}
+      \epsilon_{\mathrm{score}}
+      &:=
+      \int_{\alpha_0}^{1-\delta}
+      \frac{\varepsilon_{\mathrm{score}}(s)^2}{s}\,ds,
+      \qquad
+      q_\alpha:=\mathcal{L}\!\left(\sqrt{\alpha}X_0+\sqrt{1-\alpha}Z\right),
+      \\[-0.2em]
+      \varepsilon_{\mathrm{score}}(\alpha_i)^2
+      &\geqq
+      \E\!\left[\left\|\nabla\log q_{\alpha_i}(X_{\alpha_i})
+      -\hat{s}(\alpha_i,X_{\alpha_i})\right\|_2^2\right],
+      \qquad Z\sim\mathcal{N}(0,I_d).
+    \end{align*}
+
+    \vspace{-0.65em}
+    \noindent 正則性条件：\quad
+    $\displaystyle
+      -\frac{2\alpha_i}{1-\alpha_i}I_d
+      \preceq I_d+\nabla\hat{s}(\alpha_i,x)
+      \preceq\alpha_iL(\alpha_i)I_d\quad\text{a.e. }x.$
+    }
+  \end{theorem}
+\end{frame}
+% ===== Frame 16 | PDF p.16 | データの内在次元に関する仮定 =====
+  \begin{frame}{拡散モデルの収束解析について : データの内在次元}
+    \begin{itemize}
+        \item 現実世界のデータ分布はごく少数の変数で記述されると考えられている. これは多様体仮説と呼ばれ, 機械学習の成功の基盤と考えられている (\cite{pope_et_al_2021}).
+        \item データ分布を記述する上で必要な変数の数を, データ分布の\textbf{内在次元 (intrinsic dimension)} と呼ぶ.
+        \item \cite{pope_et_al_2021} は, 代表的な画像のデータセットに対する内在次元推定を行い, 画像は $224\times 224 \times 3 = 15028$ の画素値を持つが, 内在次元は $26\sim 43$ 程度であるという結果を得た.
+    \end{itemize}
+  \end{frame}
+% ===== Frame 17 | PDF p.17 | 内在次元を用いたKL評価 =====
+  \begin{frame}{拡散モデルの収束解析について : データの内在次元}
+    \begin{itemize}
+      \item データの内在次元を用いた拡散モデルの収束解析は, Kullback-Leibler divergence のもとで \cite{huang_wei_chen_2026,azangulov_deligiannidis_rousseau_2024,li_yan_2024_low_dimensional} などにより得られている.
+    \end{itemize}
+    \begin{theorem}[\cite{huang_wei_chen_2026}]
+      ある定数 $C>0$ が存在して, 次の不等式が成立する.
+      \begin{align*}
+        KL\left(P_{\text{data}}\mid\mathcal{L}(Y_{t_N})\right)
+        \leqq
+            &C(\underbrace{\kappa\min\!\left\{\mathbb{E}[\|X_0\|_2^2],Tk\log k\right\}
+            +\kappa^2Nk\log k}_{\text{離散化誤差}} \\
+            &\quad+\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}
+            +\underbrace{\left(d+\mathbb{E}[\|X_0\|_2^2]\right)e^{-2T}}_{\text{初期分布誤差}}
+            )
+      \end{align*}
+    \end{theorem}
+    \begin{itemize}
+      \item 本研究では, まだ先行研究にない2-Wasserstein distanceでの収束解析を行なった.
+    \end{itemize}
+  \end{frame}
+% ===== Frame 18 | PDF p.18 | 主定理 =====
     \begin{frame}{定理}
       前頁までの仮定のもと, 次の評価が成立する.
       \begin{theorem}
@@ -484,7 +532,7 @@
         \end{align}
       \end{theorem}
     \end{frame}
-    %---------17-------------
+% ===== Frame 19 | PDF p.19 | 同期カップリングの構成 =====
     \begin{frame}{証明の概要：同じ確率空間, 同じブラウン運動で比較する}
       \begin{itemize}
         \item $Y$ の初期分布を
@@ -507,6 +555,7 @@
       \end{itemize}
     \end{frame}
 
+% ===== Frame 20 | PDF p.20 | 1ステップ誤差の計算（前半） =====
     \begin{frame}{証明の概要：$Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}$ の計算}
       $Y_{t_{n+1}}$, $\hat{Y}_{t_{n+1}}$ は次のように書ける. ($h_n:=t_{n+1}-t_n$ とする.)
         \begin{align}
@@ -546,6 +595,7 @@
           d B_u.
       \end{align}
     \end{frame}
+% ===== Frame 21 | PDF p.21 | 1ステップ誤差の計算（後半） =====
     \begin{frame}{証明の概要：$Y_{t_{n+1}}-\hat{Y}_{t_{n+1}}$ の計算}
       差を取り, 整理すると次のようになる.
       \begin{align}
@@ -575,6 +625,7 @@
         \right\}}_{\text{離散化誤差}}d u
       \end{align}
     \end{frame}
+% ===== Frame 22 | PDF p.22 | 二次型離散Gronwall補題 =====
     \begin{frame}{証明の概要 : $\E[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2]^{\frac{1}{2}}$ の評価につなげるための補題}
       \begin{lemma}[\cite{arsenyan_vardanyan_dalalyan_2025}]
         非負数列 $(x_n)_{n\geqq0}$, $(B_n)_{n\geqq0}$,
@@ -602,6 +653,7 @@
       \end{lemma}
     \end{frame}
 
+% ===== Frame 23 | PDF p.23 | マルチンゲール性を使った誤差分解 =====
     \begin{frame}{証明の概要 : $\mu_{T-t}(Y_t)$ のマルチンゲール性を使った誤差分解}
         $\mu_{T-t}(Y_t)$ は $\mathcal{F}_t :=\sigma(Y_s,Z|0\leqq s\leqq t)$ に関してマルチンゲールである
         ことに注意すると, (23) 式の最初の3項の和を $S_n$, 最後の項を $R_n$ としたとき, $S_n$ は $\mathcal{F}_{t_n}$ 可測であり, $\E[R_n|\mathcal{F}_{t_n}]=0$ となることがわかる. 
@@ -617,6 +669,7 @@
         \end{align}
     \end{frame}
 
+% ===== Frame 24 | PDF p.24 | S_nの評価 =====
     \begin{frame}{証明の概要 : $\E[\|S_n\|_2^2]$ の評価}
       \begin{align}
         S_n&=e^{h_n}(Y_{t_n}-\hat{Y}_{t_n})
@@ -646,6 +699,7 @@
       が得られる.
     \end{frame}
 
+% ===== Frame 25 | PDF p.25 | 補題の適用（前半） =====
     \begin{frame}{証明の概要 : 補題を適用する}
       前頁の評価により, 
       {\small
@@ -679,6 +733,7 @@
       とすることで補題が適用できる.
     \end{frame}
 
+% ===== Frame 26 | PDF p.26 | 補題の適用（後半） =====
     \begin{frame}{証明の概要 : 補題を適用する}
       補題より, 
       {\small
@@ -718,6 +773,7 @@
       }
     \end{frame}
 
+% ===== Frame 27 | PDF p.27 | 初期分布誤差の評価 =====
     \begin{frame}{証明の概要：初期分布誤差を評価}
       初期値の取り方より
       \begin{equation}
@@ -748,6 +804,7 @@
     \end{frame}
 
 
+% ===== Frame 28 | PDF p.28 | 離散化誤差の評価 =====
     \begin{frame}{証明の概要：離散化誤差を評価}
       \cite{huang_wei_chen_2026} より, 次の評価が得られる.
       \begin{equation}
@@ -782,6 +839,7 @@
       \end{lemma}
     \end{frame}
 
+% ===== Frame 29 | PDF p.29 | 最終評価 =====
     \begin{frame}{証明の概要：最後の評価}
       前頁までの評価をまとめると, 
       \begin{align}
@@ -796,6 +854,7 @@
       が得られる.
     \end{frame}
 
+% ===== Frame 30 | PDF pp.30--37 | 参考文献（allowframebreaksで8ページ） =====
     \begin{frame}[allowframebreaks]{参考文献}
     \begin{thebibliography}{99}
 
@@ -850,12 +909,19 @@
     Vis. Image Underst. 179 41–65.
     \url{https://arxiv.org/abs/1802.03446}
 
-    \bibitem[Koike(2026)]{koike_2026_follmer}
+    \bibitem[Koike(2026a)]{koike_2026_follmer}
     Koike, Y. (2026).
     A note on connections between the F\"ollmer process and the
     denoising diffusion probabilistic model.
     arXiv preprint arXiv:2605.18040.
     \url{https://arxiv.org/abs/2605.18040}
+
+    \bibitem[Koike(2026b)]{koike_2026_wasserstein}
+    Koike, Y. (2026).
+    Wasserstein bounds for denoising diffusion probabilistic models via
+    the F\"ollmer process.
+    arXiv preprint arXiv:2605.18069.
+    \url{https://arxiv.org/abs/2605.18069}
 
     \bibitem[Arsenyan et~al.(2025)]{arsenyan_vardanyan_dalalyan_2025}
     Arsenyan, V., Vardanyan, E. and Dalalyan, A. S. (2025).
