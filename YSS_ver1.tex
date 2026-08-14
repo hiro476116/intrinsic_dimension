@@ -16,6 +16,16 @@
 \usepackage{appendixnumberbeamer}
 
 % 定理環境
+\deftranslation[to=English]{Theorem}{定理}
+\deftranslation[to=English]{Corollary}{系}
+\deftranslation[to=English]{Fact}{事実}
+\deftranslation[to=English]{Lemma}{補題}
+\deftranslation[to=English]{Problem}{問題}
+\deftranslation[to=English]{Solution}{解}
+\deftranslation[to=English]{Definition}{定義}
+\deftranslation[to=English]{Definitions}{定義}
+\deftranslation[to=English]{Example}{例}
+\deftranslation[to=English]{Examples}{例}
 \setbeamertemplate{proof begin}{\noindent\textbf{証明}\quad}
 \setbeamertemplate{proof end}{\qed \par}
 \setbeamertemplate{bibliography item}[text]
@@ -328,7 +338,15 @@
       拡散モデルでは, それぞれの問題点に対して次のように対応する.
       \begin{enumerate}
         \item 初期分布を標準正規分布 $\mathcal{N}(0,I_d)$ にする.
-        \item スコア関数を, $\nabla\log{p_{t}(y)}$ を, 推定量 $\hat{s}(t,y)$ に置き換える.
+        \item スコア関数 $\nabla\log{p_{t}(y)}$ を推定量 $\hat{s}(t,y)$ に置き換える.
+        \par\vspace{0.15em}
+        \hspace*{1.4em}\(\rightarrow\)\hspace{0.4em}%
+        \begin{minipage}[t]{0.82\linewidth}
+          \small
+          手元にあるデータ $x_1,\ldots,x_n\sim P_{\text{data}}$ を使い,
+          スコア関数との平均二乗誤差が小さくなるようにニューラルネットワークで近似できる.
+        \end{minipage}
+        \par\vspace{0.15em}
         \item 時間に関して離散化する.
       \end{enumerate}
 \end{frame}
@@ -403,7 +421,8 @@
 \begin{frame}{拡散モデルの収束解析について : Wasserstein distance}
     \small
     \begin{definition}
-      $\mathbb{R}^d$上の確率測度$P,Q$に対して,
+      $\mathbb{R}^d$ 上の確率測度 $P,Q$ は有限な2次モーメントをもつ, すなわち
+      $\int\|x\|_2^2\,dP(x)+\int\|y\|_2^2\,dQ(y)<\infty$ と仮定する. このとき,
       $\Pi(P,Q)=\{\pi\text{ : }\mathbb{R}^d\times\mathbb{R}^d\text{上の確率測度}
       \mid\pi(\cdot,\mathbb{R}^d)=P,\pi(\mathbb{R}^d,\cdot)=Q\}$とする.
       このとき, $P,Q$の2-Wasserstein distance $W_2(P,Q)$を次のように定義する.
@@ -413,13 +432,13 @@
       \end{equation*}
     \end{definition}
     \vspace{-0.4em}
-    \begin{theorem}[\cite{koike_2026_wasserstein}, Theorem 3.3]
+    \begin{theorem}[\cite{koike_2026_wasserstein}, 定理 3.3]
       $t_n=\frac{nT}{N}\ (n=0,\ldots,N)$ とする.
       適切な正則性条件のもとで, ある定数
       $C_L>0$ が存在して, 次の不等式が成立する.
       \vspace{-0.4em}
       \begin{equation*}
-        W_2\bigl(p_{\mathrm{data}},\mathcal{L}(\hat{Y}_{t_N})\bigr)
+        W_2\bigl(P_\text{data},\hat{P}_\text{data}\bigr)
         \leqq C_L\Biggl(
           \underbrace{\frac{\sqrt{d}T}{N}}_{\text{離散化誤差}}
           +\underbrace{\sqrt{\epsilon_{\mathrm{score}}}}_{\text{スコア推定誤差}}
@@ -491,20 +510,19 @@
     {\large $d$次元}
     & {\small
       $\displaystyle
-        \mathcal O\!\left(
+        \lesssim
           \frac{dT^2}{N}
           +\epsilon_{\mathrm{score}}
           +de^{-2T}
-        \right)$
+      $
       \par\vspace{0.25em}
       {\footnotesize Benton et al. (2024)}}
     & {\small
       $\displaystyle
       \begin{aligned}
-        \mathcal O\!\Bigg(&
+        \lesssim
           \frac{\sqrt d\,T}{N}
           +\sqrt{\epsilon_{\mathrm{score}}}+\sqrt d\,e^{-2T}
-        \Bigg)
       \end{aligned}$
       \par\vspace{0.25em}
       {\footnotesize Koike (2026)}} \\
@@ -513,20 +531,18 @@
     & {\small
       $\displaystyle
       \begin{aligned}
-        \mathcal O\!\Bigg(&
+        \lesssim
           \frac{T^2}{N}k\log k
           +\epsilon_{\mathrm{score}}+de^{-2T}
-        \Bigg)
       \end{aligned}$
       \par\vspace{0.25em}
       {\footnotesize Huang et al. (2026)}}
     & {\small
       \textcolor{red}{$\displaystyle
       \begin{aligned}
-        \mathcal O\!\Bigg(&
-        T\sqrt{\frac{k\log k}{N}}
+        \lesssim
+        \sqrt{\frac{Tk\log k}{N}}
         +\sqrt{\epsilon_{\mathrm{score}}}+\sqrt{d}e^{-2T}
-        \Bigg)
       \end{aligned}$}
       \par\vspace{0.2em}
       {\footnotesize\textcolor{red}{本研究}}} \\
@@ -553,7 +569,7 @@
         \begin{align*}
             W_2(P_{\text{data}}, \hat{P}_\text{data})
             &\leqq C\Biggl(
-            \underbrace{T\sqrt{\frac{k\log{k}}{N}}}_{\text{離散化誤差}}
+            \underbrace{\sqrt{\frac{Tk\log{k}}{N}}}_{\text{離散化誤差}}
             +\underbrace{\sqrt{\epsilon_{\text{score}}}}_{\text{スコア推定誤差}}
             \notag\\[-0.1em]
             &\phantom{\leqq C\Biggl(}+
@@ -582,7 +598,7 @@
         また, $\log{N_{cover}(A,\|\|_2,\epsilon_0)}$ を \textcolor{red}{metric entropy} という.
       \end{definition}
       \vspace{-0.1em}
-      \begin{block}{Example}
+      \begin{block}{例}
         \footnotesize
         \begin{itemize}
           \item $k$次元線形部分空間内の有界集合を $A\subset B(0,R)$ としたとき, $\log N_{cover}(A,\|\|_2,\epsilon_0)
@@ -637,6 +653,7 @@
 
 % --- PDF p.18 | Tweedieの公式の適用 ---
 \begin{frame}[t]{設定：Tweedieの公式}
+  \small
   いま, $Y_t=X_{T-t} \quad (t\in[0,T])$ とすると,
   \begin{align*}
     \nabla\log{p_{T-t}(y)}
@@ -655,19 +672,16 @@
         \right.
       \end{equation*}
 
-      \vspace{-0.5em}
-      \begin{center}
-        {\LARGE$\Downarrow$}
-      \end{center}
-      \vspace{-0.5em}
+      \vspace{-1.2em}
+      \centerline{\large$\Downarrow$}
+      \vspace{-1.2em}
 
       \begin{equation*}
         \left\{ \,
             \begin{aligned}
-            & dY_t = \frac{2e^{-(T-t)}\mathbb{E}[Y_T\mid Y_t]
-              -(1+e^{-2(T-t)})Y_t}{1-e^{-2(T-t)}}dt
-            +\sqrt{2}dW_t \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T
+            dY_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)Y_t
+              +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\mathbb{E}[Y_T\mid Y_t]\right\}dt+\sqrt{2}dW_t \\
+            Y_0 &\stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
       \end{equation*}
@@ -688,17 +702,17 @@
     \hat{\mu}_r(y)=e^r\left\{y+(1-e^{-2r})\hat{s}(r,y)\right\}
   \end{equation*}
   として, 各 $t\in[t_n,t_{n+1}]$ において実際にシミュレーションするSDEを次のように定める.
-      \begin{equation*}
-        \left\{ \,
-            \begin{aligned}
-            & d\hat{Y}_t =
-              \frac{2e^{-(T-t)}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
-              -(1+e^{-2(T-t)})\hat{Y}_t}{1-e^{-2(T-t)}}dt
-            +\sqrt{2}dW_t \\
-            & \hat{Y}_0\sim \mathcal{N}(0,I_d)
-            \end{aligned}
-        \right.
-      \end{equation*}
+      {\small
+        \begin{equation*}
+          \left\{ \,
+              \begin{aligned}
+              d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
+                +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
+              \hat{Y}_0 &\sim \mathcal{N}(0,I_d)
+              \end{aligned}
+          \right.
+        \end{equation*}
+      }
 \end{frame}
 
 
@@ -707,17 +721,17 @@
       Ornstein Uhlenbeck process $\{X_t\}_{t\in [0,T]}$ に対して,
       $\{Y_t\}_{t\in[0,T]}$ を $Y_t=X_{T-t}$ としてとる.
       各 $t\in[t_n,t_{n+1}]$ において
-      \begin{equation*}
-        \left\{ \,
-            \begin{aligned}
-            & d\hat{Y}_t =
-              \frac{2e^{-(T-t)}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})
-              -(1+e^{-2(T-t)})\hat{Y}_t}{1-e^{-2(T-t)}}dt
-            +\sqrt{2}dW_t \\
-            & \hat{Y}_0=Z\sim \mathcal{N}(0,I_d)
-            \end{aligned}
-        \right.
-      \end{equation*}
+      {\small
+        \begin{equation*}
+          \left\{ \,
+              \begin{aligned}
+              d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
+                +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
+              \hat{Y}_0 &=Z\sim \mathcal{N}(0,I_d)
+              \end{aligned}
+          \right.
+        \end{equation*}
+      }
       の解を $\{\hat{Y}_t\}_t\in[0,T]$ とする.
   このときWasserstein 距離の定義から,
         \begin{equation*}
@@ -814,15 +828,15 @@
           \E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_{t_n}\right)\right)\right]
           -\E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_t\right)\right)\right]
           \Bigr)\,dt\\[0.2em]
-          &\leqq C_2\log N_{\mathrm{cover}}\left(
-          \chi_{\mathrm{data}},\|\cdot\|_2,k^{C_0}
+          &\leqq C_2\frac{T}{N}\log N_{\mathrm{cover}}\left(
+          \chi_{\mathrm{data}},\|\cdot\|_2,k^{-C_0}
           \right).
         \end{align*}
       \end{lemma}
       また, 仮定よりある定数 $C_3>0$ が存在して,
       \begin{align*}
-        C_2\log N_{\mathrm{cover}}\left(
-          \chi_{\mathrm{data}},\|\cdot\|_2,k^{C_0}\right)\leqq \frac{T}{N}C_3 k\log{k}
+        C_2\frac{T}{N}\log N_{\mathrm{cover}}\left(
+          \chi_{\mathrm{data}},\|\cdot\|_2,k^{-C_0}\right)\leqq \frac{T}{N}C_3 k\log{k}
       \end{align*}
       となる.
 \end{frame}
@@ -833,7 +847,7 @@
         \begin{align*}
             W_2(P_{\text{data}}, \hat{P}_\text{data})
             &\leqq C\Biggl(
-            \underbrace{T\sqrt{\frac{k\log{k}}{N}}}_{\text{離散化誤差}}
+            \underbrace{\sqrt{\frac{Tk\log{k}}{N}}}_{\text{離散化誤差}}
             +\underbrace{\sqrt{\epsilon_{\text{score}}}}_{\text{スコア推定誤差}}
             \notag\\[-0.1em]
             &\phantom{\leqq C\Biggl(}+
