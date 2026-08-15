@@ -37,12 +37,29 @@
 \renewcommand{\cite}[1]{\citealp{#1}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Pdata}{P_{\text{data}}}
+\newcommand{\Phatdata}{\hat{P}_{\text{data}}}
+\newcommand{\StdNormal}{\mathcal{N}(0,I_d)}
+
+% 複数スライドで共用する TikZ スタイル
+\tikzset{
+  flow box/.style={
+    draw,
+    rounded corners,
+    align=center
+  },
+  flow arrow/.style={
+    -{Latex[length=3mm]},
+    thick
+  }
+}
 
 % ------------------------------
 % Beamer のテーマや色の設定
 % ------------------------------
-\usetheme{Madrid}       % お好みのテーマに変更可能
-\usecolortheme{beaver}  % 赤系配色の例
+\usetheme{Madrid}
+\usecolortheme{beaver}
 
 % 本編スライドにページ番号を表示
 \setbeamertemplate{footline}[frame number]
@@ -52,7 +69,6 @@
 % PDFリンクとしおり
 \hypersetup{
   colorlinks=true,
-  bookmarks=true,
   bookmarksnumbered=true,
   pdfborder={0 0 0},
   bookmarkstype=toc
@@ -69,7 +85,7 @@
 \begin{document}
 
 % 各 frame の直前には、現在のビルドにおける物理PDFページ番号を記載する。
-% 本編は p.01--p.26、参考文献は p.27--p.28。
+% 本編は p.01--p.24、参考文献と付録は p.25--p.27。
 % 参考文献は appendix とし、スライド上の総ページ数には含めない。
 
 % --- PDF p.01 | タイトル ---
@@ -97,32 +113,27 @@
 % --- PDF p.03 | 生成とは ---
 \begin{frame}{拡散モデルについて : 生成とは}
     \begin{block}{生成}
-      未知の確率測度 $P_{\text{data}}$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}\subset \mathbb{R}^d$ があるとする.
+      未知の確率測度 $\Pdata$ に従って独立に得られたデータ $\{x_1,\cdots, x_n\}\subset \mathbb{R}^d$ があるとする.
 
-      このデータを用いて, $P_{\text{data}}$ に従う新たなデータを近似的に生み出すことを\textcolor{red}{生成}という.
+      このデータを用いて, $\Pdata$ に従う新たなデータを近似的に生み出すことを\textcolor{red}{生成}という.
       \begin{center}
     \begin{tikzpicture}[
       node distance=2.2cm,
       box/.style={
-        draw,
-        rounded corners,
+        flow box,
         minimum width=3.0cm,
-        minimum height=1.3cm,
-        align=center
+        minimum height=1.3cm
       },
-      arrow/.style={
-        -{Latex[length=3mm]},
-        thick
-      }
+      arrow/.style={flow arrow}
     ]
 
     \node[box] (data) {
-      $x_1,\ldots,x_n \sim P_{\text{data}}$\\
+      $x_1,\ldots,x_n \sim \Pdata$\\
       \small 既存のデータ
     };
 
     \node[box, right=of data] (model) {
-      $x_{\text{new}}\sim \widehat{P}\approx P_{\text{data}}$\\
+      $x_{\text{new}}\sim \widehat{P}\approx \Pdata$\\
       \small 新たなデータを生成
     };
 
@@ -176,7 +187,7 @@
     上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ が次の2つの性質を満たすように, $b$ と $\sigma$ を設計できるかということを考える.
     \begin{enumerate}
       \item 初期分布 $\mathcal{L}(Y_0)$ が, 容易にサンプルが得られる分布である (正規分布, 一様分布など)
-      \item 最終時刻の分布が $P_{\text{data}}$ と等しい. つまり, $\mathcal{L}(Y_T)=P_{\text{data}}$ .
+      \item 最終時刻の分布が $\Pdata$ と等しい. つまり, $\mathcal{L}(Y_T)=\Pdata$ .
     \end{enumerate}
 
     \vspace{0.15cm}
@@ -184,16 +195,11 @@
     \begin{tikzpicture}[
       node distance=5.2cm,
       box/.style={
-        draw,
-        rounded corners,
+        flow box,
         minimum width=2.8cm,
-        minimum height=1.15cm,
-        align=center
+        minimum height=1.15cm
       },
-      arrow/.style={
-        -{Latex[length=3mm]},
-        thick
-      }
+      arrow/.style={flow arrow}
     ]
 
     \node[box] (normal) {
@@ -202,7 +208,7 @@
     };
 
     \node[box, right=of normal] (data) {
-      $Y_T\sim P_{\text{data}}$\\
+      $Y_T\sim \Pdata$\\
       \small データ分布
     };
 
@@ -223,32 +229,27 @@
       \begin{equation*}
         X_t=e^{-t}X_0+\sqrt{2}\int_{0}^{t}e^{-(t-s)}dW_s=e^{-t}X_0+\sqrt{1-e^{-2t}}Z
       \end{equation*}
-      と書ける. これにより, $T$ を十分大きくとると $X_T$ の分布は標準正規分布 $\mathcal{N}(0,I_d)$ に近づいていく.
+      と書ける. これにより, $T$ を十分大きくとると $X_T$ の分布は標準正規分布 $\StdNormal$ に近づいていく.
 
-      $\mathcal{L}(X_0)=P_{\text{data}}$ とすると, $X$ は $P_\text{data}$ から時間経過とともに
+      $\mathcal{L}(X_0)=\Pdata$ とすると, $X$ は $\Pdata$ から時間経過とともに
       $\mathcal{N}(0,I)$ へ近づいていく過程とみなせる.
     \begin{center}
     \begin{tikzpicture}[
       node distance=5.2cm,
       box/.style={
-        draw,
-        rounded corners,
+        flow box,
         minimum width=2.8cm,
-        minimum height=1.15cm,
-        align=center
+        minimum height=1.15cm
       },
-      arrow/.style={
-        -{Latex[length=3mm]},
-        thick
-      }
+      arrow/.style={flow arrow}
     ]
 
     \node[box] (normal) {
-      $\mathcal{L}(X_T)\approx \mathcal{N}(0,I_d)$
+      $\mathcal{L}(X_T)\approx \StdNormal$
     };
 
     \node[box, right=of normal] (data) {
-      $\mathcal{L}(X_0)= P_{\text{data}}$\\
+      $\mathcal{L}(X_0)= \Pdata$\\
       \small データ分布
     };
 
@@ -260,9 +261,8 @@
 \end{frame}
 % --- PDF p.06 | 拡散過程の時間反転公式 ---
 \begin{frame}{拡散モデルについて : 拡散過程の時間反転公式}
-    $\{X_t\}_{t\in[0,T]}$ をOrnstein–Uhlenbeck processとして, $0<t\leqq T$ のとき, $X_t$ の密度を $p_t$ とする.
     \begin{theorem}[\cite{anderson82,haussmann_pardoux86}]
-      $\{Y_t\}_{t\in[0,T]}$ を次のSDEの解とする.
+      $X_t$ の密度を $p_t$ とし, $\{Y_t\}_{t\in[0,T]}$ を次のSDEの解とする.
       \begin{equation}
         \left\{ \,
             \begin{aligned}
@@ -272,9 +272,10 @@
         \right.
       \end{equation}
       このとき, 任意の $t\in[0,T]$ に対して, $Y_t\stackrel{\mathrm{d}}{=}X_{T-t}$ が成り立つ.
+      特に, $Y_t=X_{T-t}$ とすると $\{Y_t\}_{t\in [0,T]}$ は (1) の弱解となる.
     \end{theorem}
-    $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $\mathcal{L}(X_T)\approx \mathcal{N}(0,I_d)$ から時間の経過とともに
-        $P_{\text{data}}$ へ近づいていく確率過程となる.
+    $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $\mathcal{L}(X_T)\approx \StdNormal$ から時間の経過とともに
+        $\Pdata$ へ近づいていく確率過程となる.
     \vspace{-0.5em}
     \begin{center}
     \begin{tikzpicture}[
@@ -282,26 +283,21 @@
       transform shape,
       node distance=6.4cm,
       box/.style={
-        draw,
-        rounded corners,
+        flow box,
         minimum width=2.6cm,
-        minimum height=1.3cm,
-        align=center
+        minimum height=1.3cm
       },
-      arrow/.style={
-        -{Latex[length=3mm]},
-        thick
-      }
+      arrow/.style={flow arrow}
     ]
 
       \node[box] (normal) {
           $\mathcal{L}(Y_0)=\mathcal{L}(X_T)$\\
-          $\approx \mathcal{N}(0,I_d)$
+          $\approx \StdNormal$
       };
 
     \node[box, right=of normal] (data) {
       $\mathcal{L}(Y_T)=\mathcal{L}(X_0)$\\
-      $\sim P_{\text{data}}$
+      $\sim \Pdata$
     };
 
     \draw[arrow]
@@ -325,11 +321,11 @@
         \left\{ \,
             \begin{aligned}
             & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \mathcal{N}(0,I_d)
+            & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \StdNormal
             \end{aligned}
         \right.
     \end{equation*}
-      上記のSDEをシミュレーションすると, $Y_T\sim P_{\text{data}}$ からのサンプリングが得られる. しかし, 現実的には以下の3つの点が問題となる.
+      上記のSDEをシミュレーションすると, $Y_T\sim \Pdata$ からのサンプリングが得られる. しかし, 現実的には以下の3つの点が問題となる.
       \begin{enumerate}
         \item 初期分布 $\mathcal{L}(X_T)$ からの厳密なサンプリングが得られない.
         \item スコア関数 $\nabla \log{p_{T-t}(Y_t)}$ が明示的に得られない.
@@ -337,14 +333,14 @@
       \end{enumerate}
       拡散モデルでは, それぞれの問題点に対して次のように対応する.
       \begin{enumerate}
-        \item 初期分布を標準正規分布 $\mathcal{N}(0,I_d)$ にする.
+        \item 初期分布を標準正規分布 $\StdNormal$ にする.
         \item スコア関数 $\nabla\log{p_{t}(y)}$ を推定量 $\hat{s}(t,y)$ に置き換える.
         \par\vspace{0.15em}
         \hspace*{1.4em}\(\rightarrow\)\hspace{0.4em}%
         \begin{minipage}[t]{0.82\linewidth}
           \small
-          手元にあるデータ $x_1,\ldots,x_n\sim P_{\text{data}}$ を使い,
-          スコア関数との平均二乗誤差が小さくなるようにニューラルネットワークで近似できる.
+          手元にあるデータ $x_1,\ldots,x_n\sim \Pdata$ を使い,
+          スコア関数との平均二乗誤差が小さくなるように近似する.
         \end{minipage}
         \par\vspace{0.15em}
         \item 時間に関して離散化する.
@@ -353,8 +349,8 @@
 
 % --- PDF p.08 | 収束解析の目的 ---
 \begin{frame}{拡散モデルの収束解析について}
-      実際にシミュレーションして得られるデータの分布を $\hat{P}_\text{data}$ とする.
-      このとき, 確率測度の近さを測る指標 $\rho$ を用いて, $\rho(P_\text{data},\hat{P}_\text{data})$ を評価することを,
+      実際にシミュレーションして得られるデータの分布を $\Phatdata$ とする.
+      このとき, 確率測度の近さを測る指標 $\rho$ を用いて, $\rho(\Pdata,\Phatdata)$ を評価することを,
     \textcolor{red}{拡散モデルの収束解析} と呼ぶ.
 
 
@@ -379,14 +375,13 @@
 {
     \setbeamerfont{frametitle}{size=\large}
 \begin{frame}{拡散モデルの収束解析について : Kullback-Leibler divergence}
-      \small
       \footnotesize
       \begin{definition}
         2つの確率測度 $P, Q$ のKullback-Leibler divergence $D_{\text{KL}}(P|Q)$ を, 次のように定義する.
         \begin{equation*}
           D_{\text{KL}}(P\mid Q):=        \left\{ \,
             \begin{aligned}
-            & \mathbb{E}_P\left[\log{\frac{dP}{dQ}}\right] \quad \bigl(P\ll Q\bigr) \\
+            & \E_P\left[\log{\frac{dP}{dQ}}\right] \quad \bigl(P\ll Q\bigr) \\
             & \infty \quad \quad \quad\quad \quad \quad(\text{otherwise})
             \end{aligned}
         \right.
@@ -398,13 +393,13 @@
         ある定数 $C>0$ が存在して, 次の不等式が成立する.
         \vspace{-0.35em}
         \begin{equation*}
-          D_{\mathrm{KL}}\bigl(P_{\text{data}}\mid \hat{P}_{\text{data}}\bigr)
+          D_{\mathrm{KL}}\bigl(\Pdata\mid \Phatdata\bigr)
           \leqq C\left(\underbrace{\frac{2dT^2}{N}}_{\text{離散化誤差}}+\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}+\underbrace{\left(d+\E[\|X_0\|_2^2]\right)e^{-2T}}_{\text{初期分布誤差}}\right)
         \end{equation*}
         \vspace{-0.2em}
         \noindent
         $t_n=\frac{nT}{N}\quad(n=0,\ldots,N)\quad\epsilon_{\text{score}}=\frac{T}{N}\sum\nolimits_{n=1}^{N}
-          \mathbb{E}\!\left[
+          \E\!\left[
             \left\|\nabla\log p_{t_n}(X_{t_n})
             -\hat{s}(t_n,X_{t_n})\right\|^2
           \right]$
@@ -438,11 +433,11 @@
       $C_L>0$ が存在して, 次の不等式が成立する.
       \vspace{-0.4em}
       \begin{equation*}
-        W_2\bigl(P_\text{data},\hat{P}_\text{data}\bigr)
+        W_2\bigl(\Pdata,\Phatdata\bigr)
         \leqq C_L\Biggl(
           \underbrace{\frac{\sqrt{d}T}{N}}_{\text{離散化誤差}}
           +\underbrace{\sqrt{\epsilon_{\mathrm{score}}}}_{\text{スコア推定誤差}}
-          +\underbrace{e^{-2T}\sqrt{d+\E[\|X_0\|_2^2]}}_{\text{初期分布誤差}}
+          +\underbrace{e^{-T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
         \Biggr).
       \end{equation*}
       \vspace{-0.2em}
@@ -465,7 +460,7 @@
     \end{center}
     データ分布を記述する上で必要な変数の数を, データ分布の\textcolor{red}{内在次元} と呼ぶ.
 
-    \cite{pope_et_al_2021} は, 代表的な画像のデータセットに対する内在次元推定を行い, 画像は $224\times 224 \times 3 = 15028$ の画素値を持つが, 内在次元は $26\sim 43$ 程度であるという結果を得ている.
+    \cite{pope_et_al_2021} は, 代表的な画像のデータセットに対する内在次元推定を行い, 画像は $224\times 224 \times 3 = 150528$ の画素値を持つが, 内在次元は $26\sim 43$ 程度であるという結果を得ている.
 \end{frame}
 % --- PDF p.12 | 内在次元を用いた既存結果 ---
 \begin{frame}{拡散モデルの収束解析について : データの内在次元}
@@ -476,7 +471,7 @@
       \vspace{-0.5em}
       \begin{equation*}
         \begin{aligned}
-          KL\left(P_{\text{data}}\mid\hat{P}_\text{data}\right)
+          KL\left(\Pdata\mid\Phatdata\right)
           \leqq C\Biggl(&
           \underbrace{\frac{T^2}{N}k\log k}_{\text{離散化誤差}}
           +\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}
@@ -567,13 +562,13 @@
         $t_n=\frac{nT}{N}\ (n=0,\ldots,N)$ とする.
         このとき, 正則性条件と, 内在次元に対する適切な仮定のもと, ある定数$C>0$ が存在して, 次が成立する.
         \begin{align*}
-            W_2(P_{\text{data}}, \hat{P}_\text{data})
+            W_2(\Pdata, \Phatdata)
             &\leqq C\Biggl(
             \underbrace{\sqrt{\frac{Tk\log{k}}{N}}}_{\text{離散化誤差}}
             +\underbrace{\sqrt{\epsilon_{\text{score}}}}_{\text{スコア推定誤差}}
             \notag\\[-0.1em]
             &\phantom{\leqq C\Biggl(}+
-            \underbrace{e^{-2T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
+            \underbrace{e^{-T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
             \Biggr)
         \end{align*}
       \vspace{-0.2em}
@@ -589,6 +584,7 @@
 
 % --- PDF p.15 | Covering number ---
 \begin{frame}[t]{設定 : データの内在次元の仮定}
+      \small
       \begin{definition}
         $A\subset \mathbb{R}^d$ に対する, スケール $\epsilon_0$ における \textcolor{red}{covering number} $N_{cover}(A,\|\|_2,\epsilon_0)$ を, 次の関係を満たす $x_1,\cdots, x_s \in \mathbb{R}^d$
         が存在するような最小の自然数 $s$ として定義する.
@@ -597,14 +593,31 @@
         \end{equation*}
         また, $\log{N_{cover}(A,\|\|_2,\epsilon_0)}$ を \textcolor{red}{metric entropy} という.
       \end{definition}
-      \vspace{-0.1em}
+      \vspace{-0.3em}
       \begin{block}{例}
         \footnotesize
+        \setlength{\abovedisplayskip}{0.3em}
+        \setlength{\belowdisplayskip}{0.3em}
         \begin{itemize}
-          \item $k$次元線形部分空間内の有界集合を $A\subset B(0,R)$ としたとき, $\log N_{cover}(A,\|\|_2,\epsilon_0)
-          \leqq k\log\left(1+\frac{2R}{\epsilon_0}\right)$
-          \item 正則なコンパクト$k$次元多様体を $M$ としたとき,
-          $\log N_{cover}(M,\|\|_2,\epsilon_0)\leqq\mathcal O\!\left(k\log\left(\frac{1}{\epsilon_0}\right)\right)$
+          \setlength{\itemsep}{0.2em}
+          \item $k$次元単位球
+            $B^k=\{x\in\mathbb{R}^k:\|x\| \leqq 1\}$
+          に対して, $0<\epsilon_0<1$ のとき,
+          \[
+            k\log\frac{1}{\epsilon_0}
+            \leqq
+            \log N_{cover}(B^k,\|\cdot\|_2,\epsilon_0)
+            \leqq
+            k\log\left(1+\frac{2}{\epsilon_0}\right).
+          \]
+
+          \item $k$次元線形部分空間内の有界集合
+          $A\subset B(0,R)$ に対して,
+          \[
+            \log N_{cover}(A,\|\cdot\|_2,\epsilon_0)
+            \leqq
+            k\log\left(1+\frac{2R}{\epsilon_0}\right).
+          \]
         \end{itemize}
       \end{block}
 \end{frame}
@@ -628,162 +641,128 @@
       \end{assumption}
 \end{frame}
 
-% --- PDF p.17 | Tweedieの公式 ---
-\begin{frame}[t]{設定：Tweedieの公式}
-  \begin{theorem}[Tweedieの公式]
-    $X$ を $\mathbb{R}^d$ 値の任意の確率変数とし, $Z\sim \mathcal{N}(0,I_d)$ を $X$ と独立とする. この時, $Y=X+\sqrt{t}Z$ として, $Y$ の密度関数を $p$ とすると, 次の関係が成り立つ.
-    \begin{equation*}
-      \mathbb{E}[X\mid Y=y]=y+t\nabla\log p(y)
-    \end{equation*}
-  \end{theorem}
-  ある $Z\sim \mathcal{N}(0,I_d), Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから,
-  Tweedieの公式により
-  \begin{equation*}
-    e^{-t}\mathbb{E}[X_0\mid X_t=x]
-    =x+(1-e^{-2t})\nabla\log{p_t(x)}
-  \end{equation*}
-  となる. よって,
+% --- PDF p.17 | SDEの書き換え ---
+\begin{frame}[t]{設定：SDEの書き換え}
+  ある $Z\sim \StdNormal, Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから, Tweedieの公式により,
   \begin{equation*}
     \nabla\log{p_t(x)}
-    =\frac{e^{-t}\mathbb{E}[X_0\mid X_t=x]-x}{1-e^{-2t}}
+    =\frac{e^{-t}\E[X_0\mid X_t=x]-x}{1-e^{-2t}}
   \end{equation*}
-  となる.
-
-\end{frame}
-
-% --- PDF p.18 | Tweedieの公式の適用 ---
-\begin{frame}[t]{設定：Tweedieの公式}
-  \small
+  の関係が成り立つ.
   いま, $Y_t=X_{T-t} \quad (t\in[0,T])$ とすると,
   \begin{align*}
     \nabla\log{p_{T-t}(y)}
-    &=\frac{e^{-(T-t)}\mathbb{E}[X_0\mid X_{T-t}=y]-y}
+    &=\frac{e^{-(T-t)}\E[X_0\mid X_{T-t}=y]-y}
             {1-e^{-2(T-t)}}\\
-    &=\frac{e^{-(T-t)}\mathbb{E}[Y_T\mid Y_t=y]-y}
+    &=\frac{e^{-(T-t)}\E[Y_T\mid Y_t=y]-y}
             {1-e^{-2(T-t)}}
   \end{align*}
-  となる. よって, $\{Y_t\}_{t\in[0,T]}$ が従うSDEは次のように変形できる.
-      \begin{equation*}
-        \left\{ \,
-            \begin{aligned}
-            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \\
-            & Y_0 \stackrel{\mathrm{d}}{=} X_T
-            \end{aligned}
-        \right.
-      \end{equation*}
-
-      \vspace{-1.2em}
-      \centerline{\large$\Downarrow$}
-      \vspace{-1.2em}
-
-      \begin{equation*}
-        \left\{ \,
-            \begin{aligned}
-            dY_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)Y_t
-              +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\mathbb{E}[Y_T\mid Y_t]\right\}dt+\sqrt{2}dW_t \\
-            Y_0 &\stackrel{\mathrm{d}}{=} X_T
-            \end{aligned}
-        \right.
-      \end{equation*}
-
+  となる. よって, $\{Y_t\}_{t\in[0,T]}$ が従うSDEは次のように書き換えられる.
+  \begingroup
+    \small
+    \begin{equation*}
+      \left\{ \,
+        \begin{aligned}
+          dY_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)Y_t
+            +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\E[Y_T\mid Y_t]\right\}dt+\sqrt{2}dW_t \\
+          Y_0 &\stackrel{\mathrm{d}}{=} X_T
+        \end{aligned}
+      \right.
+    \end{equation*}
+  \endgroup
 \end{frame}
 
-% --- PDF p.19 | 実際にシミュレーションするSDE ---
+
+% --- PDF p.18 | 実際にシミュレーションするSDE ---
 \begin{frame}[t]{設定：実際にシミュレーションするSDE}
-  時間区間 $[0,T]$ を $N$ 等分し, 離散化時刻を
-    $t_n=\frac{nT}{N}\quad(n=0,\ldots,N)$
-  とする.また, Tweedieの公式
+  Tweedieの公式
   \begin{equation*}
-    \mathbb{E}[Y_T\mid Y_t=y]
+    \E[Y_T\mid Y_t=y]
     =e^{T-t}\left\{y+(1-e^{-2(T-t)})\nabla\log{p_{T-t}(y)}\right\}
   \end{equation*}
-  に対して,
+  に対して, スコア関数を推定量に置き換えたものを
   \begin{equation*}
-    \hat{\mu}_r(y)=e^r\left\{y+(1-e^{-2r})\hat{s}(r,y)\right\}
+    \hat{\mu}_t(y)=e^t\left\{y+(1-e^{-2t})\hat{s}(t,y)\right\}
   \end{equation*}
-  として, 各 $t\in[t_n,t_{n+1}]$ において実際にシミュレーションするSDEを次のように定める.
-      {\small
-        \begin{equation*}
-          \left\{ \,
-              \begin{aligned}
-              d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
-                +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
-              \hat{Y}_0 &\sim \mathcal{N}(0,I_d)
-              \end{aligned}
-          \right.
-        \end{equation*}
-      }
+  と書く. $\{Y_t\}_{t\in[0,T]}$ が従うSDE
+  \begingroup
+    \small
+    \begin{equation*}
+      \left\{ \,
+        \begin{aligned}
+          dY_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)Y_t
+            +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\E[Y_T\mid Y_t]\right\}dt+\sqrt{2}dW_t \\
+          Y_0 &= X_T =e^{-T}X_0+\sqrt{1-e^{-2T}}Z
+        \end{aligned}
+      \right.
+    \end{equation*}
+  \endgroup
+  に対して, 実際のアルゴリズムでは次のSDEをシミュレーションする.
+  \begingroup
+    \small
+    \begin{equation*}
+      \left\{ \,
+        \begin{aligned}
+          d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
+            +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
+          \hat{Y}_0 &=Z\sim \StdNormal
+        \end{aligned}
+      \right.
+    \end{equation*}
+  \endgroup
 \end{frame}
 
 
-% --- PDF p.20 | 証明の概要 ---
+% --- PDF p.19 | 証明の概要 ---
 \begin{frame}[t]{証明の概要}
-      Ornstein Uhlenbeck process $\{X_t\}_{t\in [0,T]}$ に対して,
-      $\{Y_t\}_{t\in[0,T]}$ を $Y_t=X_{T-t}$ としてとる.
-      各 $t\in[t_n,t_{n+1}]$ において
-      {\small
-        \begin{equation*}
-          \left\{ \,
-              \begin{aligned}
-              d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
-                +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
-              \hat{Y}_0 &=Z\sim \mathcal{N}(0,I_d)
-              \end{aligned}
-          \right.
-        \end{equation*}
-      }
-      の解を $\{\hat{Y}_t\}_t\in[0,T]$ とする.
-  このときWasserstein 距離の定義から,
-        \begin{equation*}
-          W_2(P_{\text{data}},\hat{P}_{\text{data}})
-          \leqq
-          \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{\frac{1}{2}}.
-        \end{equation*}
-  となる.
-\end{frame}
-
-% --- PDF p.21 | 誤差の分解 ---
-\begin{frame}[t]{証明の概要 : 誤差の分解}
-  平均二乗誤差をとり, 適切に三角不等式やGronwall型の不等式を用いると, ある定数 $C_1>0$ に対して,
-      {
-      \begin{align*}
-        \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{\frac{1}{2}}
-        &\leqq
-        C_1 \Bigg[
+  前頁の確率過程 $Y$, $\hat{Y}$ に対して, Wasserstein distance の定義から,
+  \begin{equation*}
+    W_2(\Pdata,\Phatdata)
+    \leqq
+    \E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{\frac{1}{2}}.
+  \end{equation*}
+  となる. これに対して適切に三角不等式やGronwall型の不等式を用いると, ある定数 $C_1>0$ が存在して次のように誤差を分解できる.
+  \vspace{-0.4em}
+  \begingroup
+    \small
+    \begin{align*}
+      &\E\left[\|Y_{t_N}-\hat{Y}_{t_N}\|_2^2\right]^{\frac{1}{2}}\\
+      &\leqq
+      C_1 \Bigg[
             {\underbrace{\E\left[\|Y_0-\hat{Y}_0\|_2^2\right]^{\frac{1}{2}}}_{\text{初期分布誤差}}}
-            \notag\\[-0.2em]&\quad+
+            +
             {\underbrace{\begin{aligned}
               &\left(\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
               \frac{e^{-2(T-t)}}{\left(1-e^{-2(T-t)}\right)^2}\right.\\[-0.2em]
               &\left.\quad\times\E\left[
-                \|\mathbb{E}\left[Y_T\mid Y_t\right]-\mathbb{E}\left[Y_T\mid Y_{t_n}\right]\|_2^2
+                \|\E\left[Y_T\mid Y_t\right]-\E\left[Y_T\mid Y_{t_n}\right]\|_2^2
               \right]dt\right)^{\frac{1}{2}}
             \end{aligned}}_{\text{離散化誤差}}}
             \notag\\[-0.2em]&\quad+
           {\underbrace{\left(\frac{T}{N}\sum\limits_{n=1}^{N}
-          \mathbb{E}\left[
+          \E\left[
             \left\|\nabla\log p_{t_n}(X_{t_n})
             -\hat{s}(t_n,X_{t_n})\right\|^2
           \right]
           \right)^\frac{1}{2}}_{\text{スコア推定誤差}}}
-        \Bigg].
-      \end{align*}
-      }
-  のように, 誤差を分解することができる.
+      \Bigg]
+    \end{align*}
+  \endgroup
 \end{frame}
-% --- PDF p.22 | 初期分布誤差とスコア推定誤差 ---
+
+% --- PDF p.20 | 初期分布誤差とスコア推定誤差 ---
 \begin{frame}{証明の概要：初期分布誤差, スコア推定誤差を評価}
       初期分布の取り方より,
       \begin{align*}
-        \mathbb{E}\left[\left|Y_0-\hat{Y}_0\right|^2\right]&=\mathbb{E}\left[\|e^{-T}X_0+\sqrt{1-e^{-2T}}Z-Z\|^2\right]\\
-        &=e^{-2T}\mathbb{E}\left[\|X_0\|^2\right]+(1-\sqrt{1-e^{-2T}})^2d\\
-        &\leqq e^{-2T}\mathbb{E}\left[\|X_0\|^2\right]+e^{-4T}d
+        \E\left[\left|Y_0-\hat{Y}_0\right|^2\right]&=\E\left[\|e^{-T}X_0+\sqrt{1-e^{-2T}}Z-Z\|^2\right]\\
+        &=e^{-2T}\E\left[\|X_0\|^2\right]+(1-\sqrt{1-e^{-2T}})^2d\\
+        &\leqq e^{-2T}\E\left[\|X_0\|^2\right]+e^{-4T}d
       \end{align*}
       と評価ができる.
       また, 仮定より,
       \begin{align*}
         \left(\frac{T}{N}\sum\limits_{n=1}^{N}
-          \mathbb{E}\left[
+          \E\left[
             \left\|\nabla\log p_{t_n}(X_{t_n})
             -\hat{s}(t_n,X_{t_n})\right\|^2
           \right]
@@ -791,33 +770,33 @@
       \end{align*}
       と評価できる.
 \end{frame}
-% --- PDF p.23 | 離散化誤差の恒等式 ---
+% --- PDF p.21 | 離散化誤差の恒等式 ---
 \begin{frame}{証明の概要：離散化誤差を評価}
       \begin{lemma}
         \begin{align*}\label{eq:posterior-mean-increment}
           &\E\left[
-            \|\mathbb{E}\left[Y_T\mid Y_t\right]
-            -\mathbb{E}\left[Y_T\mid Y_s\right]\|_2^2
+            \|\E\left[Y_T\mid Y_t\right]
+            -\E\left[Y_T\mid Y_s\right]\|_2^2
           \right]\\[-0.1em]
           &\quad=
-          \E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_s\right)\right)\right]
-          -\E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_t\right)\right)\right].
+          \E\left[\Tr\left(\Cov\left(Y_T\mid Y_s\right)\right)\right]
+          -\E\left[\Tr\left(\Cov\left(Y_T\mid Y_t\right)\right)\right].
       \end{align*}
       \end{lemma}
       この補題により, 離散化誤差は次のように変形できる.
       \begin{align*}
         &\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
                 \frac{e^{-2(T-t)}}{\left(1-e^{-2(T-t)}\right)^2}\E\left[
-              \|\mathbb{E}\left[Y_T\mid Y_t\right]-\mathbb{E}\left[Y_T\mid Y_{t_n}\right]\|_2^2
+              \|\E\left[Y_T\mid Y_t\right]-\E\left[Y_T\mid Y_{t_n}\right]\|_2^2
           \right]dt\\
         &=\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
-                \frac{e^{-2(T-t)}}{\left(1-e^{-2(T-t)}\right)^2}\Bigl(\E\left[Tr\left(Cov\left(Y_T\mid Y_{t_n}\right)\right)\right]\\
+                \frac{e^{-2(T-t)}}{\left(1-e^{-2(T-t)}\right)^2}\Bigl(\E\left[\Tr\left(\Cov\left(Y_T\mid Y_{t_n}\right)\right)\right]\\
           &\quad\quad\quad\quad\quad\quad\quad\quad\quad \quad \quad \quad\quad
-          -\E\left[Tr\left(Cov\left(Y_T\mid Y_t\right)\right)\right]\Bigr)dt
+          -\E\left[\Tr\left(\Cov\left(Y_T\mid Y_t\right)\right)\right]\Bigr)dt
       \end{align*}
 \end{frame}
 
-% --- PDF p.24 | 離散化誤差の評価 ---
+% --- PDF p.22 | 離散化誤差の評価 ---
 \begin{frame}{証明の概要 : 離散化誤差を評価}
       \begin{lemma}
         ある定数 $C_2>0$ が存在して,
@@ -825,8 +804,8 @@
           &\sum_{n=0}^{N-1}\int_{t_n}^{t_{n+1}}
           \frac{e^{-2(T-t)}}{\left(1-e^{-2(T-t)}\right)^2}\\[-0.1em]
           &\quad\times\Bigl(
-          \E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_{t_n}\right)\right)\right]
-          -\E\left[\operatorname{Tr}\left(\operatorname{Cov}\left(Y_T\mid Y_t\right)\right)\right]
+          \E\left[\Tr\left(\Cov\left(Y_T\mid Y_{t_n}\right)\right)\right]
+          -\E\left[\Tr\left(\Cov\left(Y_T\mid Y_t\right)\right)\right]
           \Bigr)\,dt\\[0.2em]
           &\leqq C_2\frac{T}{N}\log N_{\mathrm{cover}}\left(
           \chi_{\mathrm{data}},\|\cdot\|_2,k^{-C_0}
@@ -841,31 +820,38 @@
       となる.
 \end{frame}
 
-% --- PDF p.25 | 最後の評価 ---
+% --- PDF p.23 | 最後の評価 ---
 \begin{frame}{証明の概要：最後の評価}
       前頁までの評価をまとめると,
         \begin{align*}
-            W_2(P_{\text{data}}, \hat{P}_\text{data})
+            W_2(\Pdata, \Phatdata)
             &\leqq C\Biggl(
             \underbrace{\sqrt{\frac{Tk\log{k}}{N}}}_{\text{離散化誤差}}
             +\underbrace{\sqrt{\epsilon_{\text{score}}}}_{\text{スコア推定誤差}}
             \notag\\[-0.1em]
             &\phantom{\leqq C\Biggl(}+
-            \underbrace{e^{-2T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
+            \underbrace{e^{-T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
             \Biggr)
         \end{align*}
       が得られる.
 \end{frame}
 
-% --- PDF p.26 | 今後の展望 ---
-\begin{frame}{今後の展望}
-  \begin{itemize}
-    \item Wasserstein distanceの収束解析では, スコア関数の推定量 $\hat{s}$ にリプシッツ性を課しているがこれは現実的には重い仮定になるので落としたい.
-    \item 現実的には条件付き拡散モデルの理論が重要なので, そっちの理論解析にも取り組みたい.
-  \end{itemize}
+% --- PDF p.24 | 今後の展望 ---
+\begin{frame}{まとめ, 今後の展望}
+  \begin{block}{まとめ}
+    \begin{itemize}
+      \item 拡散モデルはデータ生成を行えるアルゴリズムであり, SDEを用いて性能保証を行うことができる.
+      \item SDEの離散化誤差はデータの次元 $d$ ではなく, 内在次元 $k$ を用いて評価することができる.
+    \end{itemize}
+  \end{block}
+  \begin{block}{今後の展望}
+    \begin{itemize}
+      \item 応用においては条件付き拡散モデルが重要なので, その理論解析にも取り組みたい.
+    \end{itemize}
+  \end{block}
 \end{frame}
 
-% --- PDF p.27--p.28 | 参考文献 ---
+% --- PDF p.25--p.26 | 参考文献 ---
 \appendix
 \setbeamertemplate{footline}{}
 \begin{frame}[allowframebreaks]{参考文献}
@@ -915,5 +901,27 @@
       \url{https://openreview.net/forum?id=XJk19XzGq2J}
 
   \end{thebibliography}
+\end{frame}
+% --- PDF p.27 | Tweedieの公式（付録） ---
+\begin{frame}[t]{Appendix：Tweedieの公式}
+  \begin{theorem}[Tweedieの公式]
+    $X$ を $\mathbb{R}^d$ 値の任意の確率変数とし, $Z\sim \StdNormal$ を $X$ と独立とする. この時, $Y=X+\sqrt{t}Z$ として, $Y$ の密度関数を $p$ とすると, 次の関係が成り立つ.
+    \begin{equation*}
+      \E[X\mid Y=y]=y+t\nabla\log p(y)
+    \end{equation*}
+  \end{theorem}
+  ある $Z\sim \StdNormal, Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから,
+  Tweedieの公式により
+  \begin{equation*}
+    e^{-t}\E[X_0\mid X_t=x]
+    =x+(1-e^{-2t})\nabla\log{p_t(x)}
+  \end{equation*}
+  となる. よって,
+  \begin{equation*}
+    \nabla\log{p_t(x)}
+    =\frac{e^{-t}\E[X_0\mid X_t=x]-x}{1-e^{-2t}}
+  \end{equation*}
+  となる.
+
 \end{frame}
 \end{document}
