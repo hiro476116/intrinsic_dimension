@@ -79,7 +79,7 @@
 % ------------------------------
 \title{データの内在次元を用いた拡散モデルの収束解析}
 \author{枇榔 一真}
-\institute{深澤研究室 M2}
+\institute{大阪大学 M2}
 \date{2026年8月20日}
 
 \begin{document}
@@ -365,7 +365,7 @@
         \begin{itemize}
           \item 距離の公理を満たす.
           \item 拡散モデルの収束解析においては, Kullback-Leibler divergenceよりも解析が困難である場合が多い.
-          \item 画像の類似度において, 人間の知覚との相関があると言われている.
+%          \item 画像の類似度において, 人間の知覚との相関があると言われている.
         \end{itemize}
       \end{enumerate}
     }
@@ -697,7 +697,9 @@
       \right.
     \end{equation*}
   \endgroup
-  に対して, 実際のアルゴリズムでは次のSDEをシミュレーションする.
+  {\small
+    に対して, $t\in[t_n,t_{n+1}]$ のとき, 実際には次のSDEを用いる $(n=0,\ldots,N-1)$.
+  }
   \begingroup
     \small
     \begin{equation*}
