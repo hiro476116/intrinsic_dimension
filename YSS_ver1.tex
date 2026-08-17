@@ -79,13 +79,13 @@
 % ------------------------------
 \title{データの内在次元を用いた拡散モデルの収束解析}
 \author{枇榔 一真}
-\institute{大阪大学 M2}
+\institute{大阪大学基礎工学研究科 M2}
 \date{2026年8月20日}
 
 \begin{document}
 
 % 各 frame の直前には、現在のビルドにおける物理PDFページ番号を記載する。
-% 本編は p.01--p.24、参考文献と付録は p.25--p.27。
+% 本編は p.01--p.24、参考文献と付録は p.25--p.28。
 % 参考文献は appendix とし、スライド上の総ページ数には含めない。
 
 % --- PDF p.01 | タイトル ---
@@ -185,10 +185,12 @@
         dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t\quad (t\in[0,T])
     \end{align*}
     上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ が次の2つの性質を満たすように, $b$ と $\sigma$ を設計できるかということを考える.
-    \begin{enumerate}
-      \item 初期分布 $\mathcal{L}(Y_0)$ が, 容易にサンプルが得られる分布である (正規分布, 一様分布など)
-      \item 最終時刻の分布が $\Pdata$ と等しい. つまり, $\mathcal{L}(Y_T)=\Pdata$ .
-    \end{enumerate}
+    \begin{block}{}
+      \begin{enumerate}
+        \item 初期分布 $\mathcal{L}(Y_0)$ が, 容易にサンプルが得られる分布である (正規分布, 一様分布など)
+        \item 最終時刻の分布が $\Pdata$ と等しい. つまり, $\mathcal{L}(Y_T)=\Pdata$ .
+      \end{enumerate}
+    \end{block}
 
     \vspace{0.15cm}
     \begin{center}
@@ -220,12 +222,12 @@
 % --- PDF p.05 | Ornstein--Uhlenbeck process ---
 \begin{frame}{拡散モデルについて : Ornstein Uhlenbeck process}
     \begin{block}{Ornstein Uhlenbeck process}
-      次のSDEの解 $\{X_t\}_{t\in[0,T]}$ をOrnstein–Uhlenbeck processという.
+      次のSDEの解 $\{X_t\}_{t\in[0,T]}$ をOrnstein Uhlenbeck processという.
       \begin{equation*}
         dX_t=-X_tdt+\sqrt{2}dW_t \quad (t\in[0,T])
       \end{equation*}
     \end{block}
-      Ornstein–Uhlenbeck processは明示的に解くことができ, $X_0$ と独立な標準正規分布に従う確率変数 $Z$ が存在して,
+      上のSDEは明示的に解くことができ, $X_0$ と独立な標準正規分布に従う確率変数 $Z$ が存在して,
       \begin{equation*}
         X_t=e^{-t}X_0+\sqrt{2}\int_{0}^{t}e^{-(t-s)}dW_s=e^{-t}X_0+\sqrt{1-e^{-2t}}Z
       \end{equation*}
@@ -325,26 +327,29 @@
             \end{aligned}
         \right.
     \end{equation*}
-      上記のSDEをシミュレーションすると, $Y_T\sim \Pdata$ からのサンプリングが得られる. しかし, 現実的には以下の3つの点が問題となる.
-      \begin{enumerate}
-        \item 初期分布 $\mathcal{L}(X_T)$ からの厳密なサンプリングが得られない.
-        \item スコア関数 $\nabla \log{p_{T-t}(Y_t)}$ が明示的に得られない.
-        \item SDEを連続時間でシミュレーションできない.
-      \end{enumerate}
-      拡散モデルでは, それぞれの問題点に対して次のように対応する.
-      \begin{enumerate}
-        \item 初期分布を標準正規分布 $\StdNormal$ にする.
-        \item スコア関数 $\nabla\log{p_{t}(y)}$ を推定量 $\hat{s}(t,y)$ に置き換える.
-        \par\vspace{0.15em}
-        \hspace*{1.4em}\(\rightarrow\)\hspace{0.4em}%
-        \begin{minipage}[t]{0.82\linewidth}
-          \small
-          手元にあるデータ $x_1,\ldots,x_n\sim \Pdata$ を使い,
-          スコア関数との平均二乗誤差が小さくなるように近似する.
-        \end{minipage}
-        \par\vspace{0.15em}
-        \item 時間に関して離散化する.
-      \end{enumerate}
+      上記のSDEをシミュレーションするには, いくつかの問題点が存在する.
+      \begin{block}{問題点}
+        \begin{enumerate}
+          \item 初期分布 $\mathcal{L}(X_T)$ からの厳密なサンプリングが得られない.
+          \item スコア関数 $\nabla \log{p_{T-t}(Y_t)}$ が明示的に得られない.
+          \item SDEを連続時間でシミュレーションできない.
+        \end{enumerate}
+      \end{block}
+      \begin{block}{対応方法}
+        \begin{enumerate}
+          \item 初期分布を標準正規分布 $\StdNormal$ にする.
+          \item スコア関数 $\nabla\log{p_{t}(y)}$ を推定量 $\hat{s}(t,y)$ に置き換える.
+%          \par\vspace{0.15em}
+%          \hspace*{1.4em}\(\rightarrow\)\hspace{0.4em}%
+%          \begin{minipage}[t]{0.82\linewidth}
+%            \small
+%            手元にあるデータ $x_1,\ldots,x_n\sim \Pdata$ を使い,
+%            スコア関数との平均二乗誤差が小さくなるように近似する.
+%          \end{minipage}
+%          \par\vspace{0.15em}
+          \item 時間に関して離散化する.
+        \end{enumerate}
+      \end{block}
 \end{frame}
 
 % --- PDF p.08 | 収束解析の目的 ---
@@ -355,20 +360,22 @@
 
 
     指標 $\rho$ として用いられるものは, 主に次の2種類である.
-    {\large
-      \begin{enumerate}
-        \item Kullback-Leibler divergence
-        \begin{itemize}
-          \item 距離の公理は満たさないが, 広く用いられている指標
-        \end{itemize}
-        \item 2-Wasserstein distance
-        \begin{itemize}
-          \item 距離の公理を満たす.
-          \item 拡散モデルの収束解析においては, Kullback-Leibler divergenceよりも解析が困難である場合が多い.
-%          \item 画像の類似度において, 人間の知覚との相関があると言われている.
-        \end{itemize}
-      \end{enumerate}
-    }
+    \begin{block}{確率測度の評価指標}
+      {\large
+        \begin{enumerate}
+          \item Kullback-Leibler divergence
+          \begin{itemize}
+            \item 距離の公理は満たさないが, 広く用いられている指標
+          \end{itemize}
+          \item 2-Wasserstein distance
+          \begin{itemize}
+            \item 距離の公理を満たす.
+            \item 拡散モデルの収束解析においては, Kullback-Leibler divergenceよりも解析が困難である場合が多い.
+  %          \item 画像の類似度において, 人間の知覚との相関があると言われている.
+          \end{itemize}
+        \end{enumerate}
+      }
+    \end{block}
 
 \end{frame}
 % --- PDF p.09 | Kullback--Leibler divergence ---
@@ -394,7 +401,7 @@
         \vspace{-0.35em}
         \begin{equation*}
           D_{\mathrm{KL}}\bigl(\Pdata\mid \Phatdata\bigr)
-          \leqq C\left(\underbrace{\frac{2dT^2}{N}}_{\text{離散化誤差}}+\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}+\underbrace{\left(d+\E[\|X_0\|_2^2]\right)e^{-2T}}_{\text{初期分布誤差}}\right)
+          \leqq C\left(\underbrace{\frac{dT^2}{N}}_{\text{離散化誤差}}+\underbrace{\epsilon_{\text{score}}}_{\text{スコア推定誤差}}+\underbrace{\left(d+\E[\|X_0\|_2^2]\right)e^{-2T}}_{\text{初期分布誤差}}\right)
         \end{equation*}
         \vspace{-0.2em}
         \noindent
@@ -416,8 +423,7 @@
 \begin{frame}{拡散モデルの収束解析について : Wasserstein distance}
     \small
     \begin{definition}
-      $\mathbb{R}^d$ 上の確率測度 $P,Q$ は有限な2次モーメントをもつ, すなわち
-      $\int\|x\|_2^2\,dP(x)+\int\|y\|_2^2\,dQ(y)<\infty$ と仮定する. このとき,
+      $\mathbb{R}^d$ 上の確率測度 $P,Q$ は有限な2次モーメントをもつとし, 
       $\Pi(P,Q)=\{\pi\text{ : }\mathbb{R}^d\times\mathbb{R}^d\text{上の確率測度}
       \mid\pi(\cdot,\mathbb{R}^d)=P,\pi(\mathbb{R}^d,\cdot)=Q\}$とする.
       このとき, $P,Q$の2-Wasserstein distance $W_2(P,Q)$を次のように定義する.
@@ -427,7 +433,7 @@
       \end{equation*}
     \end{definition}
     \vspace{-0.4em}
-    \begin{theorem}[\cite{koike_2026_wasserstein}, 定理 3.3]
+    \begin{theorem}[\cite{koike_2026_wasserstein}]
       $t_n=\frac{nT}{N}\ (n=0,\ldots,N)$ とする.
       適切な正則性条件のもとで, ある定数
       $C_L>0$ が存在して, 次の不等式が成立する.
@@ -698,7 +704,7 @@
     \end{equation*}
   \endgroup
   {\small
-    に対して, $t\in[t_n,t_{n+1}]$ のとき, 実際には次のSDEを用いる $(n=0,\ldots,N-1)$.
+    に対して, 実際にシミュレーションするアルゴリズムを連続時間で補完したSDEを次のようにとる.  $(t\in[t_n,t_{n+1}], n=0,\ldots,N-1)$.
   }
   \begingroup
     \small
@@ -716,7 +722,7 @@
 
 
 % --- PDF p.19 | 証明の概要 ---
-\begin{frame}[t]{証明の概要}
+\begin{frame}[t]{証明の概要 : 誤差の分解}
   前頁の確率過程 $Y$, $\hat{Y}$ に対して, Wasserstein distance の定義から,
   \begin{equation*}
     W_2(\Pdata,\Phatdata)
@@ -925,5 +931,49 @@
   \end{equation*}
   となる.
 
+\end{frame}
+
+% --- PDF p.28 | デノイジング・スコアマッチング（付録） ---
+\begin{frame}[t]{Appendix：デノイジング・スコアマッチング}
+  \footnotesize
+  \setlength{\abovedisplayskip}{0.2em}
+  \setlength{\belowdisplayskip}{0.2em}
+  \setlength{\abovedisplayshortskip}{0.1em}
+  \setlength{\belowdisplayshortskip}{0.1em}
+  $X_0\sim\Pdata$, $Z\sim\StdNormal$ に対して
+  \begin{equation*}
+    X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z
+  \end{equation*}
+  とおく. Tweedieの公式より
+  \begin{equation*}
+    \E\left[-\frac{Z}{\sqrt{1-e^{-2t}}}\,\middle|\,X_t\right]
+    =\nabla\log p_t(X_t)
+  \end{equation*}
+  が成り立つ. 2つの目的関数は
+  \begin{align*}
+    L_{\mathrm{SM}}(\theta)
+    &:=\E\left[
+      \left\|s_\theta(t,X_t)-\nabla\log p_t(X_t)\right\|_2^2\right],\\
+    L_{\mathrm{DSM}}(\theta)
+    &:=\E\left[
+      \left\|s_\theta(t,X_t)+\frac{Z}{\sqrt{1-e^{-2t}}}\right\|_2^2\right]
+  \end{align*}
+  である. ここで
+  $s_\theta+\frac{Z}{\sqrt{1-e^{-2t}}}
+  =(s_\theta-\nabla\log p_t)
+  +(\nabla\log p_t+\frac{Z}{\sqrt{1-e^{-2t}}})$ と分解する.
+  上の関係から
+  $\E[\nabla\log p_t(X_t)+\frac{Z}{\sqrt{1-e^{-2t}}}\mid X_t]=0$
+  なので,
+  交差項の期待値は $0$ となる. よって,
+  \begin{align*}
+    L_{\mathrm{DSM}}(\theta)
+    =L_{\mathrm{SM}}(\theta)
+    +\E\left[\lambda(t)
+      \left\|\nabla\log p_t(X_t)
+        +\frac{Z}{\sqrt{1-e^{-2t}}}\right\|_2^2\right]
+  \end{align*}
+  を得る. 右辺第2項は $\theta$ に依存しないので, 2つの目的関数は
+  最小化問題として\textcolor{red}{等価}である.
 \end{frame}
 \end{document}
