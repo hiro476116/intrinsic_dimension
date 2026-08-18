@@ -268,7 +268,7 @@
       \begin{equation}
         \left\{ \,
             \begin{aligned}
-            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0< t < T) \\
+            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}d\overline{W}_t \quad (0< t < T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
@@ -292,10 +292,10 @@
       arrow/.style={flow arrow}
     ]
 
-      \node[box] (normal) {
-          $\mathcal{L}(Y_0)=\mathcal{L}(X_T)$\\
-          $\approx \StdNormal$
-      };
+    \node[box] (normal) {
+        $\mathcal{L}(Y_0)=\mathcal{L}(X_T)$\\
+        $\approx \StdNormal$
+    };
 
     \node[box, right=of normal] (data) {
       $\mathcal{L}(Y_T)=\mathcal{L}(X_0)$\\
@@ -304,7 +304,7 @@
 
     \draw[arrow]
       ([yshift=0.30cm]normal.east) --
-      node[above=2pt] {\scriptsize $dY_t=(Y_t+2\nabla\log p_{T-t}(Y_t))dt+\sqrt{2}dW_t$}
+      node[above=2pt] {\scriptsize $dY_t=(Y_t+2\nabla\log p_{T-t}(Y_t))dt+\sqrt{2}d\overline{W}_t$}
       ([yshift=0.30cm]data.west);
 
     \draw[arrow]
@@ -322,12 +322,12 @@
     \begin{equation*}
         \left\{ \,
             \begin{aligned}
-            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dB_t \quad (0\leqq t \leqq T) \\
+            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}d\overline{W}_t \quad (0\leqq t \leqq T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T\approx \StdNormal
             \end{aligned}
         \right.
     \end{equation*}
-      上記のSDEをシミュレーションするには, いくつかの問題点が存在する.
+      上記のSDEをシミュレーションするには, 3つの問題点が存在する.
       \begin{block}{問題点}
         \begin{enumerate}
           \item 初期分布 $\mathcal{L}(X_T)$ からの厳密なサンプリングが得られない.
@@ -591,7 +591,7 @@
 % --- PDF p.15 | Covering number ---
 \begin{frame}[t]{設定 : データの内在次元の仮定}
       \small
-      \begin{definition}
+      \begin{definition}[\cite{wainwright2019}]
         $A\subset \mathbb{R}^d$ に対する, スケール $\epsilon_0$ における \textcolor{red}{covering number} $N_{cover}(A,\|\|_2,\epsilon_0)$ を, 次の関係を満たす $x_1,\cdots, x_s \in \mathbb{R}^d$
         が存在するような最小の自然数 $s$ として定義する.
         \begin{equation*}
@@ -649,7 +649,7 @@
 
 % --- PDF p.17 | SDEの書き換え ---
 \begin{frame}[t]{設定：SDEの書き換え}
-  ある $Z\sim \StdNormal, Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから, Tweedieの公式により,
+  ある $Z\sim \StdNormal, Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから, Tweedieの公式 \citep{efron2011} により,
   \begin{equation*}
     \nabla\log{p_t(x)}
     =\frac{e^{-t}\E[X_0\mid X_t=x]-x}{1-e^{-2t}}
@@ -863,6 +863,7 @@
 \appendix
 \setbeamertemplate{footline}{}
 \begin{frame}[allowframebreaks]{参考文献}
+  \small
   \begin{thebibliography}{99}
 
       \bibitem[Anderson(1982)]{anderson82}
@@ -876,6 +877,11 @@
       Time reversal of diffusions.
       \textit{The Annals of Probability} 14, 1188--1205.
       \url{https://mathscinet.ams.org/mathscinet/article?mr=866342}
+
+      \bibitem[Efron(2011)]{efron2011}
+      Efron, B. (2011).
+      Tweedie's formula and selection bias.
+      \textit{Journal of the American Statistical Association} 106(496), 1602--1614.
 
       \bibitem[Benton et~al.(2024)]{benton_et_al_2024}
       Benton, J., De Bortoli, V., Doucet, A. and Deligiannidis, G. (2024).
@@ -901,6 +907,11 @@
       noisy score and optimal bounds.
       In \textit{Advances in Neural Information Processing Systems 38}.
       \url{https://proceedings.neurips.cc/paper_files/paper/2025/hash/1c26c389d60ec419fd24b5fee5b35796-Abstract-Conference.html}
+
+      \bibitem[Wainwright(2019)]{wainwright2019}
+      Wainwright, M. J. (2019).
+      \textit{High-dimensional statistics: A non-asymptotic viewpoint}, vol. 48.
+      Cambridge University Press.
 
       \bibitem[Pope et~al.(2021)]{pope_et_al_2021}
       Pope, P., Zhu, C., Abdelkader, A., Goldblum, M. and Goldstein, T. (2021).
