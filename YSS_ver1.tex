@@ -654,24 +654,28 @@
 
 % --- PDF p.17 | SDEの書き換え ---
 \begin{frame}[t]{設定：SDEの書き換え}
+  任意の $t\in[0,T]$ に対して, $Y_t=X_{T-t}$ とする.
   ある $Z\sim \StdNormal, Z\perp X_0$ が存在して $X_t=e^{-t}X_0+\sqrt{1-e^{-2t}}Z$ と書けることから, Tweedieの公式 \citep{efron2011} により,
   \begin{equation*}
     \nabla\log{p_t(x)}
     =\frac{e^{-t}\E[X_0\mid X_t=x]-x}{1-e^{-2t}}
+    =\frac{e^{-t}\E[Y_T\mid Y_{T-t}=x]-x}{1-e^{-2t}}
   \end{equation*}
   の関係が成り立つ.
-  いま, $Y_t=X_{T-t} \quad (t\in[0,T])$ とすると,
-  \begin{align*}
-    \nabla\log{p_{T-t}(y)}
-    &=\frac{e^{-(T-t)}\E[X_0\mid X_{T-t}=y]-y}
-            {1-e^{-2(T-t)}}\\
-    &=\frac{e^{-(T-t)}\E[Y_T\mid Y_t=y]-y}
-            {1-e^{-2(T-t)}}
-  \end{align*}
-  となる. よって, $\{Y_t\}_{t\in[0,T]}$ が従うSDEは次のように書き換えられる.
+  よって, $\{Y_t\}_{t\in[0,T]}$ が従うSDEは次のように書き換えられる.
   \begingroup
     \small
-    \begin{equation*}
+    \begin{gather*}
+      \left\{ \,
+        \begin{aligned}
+          dY_t &= (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t
+            \qquad (0<t<T), \\
+          Y_0 &\stackrel{\mathrm{d}}{=} X_T
+        \end{aligned}
+      \right.
+      \\[-0.4em]
+      \Downarrow
+      \\[-0.4em]
       \left\{ \,
         \begin{aligned}
           dY_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)Y_t
@@ -679,7 +683,7 @@
           Y_0 &\stackrel{\mathrm{d}}{=} X_T
         \end{aligned}
       \right.
-    \end{equation*}
+    \end{gather*}
   \endgroup
 \end{frame}
 
