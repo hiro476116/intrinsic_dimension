@@ -236,7 +236,7 @@
       \begin{equation*}
         X_t=e^{-t}X_0+\sqrt{2}\int_{0}^{t}e^{-(t-s)}dW_s=e^{-t}X_0+\sqrt{1-e^{-2t}}Z
       \end{equation*}
-      と書ける. これにより, $T$ を十分大きくとると $X_T$ の分布は標準正規分布 $\StdNormal$ に近づいていく.
+      と書ける. これにより, $T$ を大きくしていくと $X_T$ の分布は標準正規分布 $\StdNormal$ に近づいていく.
 
       $\mathcal{L}(X_0)=\Pdata$ とすると, $X$ は $\Pdata$ から時間経過とともに
       $\mathcal{N}(0,I)$ へ近づいていく過程とみなせる.
@@ -273,7 +273,7 @@
       \begin{equation*}
         \left\{ \,
             \begin{aligned}
-            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}d\overline{W}_t \quad (0< t < T) \\
+            & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}dW_t \quad (0< t < T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
@@ -309,7 +309,7 @@
 
     \draw[arrow]
       ([yshift=0.30cm]normal.east) --
-      node[above=2pt] {\scriptsize $dY_t=(Y_t+2\nabla\log p_{T-t}(Y_t))dt+\sqrt{2}d\overline{W}_t$}
+      node[above=2pt] {\scriptsize $dY_t=(Y_t+2\nabla\log p_{T-t}(Y_t))dt+\sqrt{2}dW_t$}
       ([yshift=0.30cm]data.west);
 
     \draw[arrow]
@@ -985,7 +985,7 @@
   \begin{align*}
     L_{\mathrm{DSM}}(\theta)
     =L_{\mathrm{SM}}(\theta)
-    +\E\left[\lambda(t)
+    +\E\left[
       \left\|\nabla\log p_t(X_t)
         +\frac{Z}{\sqrt{1-e^{-2t}}}\right\|_2^2\right]
   \end{align*}
