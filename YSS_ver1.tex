@@ -91,6 +91,11 @@
 % --- PDF p.01 | タイトル ---
 \begin{frame}
   \titlepage
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=south east,inner sep=0pt]
+      at ([xshift=-0.45cm,yshift=0.50cm]current page.south east)
+      {\includegraphics[width=3.8cm]{town20181128114316.jpg}};
+  \end{tikzpicture}
 \end{frame}
 
 % --- PDF p.02 | 目次 ---
@@ -184,7 +189,7 @@
     \begin{align*}
         dY_t=b(t,Y_t)dt+\sigma(t,Y_t)dW_t\quad (t\in[0,T])
     \end{align*}
-    上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ が次の2つの性質を満たすように, $b$ と $\sigma$ を設計できるかということを考える.
+    上記のSDEの解 $\{Y_t\}_{t\in[0,T]}$ が次の2つの性質を満たすように, $b$ と $\sigma$ を選ぶことができるかを考える.
     \begin{block}{}
       \begin{enumerate}
         \item 初期分布 $\mathcal{L}(Y_0)$ が, 容易にサンプルが得られる分布である (正規分布, 一様分布など)
@@ -265,16 +270,16 @@
 \begin{frame}{拡散モデルについて : 拡散過程の時間反転公式}
     \begin{theorem}[\cite{anderson82,haussmann_pardoux86}]
       $X_t$ の密度を $p_t$ とし, $\{Y_t\}_{t\in[0,T]}$ を次のSDEの解とする.
-      \begin{equation}
+      \begin{equation*}
         \left\{ \,
             \begin{aligned}
             & dY_t = (Y_t+2\nabla \log{p_{T-t}(Y_t)})dt+\sqrt{2}d\overline{W}_t \quad (0< t < T) \\
             & Y_0 \stackrel{\mathrm{d}}{=} X_T
             \end{aligned}
         \right.
-      \end{equation}
+      \end{equation*}
       このとき, 任意の $t\in[0,T]$ に対して, $Y_t\stackrel{\mathrm{d}}{=}X_{T-t}$ が成り立つ.
-      特に, $Y_t=X_{T-t}$ とすると $\{Y_t\}_{t\in [0,T]}$ は (1) の弱解となる.
+      また, $Y_t=X_{T-t}$ とすると $\{Y_t\}_{t\in [0,T]}$ は上記のSDEの弱解となる.
     \end{theorem}
     $\{X_t\}_{t\in[0,T]}$ の時間反転過程 $\{Y_t\}_{t\in[0,T]}$ は, $\mathcal{L}(X_T)\approx \StdNormal$ から時間の経過とともに
         $\Pdata$ へ近づいていく確率過程となる.
@@ -436,12 +441,12 @@
     \begin{theorem}[\cite{koike_2026_wasserstein}]
       $t_n=\frac{nT}{N}\ (n=0,\ldots,N)$ とする.
       適切な正則性条件のもとで, ある定数
-      $C_L>0$ が存在して, 次の不等式が成立する.
+      $C>0$ が存在して, 次の不等式が成立する.
       \vspace{-0.4em}
       \begin{equation*}
         W_2\bigl(\Pdata,\Phatdata\bigr)
-        \leqq C_L\Biggl(
-          \underbrace{\frac{\sqrt{d}T}{N}}_{\text{離散化誤差}}
+        \leqq C\Biggl(
+          \underbrace{\sqrt{\frac{d}{N}}T}_{\text{離散化誤差}}
           +\underbrace{\sqrt{\epsilon_{\mathrm{score}}}}_{\text{スコア推定誤差}}
           +\underbrace{e^{-T}\left(\sqrt{\E[\|X_0\|_2^2]}+e^{-T}\sqrt d\right)}_{\text{初期分布誤差}}
         \Biggr).
@@ -466,7 +471,7 @@
     \end{center}
     データ分布を記述する上で必要な変数の数を, データ分布の\textcolor{red}{内在次元} と呼ぶ.
 
-    \cite{pope_et_al_2021} は, 代表的な画像のデータセットに対する内在次元推定を行い, 画像は $224\times 224 \times 3 = 150528$ の画素値を持つが, 内在次元は $26\sim 43$ 程度であるという結果を得ている.
+    \cite{pope_et_al_2021} は, 代表的な画像のデータセットに対する内在次元推定を行い, 画像は \textcolor{red}{$224\times 224 \times 3 = 150528$} 次元のデータである一方, その内在次元は \textcolor{red}{$26\sim 43$} 程度であるという結果を得ている.
 \end{frame}
 % --- PDF p.12 | 内在次元を用いた既存結果 ---
 \begin{frame}{拡散モデルの収束解析について : データの内在次元}
@@ -522,7 +527,7 @@
       $\displaystyle
       \begin{aligned}
         \lesssim
-          \frac{\sqrt d\,T}{N}
+          \sqrt{\frac{d}{N}}T
           +\sqrt{\epsilon_{\mathrm{score}}}+\sqrt d\,e^{-2T}
       \end{aligned}$
       \par\vspace{0.25em}
@@ -634,16 +639,16 @@
       $\chi_{data}$ に対して, 次の2つの仮定を置く.
       \begin{assumption}
         $C_0 > 0$ を十分大きな定数とする. $\epsilon_0=k^{-C_0}$ に対して, ある $C_{cover}>0$ が存在して,
-        \begin{equation}
+        \begin{equation*}
           \log{N_{cover}(\chi_{data},\|\|_2,\epsilon_0)}\leqq C_{cover}k\log{\frac{1}{\epsilon_0}}
-        \end{equation}
+        \end{equation*}
         を満たすと仮定する. このとき $k$ を $\chi_{data}$ の\textcolor{red}{内在次元}という.
       \end{assumption}
       \begin{assumption}
         ある定数 $C_R>0$ が存在して, 次が成立すると仮定する.
-        \begin{equation}
+        \begin{equation*}
           \sup\limits_{x\in \chi_{data}}\|x\|_2\leqq k^{C_R}
-        \end{equation}
+        \end{equation*}
       \end{assumption}
 \end{frame}
 
@@ -688,7 +693,7 @@
   \end{equation*}
   に対して, スコア関数を推定量に置き換えたものを
   \begin{equation*}
-    \hat{\mu}_t(y)=e^t\left\{y+(1-e^{-2t})\hat{s}(t,y)\right\}
+    \hat{\mu}_t(y)=e^{T-t}\left\{y+(1-e^{-2(T-t)})\hat{s}(T-t,y)\right\}
   \end{equation*}
   と書く. $\{Y_t\}_{t\in[0,T]}$ が従うSDE
   \begingroup
@@ -712,7 +717,7 @@
       \left\{ \,
         \begin{aligned}
           d\hat{Y}_t &={} \left\{\left(1-\frac{2}{1-e^{-2(T-t)}}\right)\hat{Y}_t
-            +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{T-t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
+            +\frac{2e^{-(T-t)}}{1-e^{-2(T-t)}}\hat{\mu}_{t_n}(\hat{Y}_{t_n})\right\}dt+\sqrt{2}dW_t \\
           \hat{Y}_0 &=Z\sim \StdNormal
         \end{aligned}
       \right.
